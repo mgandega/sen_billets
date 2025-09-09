@@ -1,0 +1,142 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes billets - Sen-Billets{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <h1 class="display-5 fw-bold text-dark mb-4">Mes billets</h1>
+
+        {% if tickets is empty %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-ticket text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="fw-bold mb-3">Aucun billet trouvé</h3>
+                <p class="text-muted mb-4">Vous n'avez pas encore acheté de billets</p>
+                <a href="{{ path('event_index') }}" class="btn btn-primary btn-lg">
+                    Découvrir les événements
+                </a>
+            </div>
+        {% else %}
+            <div class="row g-4">
+                {% for ticket in tickets %}
+                    <div class="col-lg-6">
+                        <div class="card border-0 shadow card-hover">
+                            <div class="row g-0">
+                                <div class="col-md-4">
+                                    {% if ticket.event.imageUrl %}
+                                        <img src="{{ ticket.event.imageUrl }}" class="img-fluid h-100 w-100" alt="{{ ticket.event.title }}" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light h-100 d-flex align-items-center justify-content-center">
+                                            <i class="bi bi-calendar-event text-muted fs-1"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <span class="badge bg-primary">{{ ticket.event.category }}</span>
+                                            <span class="badge {{ ticket.statusBadgeClass }}">
+                                                {{ ticket.statusLabel }}
+                                            </span>
+                                        </div>
+
+                                        <h5 class="card-title fw-bold">{{ ticket.event.title }}</h5>
+                                        <p class="text-muted mb-2">{{ ticket.ticketType.name }}</p>
+
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block">
+                                                <i class="bi bi-calendar me-1"></i>{{ ticket.event.eventDate|date('d/m/Y à H:i') }}
+                                            </small>
+                                            <small class="text-muted d-block">
+                                                <i class="bi bi-geo-alt me-1"></i>{{ ticket.event.venue }}
+                                            </small>
+                                            <small class="text-muted d-block">
+                                                <i class="bi bi-qr-code me-1"></i>
+                                                <a href="#" onclick="showQRCode('{{ ticket.qrCode }}')" class="text-decoration-underline">
+                                                    Voir QR Code
+                                                </a>
+                                            </small>
+                                        </div>
+
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="fw-bold text-success">{{ ticket.ticketType.formattedPrice }}</span>
+                                            <small class="text-muted">Acheté le {{ ticket.purchasedAt|date('d/m/Y') }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="text-center mt-5">
+                <p class="text-muted">{{ tickets|length }} billet(s) trouvé(s)</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- QR Code Modal -->
+    <div class="modal fade" id="qrCodeModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">QR Code du billet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="qr-code-container">
+                        <!-- QR code will be loaded here -->
+                    </div>
+                    <p class="mt-3 text-muted">Présentez ce QR code à l'entrée de l'événement</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                    <button type="button" class="btn btn-primary" onclick="printQRCode()">
+                        <i class="bi bi-printer me-1"></i>Imprimer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showQRCode(qrCode) {
+            const modal = new bootstrap.Modal(document.getElementById('qrCodeModal'));
+            const container = document.getElementById('qr-code-container');
+
+            // Génére une URL vers ton propre endpoint
+            const qrData = `${window.location.origin}/api/qr/validate/${qrCode}`;
+
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`;
+
+            container.innerHTML = `
+                <img src="${qrCodeUrl}" alt="QR Code" class="img-fluid mb-3" style="max-width: 300px;">
+                <p><strong>Code:</strong> ${qrCode}</p>
+                <p><strong>URL:</strong> ${qrData}</p>
+            `;
+
+            modal.show();
+        }
+
+        function printQRCode() {
+            const qrImage = document.querySelector('#qr-code-container img');
+            if (qrImage) {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                        <head><title>QR Code - Sen-Billets</title></head>
+                        <body style="text-align: center; padding: 20px;">
+                            <h2>Sen-Billets</h2>
+                            <img src="${qrImage.src}" style="max-width: 300px;">
+                            <p>Présentez ce QR code à l'entrée</p>
+                        </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            }
+        }
+    </script>
+{% endblock %}

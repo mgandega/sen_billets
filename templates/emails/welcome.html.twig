@@ -1,0 +1,70 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Bienvenue sur Sen-Billets{% endblock %}
+
+{% block header_title %}Bienvenue sur Sen-Billets !{% endblock %}
+{% block header_subtitle %}
+    <p style="color: #ffffff; margin: 10px 0 0 0; opacity: 0.9;">
+        Découvrez les meilleurs événements du Sénégal
+    </p>
+{% endblock %}
+
+{% block content %}
+    <div class="text-center">
+        <h2 style="color: #0d6efd; margin-bottom: 20px;">🎉 Bienvenue dans la communauté !</h2>
+        
+        <p style="font-size: 18px; margin-bottom: 30px;">
+            Nous sommes ravis de vous accueillir sur <strong>Sen-Billets</strong>, 
+            la plateforme de référence pour découvrir et réserver des événements au Sénégal.
+        </p>
+    </div>
+
+    <div class="card">
+        <h3 style="color: #198754; margin-top: 0;">🚀 Que pouvez-vous faire maintenant ?</h3>
+        
+        <ul style="padding-left: 20px;">
+            <li style="margin-bottom: 10px;">
+                <strong>Découvrir des événements</strong> : Concerts, théâtre, conférences, festivals...
+            </li>
+            <li style="margin-bottom: 10px;">
+                <strong>Réserver facilement</strong> : Paiement sécurisé et billets instantanés
+            </li>
+            <li style="margin-bottom: 10px;">
+                <strong>Gérer vos billets</strong> : Tout dans votre espace personnel
+            </li>
+            {% if user.isOrganizer %}
+            <li style="margin-bottom: 10px;">
+                <strong>Organiser vos événements</strong> : Créez et gérez vos propres événements
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="text-center">
+        <a href="{{ app_url }}/events" class="btn btn-success">
+            🎫 Découvrir les événements
+        </a>
+        
+        {% if user.isOrganizer %}
+            <a href="{{ app_url }}/events/new" class="btn" style="background-color: #ffc107; color: #000000;">
+                ➕ Créer un événement
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="card" style="background-color: #e7f3ff; border-color: #0d6efd;">
+        <h4 style="color: #0d6efd; margin-top: 0;">💡 Conseil de pro</h4>
+        <p style="margin-bottom: 0;">
+            Activez les notifications pour être informé des nouveaux événements 
+            qui correspondent à vos goûts et ne manquez plus jamais un événement !
+        </p>
+    </div>
+
+    <div class="text-center" style="margin-top: 30px;">
+        <p style="color: #6c757d;">
+            Des questions ? Notre équipe est là pour vous aider !<br>
+            📧 <a href="mailto:support@sen-billets.sn">support@sen-billets.sn</a> | 
+            📞 +221 XX XXX XX XX
+        </p>
+    </div>
+{% endblock %}

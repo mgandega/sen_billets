@@ -1,0 +1,407 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard Analytics - {{ event.title }} - Sen-Billets{% endblock %}
+
+{% block body %}
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h3 fw-bold">Dashboard Analytics</h1>
+                        <p class="text-muted mb-0">{{ event.title }} • Temps réel</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary" onclick="toggleAutoRefresh()">
+                            <i class="bi bi-arrow-clockwise me-2"></i>
+                            <span id="refresh-status">Auto-refresh ON</span>
+                        </button>
+                        <a href="{{ path('analytics_event', {id: event.id}) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-graph-up me-2"></i>Analytics détaillées
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Metrics -->
+        <div class="row g-4 mb-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow h-100">
+                    <div class="card-body text-center">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="bi bi-people text-success fs-3"></i>
+                        </div>
+                        <h3 class="fw-bold text-success" id="current-attendees">{{ realTimeMetrics.currentAttendees }}</h3>
+                        <p class="text-muted mb-0">Présents actuellement</p>
+                        <small class="text-success">
+                            <i class="bi bi-arrow-up"></i>
+                            +<span id="recent-validations">{{ realTimeMetrics.recentValidations }}</span> dernière heure
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow h-100">
+                    <div class="card-body text-center">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="bi bi-cart text-primary fs-3"></i>
+                        </div>
+                        <h3 class="fw-bold text-primary" id="recent-sales">{{ realTimeMetrics.recentSales }}</h3>
+                        <p class="text-muted mb-0">Ventes dernière heure</p>
+                        <small class="text-primary">
+                            Taux: <span id="sales-rate">{{ realTimeMetrics.salesRate|round(1) }}</span>/h
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow h-100">
+                    <div class="card-body text-center">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="bi bi-speedometer text-warning fs-3"></i>
+                        </div>
+                        <h3 class="fw-bold text-warning" id="validation-rate">{{ realTimeMetrics.validationRate|round(1) }}</h3>
+                        <p class="text-muted mb-0">Validations/heure</p>
+                        <small class="text-warning">Temps réel</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow h-100">
+                    <div class="card-body text-center">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                            <i class="bi bi-percent text-info fs-3"></i>
+                        </div>
+                        <h3 class="fw-bold text-info">{{ report.overview.occupancyRate|round }}%</h3>
+                        <p class="text-muted mb-0">Taux d'occupation</p>
+                        <small class="text-info">{{ report.overview.sold }}/{{ report.overview.capacity }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Live Charts -->
+            <div class="col-lg-8">
+                <!-- Sales Chart -->
+                <div class="card border-0 shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-graph-up me-2"></i>Ventes en temps réel
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="salesChart" height="300"></canvas>
+                    </div>
+                </div>
+
+                <!-- Validation Chart -->
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-check-circle me-2"></i>Validations par heure
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="validationChart" height="250"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Activity Feed -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow h-100">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-activity me-2"></i>Activité en direct
+                        </h5>
+                    </div>
+                    <div class="card-body p-0" style="max-height: 600px; overflow-y: auto;">
+                        <div id="live-activity">
+                            <!-- Activity items will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Indicators -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-speedometer2 me-2"></i>Indicateurs de performance
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="h4 fw-bold text-success">{{ report.overview.validationRate|round(1) }}%</div>
+                                    <small class="text-muted">Taux de présence</small>
+                                    <div class="progress mt-2" style="height: 6px;">
+                                        <div class="progress-bar bg-success" style="width: {{ report.overview.validationRate }}%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="h4 fw-bold text-primary">{{ report.overview.averageTicketPrice|number_format(0, ',', ' ') }}</div>
+                                    <small class="text-muted">Prix moyen (FCFA)</small>
+                                    <div class="progress mt-2" style="height: 6px;">
+                                        <div class="progress-bar bg-primary" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="h4 fw-bold text-warning">{{ report.sales.peakSalesHour.hour ?? 'N/A' }}h</div>
+                                    <small class="text-muted">Pic de ventes</small>
+                                    <div class="progress mt-2" style="height: 6px;">
+                                        <div class="progress-bar bg-warning" style="width: 60%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <div class="h4 fw-bold text-info">{{ report.attendance.peakAttendanceHour.hour ?? 'N/A' }}h</div>
+                                    <small class="text-muted">Pic d'affluence</small>
+                                    <div class="progress mt-2" style="height: 6px;">
+                                        <div class="progress-bar bg-info" style="width: 80%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        class RealTimeDashboard {
+            constructor() {
+                this.eventId = {{ event.id }};
+                this.autoRefresh = true;
+                this.refreshInterval = null;
+                this.charts = {};
+                
+                this.initCharts();
+                this.startAutoRefresh();
+                this.loadInitialData();
+            }
+
+            initCharts() {
+                // Sales Chart
+                const salesCtx = document.getElementById('salesChart').getContext('2d');
+                this.charts.sales = new Chart(salesCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Ventes',
+                            data: [],
+                            borderColor: 'rgb(13, 110, 253)',
+                            backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        },
+                        animation: { duration: 750 }
+                    }
+                });
+
+                // Validation Chart
+                const validationCtx = document.getElementById('validationChart').getContext('2d');
+                this.charts.validation = new Chart(validationCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [{% for hour in 0..23 %}'{{ hour }}h'{% if not loop.last %},{% endif %}{% endfor %}],
+                        datasets: [{
+                            label: 'Validations',
+                            data: [
+                                {% for hour in 0..23 %}
+                                    {% set count = 0 %}
+                                    {% for validation in report.attendance.byHour %}
+                                        {% if validation.hour == hour %}
+                                            {% set count = validation.count %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {{ count }}{% if not loop.last %},{% endif %}
+                                {% endfor %}
+                            ],
+                            backgroundColor: 'rgba(25, 135, 84, 0.8)',
+                            borderColor: 'rgb(25, 135, 84)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            async loadInitialData() {
+                try {
+                    const response = await fetch(`/analytics/api/realtime/${this.eventId}`);
+                    const data = await response.json();
+                    this.updateMetrics(data);
+                    this.updateActivity();
+                } catch (error) {
+                    console.error('Erreur chargement données:', error);
+                }
+            }
+
+            async updateMetrics(data) {
+                // Mettre à jour les métriques temps réel
+                document.getElementById('current-attendees').textContent = data.currentAttendees;
+                document.getElementById('recent-validations').textContent = data.recentValidations;
+                document.getElementById('recent-sales').textContent = data.recentSales;
+                document.getElementById('sales-rate').textContent = data.salesRate.toFixed(1);
+                document.getElementById('validation-rate').textContent = data.validationRate.toFixed(1);
+
+                // Mettre à jour les graphiques
+                this.updateCharts(data);
+            }
+
+            updateCharts(data) {
+                // Mettre à jour le graphique des ventes
+                const now = new Date();
+                const timeLabel = now.toLocaleTimeString();
+                
+                if (this.charts.sales.data.labels.length > 20) {
+                    this.charts.sales.data.labels.shift();
+                    this.charts.sales.data.datasets[0].data.shift();
+                }
+                
+                this.charts.sales.data.labels.push(timeLabel);
+                this.charts.sales.data.datasets[0].data.push(data.recentSales);
+                this.charts.sales.update('none');
+            }
+
+            async updateActivity() {
+                // Simuler l'activité en temps réel
+                const activities = [
+                    { type: 'sale', message: 'Nouveau billet vendu', time: new Date() },
+                    { type: 'validation', message: 'Billet validé à l\'entrée', time: new Date() },
+                    { type: 'info', message: 'Pic d\'affluence détecté', time: new Date() }
+                ];
+
+                const container = document.getElementById('live-activity');
+                const activity = activities[Math.floor(Math.random() * activities.length)];
+                
+                const item = document.createElement('div');
+                item.className = 'p-3 border-bottom';
+                item.innerHTML = `
+                    <div class="d-flex align-items-center">
+                        <div class="bg-${this.getActivityColor(activity.type)} rounded-circle p-2 me-3">
+                            <i class="bi bi-${this.getActivityIcon(activity.type)} text-white"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-medium">${activity.message}</div>
+                            <small class="text-muted">${activity.time.toLocaleTimeString()}</small>
+                        </div>
+                    </div>
+                `;
+
+                container.insertBefore(item, container.firstChild);
+
+                // Garder seulement les 10 dernières activités
+                while (container.children.length > 10) {
+                    container.removeChild(container.lastChild);
+                }
+            }
+
+            getActivityColor(type) {
+                const colors = {
+                    sale: 'primary',
+                    validation: 'success',
+                    info: 'info',
+                    warning: 'warning'
+                };
+                return colors[type] || 'secondary';
+            }
+
+            getActivityIcon(type) {
+                const icons = {
+                    sale: 'cart-plus',
+                    validation: 'check-circle',
+                    info: 'info-circle',
+                    warning: 'exclamation-triangle'
+                };
+                return icons[type] || 'circle';
+            }
+
+            startAutoRefresh() {
+                if (this.autoRefresh) {
+                    this.refreshInterval = setInterval(() => {
+                        this.loadInitialData();
+                        this.updateActivity();
+                    }, 10000); // Toutes les 10 secondes
+                }
+            }
+
+            stopAutoRefresh() {
+                if (this.refreshInterval) {
+                    clearInterval(this.refreshInterval);
+                    this.refreshInterval = null;
+                }
+            }
+
+            toggleAutoRefresh() {
+                this.autoRefresh = !this.autoRefresh;
+                const status = document.getElementById('refresh-status');
+                
+                if (this.autoRefresh) {
+                    this.startAutoRefresh();
+                    status.textContent = 'Auto-refresh ON';
+                } else {
+                    this.stopAutoRefresh();
+                    status.textContent = 'Auto-refresh OFF';
+                }
+            }
+        }
+
+        // Initialiser le dashboard
+        let dashboard;
+        document.addEventListener('DOMContentLoaded', () => {
+            dashboard = new RealTimeDashboard();
+        });
+
+        // Fonction globale pour le bouton
+        function toggleAutoRefresh() {
+            dashboard.toggleAutoRefresh();
+        }
+
+        // Nettoyer lors de la fermeture de la page
+        window.addEventListener('beforeunload', () => {
+            if (dashboard) {
+                dashboard.stopAutoRefresh();
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,17 @@
+# Configuration PayDunya pour Symfony 7.2
+parameters:
+    paydunya.master_key: '%env(PAYDUNYA_MASTER_KEY)%'
+    paydunya.private_key: '%env(PAYDUNYA_PRIVATE_KEY)%'
+    paydunya.public_key: '%env(PAYDUNYA_PUBLIC_KEY)%'
+    paydunya.token: '%env(PAYDUNYA_TOKEN)%'
+    paydunya.mode: '%env(PAYDUNYA_MODE)%'
+
+services:
+    # Définition du service PayDunya
+    App\Service\PaymentService:
+        arguments:
+            $paydunyaMasterKey: '%paydunya.master_key%'
+            $paydunyaPrivateKey: '%paydunya.private_key%'
+            $paydunyaPublicKey: '%paydunya.public_key%'
+            $paydunyaToken: '%paydunya.token%'
+            $paydunyaMode: '%paydunya.mode%'

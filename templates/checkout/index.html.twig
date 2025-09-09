@@ -1,0 +1,288 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement - Sen-Billets{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <script src="https://js.stripe.com/v3/"></script>
+{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="display-5 fw-bold text-dark mb-4">Finaliser votre commande</h1>
+
+                <div id="payment-errors"></div>
+
+                <form id="payment-form" action="{{ path('payment_process') }}" method="post">
+                    <!-- Payment Method Selection -->
+                    <div class="card border-0 shadow mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0 fw-bold">
+                                <i class="bi bi-credit-card me-2"></i>Mode de paiement
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="paydunya" value="paydunya" checked>
+                                        <label class="form-check-label" for="paydunya">
+                                            <i class="bi bi-credit-card me-2"></i>Carte bancaire (PayDunya)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="paydunya_orange_money" value="paydunya_orange_money">
+                                        <label class="form-check-label" for="paydunya_orange_money">
+                                            <i class="bi bi-phone me-2"></i>Orange Money
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="paydunya_wave" value="paydunya_wave">
+                                        <label class="form-check-label" for="paydunya_wave">
+                                            <i class="bi bi-wallet2 me-2"></i>Wave
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="payment_method" id="bank_transfer" value="bank_transfer">
+                                        <label class="form-check-label" for="bank_transfer">
+                                            <i class="bi bi-bank me-2"></i>Virement bancaire
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PayDunya Card Payment Form -->
+                    <div id="paydunya-form" class="payment-form-section card border-0 shadow mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h6 class="mb-0 fw-bold">Paiement par carte bancaire</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Vous serez redirigé vers la page de paiement sécurisée pour finaliser votre transaction.
+                            </div>
+                            <div class="text-center my-4">
+                                <img src="https://www.paydunya.com/assets/img/logo-paydunya.png" alt="PayDunya" height="50">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Orange Money Form -->
+                    <div id="paydunya_orange_money-form" class="payment-form-section card border-0 shadow mb-4" style="display: none;">
+                        <div class="card-header bg-warning text-dark">
+                            <h6 class="mb-0 fw-bold">Orange Money</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="orange-phone" class="form-label">Numéro de téléphone</label>
+                                <input type="tel" class="form-control" id="orange-phone" name="orange_phone_number" placeholder="+221 XX XXX XX XX">
+                                <div class="form-text">Entrez votre numéro Orange Money sans espaces (ex: +221XXXXXXXX)</div>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Vous recevrez une demande de confirmation sur votre téléphone pour valider le paiement.
+                            </div>
+                            <div class="text-center my-4">
+                                <img src="https://www.orangemoney.sn/wp-content/uploads/2020/12/logo-orange-money.png" alt="Orange Money" height="50">
+                            </div>
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <small>Assurez-vous que votre compte Orange Money est actif et dispose de fonds suffisants.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wave Form -->
+                    <div id="paydunya_wave-form" class="payment-form-section card border-0 shadow mb-4" style="display: none;">
+                        <div class="card-header bg-info text-white">
+                            <h6 class="mb-0 fw-bold">Wave</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="wave-phone" class="form-label">Numéro de téléphone</label>
+                                <input type="tel" class="form-control" id="wave-phone" name="wave_phone_number" placeholder="+221 XX XXX XX XX">
+                                <div class="form-text">Entrez votre numéro Wave sans espaces (ex: +221XXXXXXXX)</div>
+                            </div>
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle me-2"></i>
+                                Vous recevrez une demande de confirmation sur votre téléphone pour valider le paiement.
+                            </div>
+                            <div class="text-center my-4">
+                                <img src="https://wave.com/static/wave-logo-blue.svg" alt="Wave" height="50">
+                            </div>
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <small>Assurez-vous que votre compte Wave est actif et dispose de fonds suffisants.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Transfer Form -->
+                    <div id="bank_transfer-form" class="payment-form-section card border-0 shadow mb-4" style="display: none;">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0 fw-bold">Virement bancaire</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>Paiement manuel :</strong> Vous recevrez les instructions de virement après validation.
+                                Vos billets seront générés après réception du paiement (24-48h).
+                                <div class="mt-3">
+                                    <strong>Coordonnées bancaires :</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li>Banque : Banque Atlantique Sénégal</li>
+                                        <li>IBAN : SN08 BA00 1234 5678 9012 3456 78</li>
+                                        <li>BIC/SWIFT : CBAOSNDA</li>
+                                        <li>Bénéficiaire : Sen-Billets</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3">
+                        <button type="submit" id="submit-payment" class="btn btn-success btn-lg">
+                            <i class="bi bi-check-circle me-2"></i>Payer par carte
+                        </button>
+                        <a href="{{ path('cart_index') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-arrow-left me-2"></i>Retour au panier
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow sticky-top" style="top: 2rem;">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0 fw-bold">Récapitulatif de commande</h5>
+                    </div>
+                    <div class="card-body">
+                        {% set total = 0 %}
+                        {% for cartItem in cartItems %}
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <h6 class="mb-0">{{ cartItem.event.title }}</h6>
+                                    <small class="text-muted">{{ cartItem.ticketType.name }} × {{ cartItem.quantity }}</small>
+                                </div>
+                                <span class="fw-bold">{{ cartItem.subtotal|number_format(0, ',', ' ') }} FCFA</span>
+                            </div>
+                            {% set total = total + cartItem.subtotal %}
+                        {% endfor %}
+                        
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Sous-total</span>
+                            <span>{{ total|number_format(0, ',', ' ') }} FCFA</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Frais de service</span>
+                            <span class="text-success">Gratuits</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between">
+                            <strong>Total</strong>
+                            <strong class="fs-4 text-success">{{ total|number_format(0, ',', ' ') }} FCFA</strong>
+                        </div>
+
+                        <!-- Security badges -->
+                        <div class="mt-4 text-center">
+                            <div class="d-flex justify-content-center gap-3 mb-2">
+                                <i class="bi bi-shield-check text-success fs-4" title="Paiement sécurisé"></i>
+                                <i class="bi bi-lock-fill text-success fs-4" title="SSL 256-bit"></i>
+                                <i class="bi bi-credit-card text-success fs-4" title="Cartes acceptées"></i>
+                            </div>
+                            <small class="text-muted">Paiement 100% sécurisé</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestion de l'affichage des formulaires de paiement
+            const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
+            const submitButton = document.getElementById('submit-payment');
+            
+            function updatePaymentForm() {
+                const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+                
+                // Cacher tous les formulaires
+                document.querySelectorAll('.payment-form-section').forEach(form => {
+                    form.style.display = 'none';
+                });
+                
+                // Afficher le formulaire sélectionné
+                const selectedForm = document.getElementById(`${selectedMethod}-form`);
+                if (selectedForm) {
+                    selectedForm.style.display = 'block';
+                }
+                
+                // Mettre à jour le texte du bouton
+                const buttonTexts = {
+                    'paydunya': 'Payer par carte',
+                    'paydunya_orange_money': 'Payer avec Orange Money',
+                    'paydunya_wave': 'Payer avec Wave',
+                    'bank_transfer': 'Confirmer le virement'
+                };
+                submitButton.innerHTML = `<i class="bi bi-check-circle me-2"></i>${buttonTexts[selectedMethod] || 'Confirmer le paiement'}`;
+            }
+            
+            // Initialiser l'affichage
+            updatePaymentForm();
+            
+            // Mettre à jour l'affichage quand la méthode change
+            paymentMethods.forEach(method => {
+                method.addEventListener('change', updatePaymentForm);
+            });
+            
+            // Validation du formulaire
+            document.getElementById('payment-form').addEventListener('submit', function(e) {
+                const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+                
+                // Validation pour Orange Money
+                if (selectedMethod === 'paydunya_orange_money') {
+                    const phoneInput = document.getElementById('orange-phone');
+                    if (!phoneInput.value) {
+                        e.preventDefault();
+                        showError('Veuillez saisir votre numéro de téléphone Orange Money');
+                        return;
+                    }
+                }
+                
+                // Validation pour Wave
+                if (selectedMethod === 'paydunya_wave') {
+                    const phoneInput = document.getElementById('wave-phone');
+                    // console.log(phoneInput.value);
+                    if (!phoneInput.value) {
+                        e.preventDefault();
+                        showError('Veuillez saisir votre numéro de téléphone Wave');
+                        return;
+                    }
+                }
+            });
+            
+            function showError(message) {
+                const errorContainer = document.getElementById('payment-errors');
+                errorContainer.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+            }
+        });
+    </script>
+{% endblock %}

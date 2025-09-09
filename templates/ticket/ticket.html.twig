@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ticket {{ ticket.qrCode }}{% endblock %}
+
+{% block body %}
+<h1>Détail du ticket</h1>
+
+<ul class="list-group mb-3">
+    <li class="list-group-item"><strong>Nom client :</strong> {{ ticket.customerName }}</li>
+    <li class="list-group-item"><strong>Email client :</strong> {{ ticket.customerEmail }}</li>
+    <li class="list-group-item"><strong>Événement :</strong> {{ ticket.event.title }}</li>
+    <li class="list-group-item"><strong>Type de billet :</strong> {{ ticket.ticketType.name }}</li>
+    <li class="list-group-item"><strong>Date d'achat :</strong> {{ ticket.purchasedAt|date('d/m/Y H:i') }}</li>
+    <li class="list-group-item">
+        <strong>Statut :</strong>
+        <span class="badge {{ ticket.getStatusBadgeClass() }}">
+            {{ ticket.getStatusLabel() }}
+        </span>
+    </li>
+</ul>
+
+<h2>QR Code</h2>
+<img src="{{ qrCodeDataUri }}" alt="QR Code du ticket" />
+
+<a href="{{ path('ticket_my_tickets') }}" class="btn btn-secondary mt-3">Retour à mes tickets</a>
+{% endblock %}

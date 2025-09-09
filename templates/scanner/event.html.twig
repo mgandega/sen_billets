@@ -1,0 +1,259 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Scanner - {{ event.title }} - Sen-Billets{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <!-- Event Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h1 class="h3 fw-bold mb-2">{{ event.title }}</h1>
+                                <p class="text-muted mb-0">
+                                    <i class="bi bi-calendar me-2"></i>{{ event.eventDate|date('d/m/Y à H:i') }}
+                                    <i class="bi bi-geo-alt ms-3 me-2"></i>{{ event.venue }}
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <a href="{{ path('scanner_dashboard', {id: event.id}) }}" class="btn btn-outline-primary">
+                                    <i class="bi bi-graph-up me-2"></i>Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-5">
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow text-center">
+                    <div class="card-body">
+                        <i class="bi bi-ticket text-primary fs-1 mb-3"></i>
+                        <h3 class="fw-bold">{{ stats.total }}</h3>
+                        <p class="text-muted mb-0">Total billets</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow text-center">
+                    <div class="card-body">
+                        <i class="bi bi-check-circle text-success fs-1 mb-3"></i>
+                        <h3 class="fw-bold text-success">{{ stats.validated }}</h3>
+                        <p class="text-muted mb-0">Validés</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow text-center">
+                    <div class="card-body">
+                        <i class="bi bi-clock text-warning fs-1 mb-3"></i>
+                        <h3 class="fw-bold text-warning">{{ stats.pending }}</h3>
+                        <p class="text-muted mb-0">En attente</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="card border-0 shadow text-center">
+                    <div class="card-body">
+                        <i class="bi bi-percent text-info fs-1 mb-3"></i>
+                        <h3 class="fw-bold text-info">{{ stats.validationRate|round }}%</h3>
+                        <p class="text-muted mb-0">Taux validation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Scanner -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-qr-code-scan me-2"></i>Scanner QR
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Scanner Interface (même que scanner/index.html.twig) -->
+                        <div class="text-center mb-4">
+                            <div id="scanner-container" class="position-relative mx-auto" style="max-width: 400px;">
+                                <video id="scanner-video" class="w-100 rounded" style="display: none;"></video>
+                                
+                                <div id="scanner-overlay" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+                                    <div class="text-center">
+                                        <i class="bi bi-camera text-muted" style="font-size: 4rem;"></i>
+                                        <p class="text-muted mt-3">Cliquez pour démarrer le scanner</p>
+                                        <button id="start-scanner" class="btn btn-primary btn-lg">
+                                            <i class="bi bi-play-fill me-2"></i>Démarrer
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div id="scanner-frame" class="position-absolute top-50 start-50 translate-middle" style="display: none;">
+                                    <div class="border border-primary border-3 rounded" style="width: 250px; height: 250px; border-style: dashed !important;"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manual Input -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="manual-qr" placeholder="Code QR manuel">
+                            </div>
+                            <div class="col-md-4">
+                                <button id="validate-manual" class="btn btn-success w-100">Valider</button>
+                            </div>
+                        </div>
+
+                        <!-- Scanner Controls -->
+                        <div class="d-flex gap-2 justify-content-center mb-4" id="scanner-controls" style="display: none !important;">
+                            <button id="stop-scanner" class="btn btn-outline-danger">Arrêter</button>
+                            <button id="switch-camera" class="btn btn-outline-secondary">Changer caméra</button>
+                        </div>
+
+                        <!-- Results -->
+                        <div id="validation-results"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Validations -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0 fw-bold">
+                            <i class="bi bi-clock-history me-2"></i>Dernières validations
+                        </h5>
+                    </div>
+                    <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                        {% if stats.lastValidations is empty %}
+                            <p class="text-muted text-center">Aucune validation récente</p>
+                        {% else %}
+                            {% for validation in stats.lastValidations %}
+                                <div class="d-flex justify-content-between align-items-center py-2 {% if not loop.last %}border-bottom{% endif %}">
+                                    <div>
+                                        <strong>{{ validation.customerName }}</strong>
+                                        <small class="text-muted d-block">{{ validation.ticketType.name }}</small>
+                                    </div>
+                                    <div class="text-end">
+                                        <span class="badge bg-success">Validé</span>
+                                        <small class="text-muted d-block">{{ validation.usedAt|date('H:i') }}</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card border-0 shadow mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0 fw-bold">Actions rapides</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary" onclick="refreshStats()">
+                                <i class="bi bi-arrow-clockwise me-2"></i>Actualiser stats
+                            </button>
+                            <a href="{{ path('api_qr_export', {id: event.id}) }}" class="btn btn-outline-success">
+                                <i class="bi bi-download me-2"></i>Exporter CSV
+                            </a>
+                            <button class="btn btn-outline-warning" onclick="showBulkValidator()">
+                                <i class="bi bi-list-check me-2"></i>Validation groupée
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bulk Validation Modal -->
+    <div class="modal fade" id="bulkValidationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Validation groupée</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea class="form-control" rows="10" id="bulk-qr-codes" 
+                              placeholder="Collez les codes QR (un par ligne)"></textarea>
+                    <small class="text-muted">Maximum 50 codes QR à la fois</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" onclick="processBulkValidation()">
+                        Valider tout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+    <script>
+        // Réutiliser la classe QRScanner de scanner/index.html.twig
+        // + fonctions spécifiques à cet événement
+
+        function refreshStats() {
+            fetch(`/api/qr/stats/{{ event.id }}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Mettre à jour les statistiques
+                    location.reload();
+                });
+        }
+
+        function showBulkValidator() {
+            const modal = new bootstrap.Modal(document.getElementById('bulkValidationModal'));
+            modal.show();
+        }
+
+        async function processBulkValidation() {
+            const textarea = document.getElementById('bulk-qr-codes');
+            const qrCodes = textarea.value.split('\n').filter(code => code.trim());
+
+            if (qrCodes.length === 0) {
+                alert('Veuillez saisir au moins un code QR');
+                return;
+            }
+
+            if (qrCodes.length > 50) {
+                alert('Maximum 50 codes QR à la fois');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/qr/bulk-validate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ qrCodes })
+                });
+
+                const result = await response.json();
+                
+                // Afficher les résultats
+                alert(`Validation terminée:\n${result.summary.success} succès\n${result.summary.errors} erreurs`);
+                
+                // Fermer le modal et actualiser
+                bootstrap.Modal.getInstance(document.getElementById('bulkValidationModal')).hide();
+                refreshStats();
+
+            } catch (error) {
+                alert('Erreur lors de la validation groupée');
+            }
+        }
+
+        // Initialiser le scanner pour cet événement
+        document.addEventListener('DOMContentLoaded', () => {
+            new QRScanner();
+        });
+    </script>
+{% endblock %}

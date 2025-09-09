@@ -1,0 +1,450 @@
+/* Import Bootstrap CSS */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+
+/* Custom CSS Variables */
+:root {
+    --primary-color: #0d6efd;
+    --primary-dark: #0a58ca;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --info-color: #0dcaf0;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+}
+
+/* Custom styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--info-color) 100%);
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    color: white;
+}
+
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn-custom {
+    border-radius: 50px;
+    padding: 0.75rem 2rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.section-padding {
+    padding: 5rem 0;
+}
+
+.text-gradient {
+    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        min-height: 50vh;
+        padding: 2rem 0;
+    }
+    
+    .section-padding {
+        padding: 3rem 0;
+    }
+    
+    .display-3 {
+        font-size: 2.5rem;
+    }
+}
+
+/* Animation utilities */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-up {
+    animation: slideUp 0.6s ease-out;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary-color);
+}
+
+/* Timeline styles for order tracking */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.75rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-item i {
+    position: absolute;
+    left: -2rem;
+    top: 0.25rem;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: white;
+    border: 2px solid #dee2e6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.timeline-item.completed i {
+    background: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+/* Print styles */
+@media print {
+    .btn, .card-header { 
+        display: none !important; 
+    }
+    .card { 
+        border: 1px solid #000 !important; 
+    }
+}
+
+/* QR Scanner styles */
+#scanner-container {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    height: 300px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+#scanner-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#scanner-frame {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px;
+    height: 250px;
+    border: 3px dashed var(--primary-color);
+    border-radius: 8px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+}
+
+/* Toast notifications */
+.toast {
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.toast-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Form styles */
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border-right: none;
+}
+
+.form-control.border-start-0 {
+    border-left: none;
+}
+
+.form-control.border-start-0:focus {
+    box-shadow: none;
+}
+
+/* Dashboard styles */
+.dashboard-stat-card {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+}
+
+/* Event card styles */
+.event-card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.event-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.event-card .badge {
+    font-weight: 500;
+    padding: 0.5em 0.8em;
+}
+
+.event-card .card-title {
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.event-card .card-footer {
+    background-color: transparent;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Ticket styles */
+.ticket-card {
+    position: relative;
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.ticket-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 15px;
+    right: 15px;
+    height: 1px;
+    background: repeating-linear-gradient(
+        to right,
+        transparent,
+        transparent 5px,
+        #dee2e6 5px,
+        #dee2e6 10px
+    );
+    z-index: 1;
+}
+
+.ticket-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 15px;
+    right: 15px;
+    height: 1px;
+    background: repeating-linear-gradient(
+        to right,
+        transparent,
+        transparent 5px,
+        #dee2e6 5px,
+        #dee2e6 10px
+    );
+    z-index: 1;
+}
+
+/* Analytics styles */
+.analytics-card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.analytics-stat {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.analytics-stat .stat-icon {
+    margin: 0 auto 1rem;
+}
+
+.analytics-stat .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.analytics-stat .stat-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+/* Dashboard sidebar */
+.sidebar {
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    z-index: 100;
+    padding-top: 56px;
+    background-color: var(--dark-color);
+    color: white;
+    transition: all 0.3s;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.75rem 1rem;
+    border-radius: 5px;
+    margin-bottom: 0.25rem;
+    transition: all 0.2s;
+}
+
+.sidebar .nav-link:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link.active {
+    color: white;
+    background-color: var(--primary-color);
+}
+
+.sidebar .nav-link i {
+    margin-right: 0.5rem;
+}
+
+/* Category badges */
+.category-badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 500;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+    background-color: var(--primary-color);
+}
+
+.category-badge.music {
+    background-color: #0d6efd;
+}
+
+.category-badge.theatre {
+    background-color: #6f42c1;
+}
+
+.category-badge.dance {
+    background-color: #d63384;
+}
+
+.category-badge.conference {
+    background-color: #fd7e14;
+}
+
+.category-badge.sport {
+    background-color: #20c997;
+}
+
+.category-badge.festival {
+    background-color: #0dcaf0;
+}
+
+.category-badge.exhibition {
+    background-color: #6c757d;
+}
+
+.category-badge.cinema {
+    background-color: #dc3545;
+}
+
+.category-badge.technology {
+    background-color: #0d6efd;
+}
+
+.category-badge.business {
+    background-color: #198754;
+}

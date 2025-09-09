@@ -1,0 +1,513 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord - Sen-Billets{% endblock %}
+
+{% block body %}
+<div class="bg-light min-vh-100">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-2 col-md-3 px-0 bg-dark text-white" style="min-height: calc(100vh - 56px);">
+                <div class="d-flex flex-column p-3 sticky-top" style="height: calc(100vh - 56px); overflow-y: auto;">
+                    <h5 class="text-uppercase fw-bold mb-4 border-bottom pb-3">
+                        <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                    </h5>
+                    
+                    <ul class="nav nav-pills flex-column mb-auto">
+                        <li class="nav-item mb-2">
+                            <a href="{{ path('app_dashboard') }}" class="nav-link active text-white">
+                                <i class="bi bi-house-door me-2"></i>Vue d'ensemble
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a href="{{ path('event_my_events') }}" class="nav-link text-white">
+                                <i class="bi bi-calendar-event me-2"></i>Mes événements
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a href="{{ path('analytics_index') }}" class="nav-link text-white">
+                                <i class="bi bi-graph-up me-2"></i>Statistiques
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a href="{{ path('scanner_index') }}" class="nav-link text-white">
+                                <i class="bi bi-qr-code-scan me-2"></i>Scanner QR
+                            </a>
+                        </li>
+                        <li class="nav-item mb-2">
+                            <a href="{{ path('payment_history') }}" class="nav-link text-white">
+                                <i class="bi bi-credit-card me-2"></i>Paiements
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <hr>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ path('event_new') }}" class="btn btn-success">
+                            <i class="bi bi-plus-circle me-2"></i>Nouvel événement
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-10 col-md-9 py-4">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h1 class="h2 fw-bold">Tableau de bord</h1>
+                        <p class="text-muted">Bienvenue, {{ app.user.name }}! Voici un aperçu de vos événements.</p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary">
+                            <i class="bi bi-download me-2"></i>Exporter
+                        </button>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-calendar3 me-2"></i>Période
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Aujourd'hui</a></li>
+                                <li><a class="dropdown-item" href="#">Cette semaine</a></li>
+                                <li><a class="dropdown-item" href="#">Ce mois</a></li>
+                                <li><a class="dropdown-item" href="#">Cette année</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card border-0 shadow-sm h-100 dashboard-stat-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <p class="text-muted mb-1 fw-medium">Revenus totaux</p>
+                                        <h3 class="fw-bold text-dark mb-2">{{ (totalRevenue / 100)|number_format(0, ',', ' ') }} FCFA</h3>
+                                        <small class="text-success">
+                                            <i class="bi bi-arrow-up me-1"></i>+12.5% ce mois
+                                        </small>
+                                    </div>
+                                    <div class="stat-icon bg-success bg-opacity-10">
+                                        <i class="bi bi-currency-dollar text-success"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card border-0 shadow-sm h-100 dashboard-stat-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <p class="text-muted mb-1 fw-medium">Billets vendus</p>
+                                        <h3 class="fw-bold text-dark mb-2">{{ totalTicketsSold|number_format(0, ',', ' ') }}</h3>
+                                        <small class="text-success">
+                                            <i class="bi bi-arrow-up me-1"></i>+8.2% ce mois
+                                        </small>
+                                    </div>
+                                    <div class="stat-icon bg-primary bg-opacity-10">
+                                        <i class="bi bi-ticket-perforated text-primary"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card border-0 shadow-sm h-100 dashboard-stat-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <p class="text-muted mb-1 fw-medium">Événements actifs</p>
+                                        <h3 class="fw-bold text-dark mb-2">{{ totalEvents }}</h3>
+                                        <small class="text-success">
+                                            <i class="bi bi-arrow-up me-1"></i>+25% ce mois
+                                        </small>
+                                    </div>
+                                    <div class="stat-icon bg-warning bg-opacity-10">
+                                        <i class="bi bi-calendar-event text-warning"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6">
+                        <div class="card border-0 shadow-sm h-100 dashboard-stat-card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <p class="text-muted mb-1 fw-medium">Taux de conversion</p>
+                                        <h3 class="fw-bold text-dark mb-2">68.5%</h3>
+                                        <small class="text-success">
+                                            <i class="bi bi-arrow-up me-1"></i>+3.1% ce mois
+                                        </small>
+                                    </div>
+                                    <div class="stat-icon bg-info bg-opacity-10">
+                                        <i class="bi bi-graph-up-arrow text-info"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Row -->
+                <div class="row g-4 mb-4">
+                    <div class="col-lg-8">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0 py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0 fw-bold">Ventes mensuelles</h5>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                            Cette année
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="#">Cette année</a></li>
+                                            <li><a class="dropdown-item" href="#">Année précédente</a></li>
+                                            <li><a class="dropdown-item" href="#">Personnalisé</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="salesChart" height="300"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-header bg-white border-0 py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="card-title mb-0 fw-bold">Répartition des ventes</h5>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="distributionChart" height="260"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Events Table -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0 fw-bold">Événements récents</h5>
+                            <a href="{{ path('event_my_events') }}" class="btn btn-sm btn-outline-primary">
+                                Voir tout
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="border-0 ps-3">Événement</th>
+                                        <th class="border-0">Date</th>
+                                        <th class="border-0">Ventes</th>
+                                        <th class="border-0">Revenus</th>
+                                        <th class="border-0">Statut</th>
+                                        <th class="border-0 text-end pe-3">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for event in events %}
+                                        {% set eventRevenue = 0 %}
+                                        {% for ticketType in event.ticketTypes %}
+                                            {% set eventRevenue = eventRevenue + (ticketType.sold * ticketType.price) %}
+                                        {% endfor %}
+                                        
+                                        <tr>
+                                            <td class="ps-3">
+                                                <div class="d-flex align-items-center">
+                                                    {% if event.imageUrl %}
+                                                        <img src="{{ event.imageUrl }}" alt="{{ event.title }}" 
+                                                             class="rounded me-3" style="width: 48px; height: 48px; object-fit: cover;">
+                                                    {% else %}
+                                                        <div class="bg-light rounded d-flex align-items-center justify-content-center me-3" 
+                                                             style="width: 48px; height: 48px;">
+                                                            <i class="bi bi-calendar-event text-muted"></i>
+                                                        </div>
+                                                    {% endif %}
+                                                    <div>
+                                                        <h6 class="fw-bold mb-0">{{ event.title }}</h6>
+                                                        <small class="text-muted">{{ event.venue }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="fw-medium">{{ event.eventDate|date('d/m/Y') }}</span>
+                                                <small class="text-muted d-block">{{ event.eventDate|date('H:i') }}</small>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <span class="fw-bold">{{ event.soldTickets }}</span>
+                                                    <span class="text-muted">/{{ event.capacity }}</span>
+                                                </div>
+                                                <div class="progress mt-1" style="height: 4px; width: 100px;">
+                                                    <div class="progress-bar bg-primary" 
+                                                         style="width: {{ ((event.soldTickets / event.capacity) * 100)|round }}%">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold text-success">
+                                                    {{ (eventRevenue / 100)|number_format(0, ',', ' ') }} FCFA
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="badge {{ event.status == 'published' ? 'bg-success' : 'bg-warning' }}">
+                                                    {{ event.status == 'published' ? 'Publié' : 'Brouillon' }}
+                                                </span>
+                                            </td>
+                                            <td class="text-end pe-3">
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ path('event_show', {id: event.id}) }}" class="btn btn-outline-primary" title="Voir">
+                                                        <i class="bi bi-eye"></i>
+                                                    </a>
+                                                    <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-outline-secondary" title="Modifier">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    <a href="{{ path('analytics_event', {id: event.id}) }}" class="btn btn-outline-info" title="Statistiques">
+                                                        <i class="bi bi-graph-up"></i>
+                                                    </a>
+                                                    <a href="{{ path('scanner_event', {id: event.id}) }}" class="btn btn-outline-success" title="Scanner">
+                                                        <i class="bi bi-qr-code-scan"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats Cards -->
+                <div class="row g-4">
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0 py-3">
+                                <h5 class="card-title mb-0 fw-bold">Catégories populaires</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span>Musique</span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress me-2" style="width: 100px; height: 6px;">
+                                            <div class="progress-bar bg-primary" style="width: 75%"></div>
+                                        </div>
+                                        <span class="fw-bold">75%</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span>Théâtre</span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress me-2" style="width: 100px; height: 6px;">
+                                            <div class="progress-bar bg-success" style="width: 60%"></div>
+                                        </div>
+                                        <span class="fw-bold">60%</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span>Sport</span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress me-2" style="width: 100px; height: 6px;">
+                                            <div class="progress-bar bg-warning" style="width: 45%"></div>
+                                        </div>
+                                        <span class="fw-bold">45%</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span>Conférence</span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress me-2" style="width: 100px; height: 6px;">
+                                            <div class="progress-bar bg-info" style="width: 30%"></div>
+                                        </div>
+                                        <span class="fw-bold">30%</span>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>Exposition</span>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress me-2" style="width: 100px; height: 6px;">
+                                            <div class="progress-bar bg-danger" style="width: 25%"></div>
+                                        </div>
+                                        <span class="fw-bold">25%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0 py-3">
+                                <h5 class="card-title mb-0 fw-bold">Prochains événements</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <ul class="list-group list-group-flush">
+                                    {% for event in events|slice(0, 5) %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-3 py-3">
+                                            <div>
+                                                <h6 class="mb-0 fw-bold">{{ event.title }}</h6>
+                                                <small class="text-muted">{{ event.eventDate|date('d/m/Y') }}</small>
+                                            </div>
+                                            <span class="badge bg-primary rounded-pill">{{ event.soldTickets }}</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-header bg-white border-0 py-3">
+                                <h5 class="card-title mb-0 fw-bold">Actions rapides</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <a href="{{ path('event_new') }}" class="btn btn-primary">
+                                        <i class="bi bi-plus-circle me-2"></i>Créer un événement
+                                    </a>
+                                    <a href="{{ path('scanner_index') }}" class="btn btn-success">
+                                        <i class="bi bi-qr-code-scan me-2"></i>Scanner des billets
+                                    </a>
+                                    <a href="{{ path('analytics_index') }}" class="btn btn-info text-white">
+                                        <i class="bi bi-graph-up me-2"></i>Voir les statistiques
+                                    </a>
+                                    <a href="{{ path('payment_history') }}" class="btn btn-warning">
+                                        <i class="bi bi-credit-card me-2"></i>Historique des paiements
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sales Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
+                datasets: [{
+                    label: 'Ventes',
+                    data: [65, 59, 80, 81, 56, 55, 40, 45, 60, 75, 85, 90],
+                    borderColor: 'rgb(13, 110, 253)',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Revenus (k FCFA)',
+                    data: [150, 120, 180, 190, 130, 140, 100, 110, 150, 180, 200, 220],
+                    borderColor: 'rgb(25, 135, 84)',
+                    backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y1',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { 
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Billets vendus'
+                        }
+                    },
+                    y1: { 
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        beginAtZero: true,
+                        grid: {
+                            drawOnChartArea: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Revenus (k FCFA)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // Distribution Chart
+        const distributionCtx = document.getElementById('distributionChart').getContext('2d');
+        new Chart(distributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Musique', 'Théâtre', 'Sport', 'Conférence', 'Exposition'],
+                datasets: [{
+                    data: [45, 25, 15, 10, 5],
+                    backgroundColor: [
+                        'rgba(13, 110, 253, 0.8)',
+                        'rgba(25, 135, 84, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(13, 202, 240, 0.8)',
+                        'rgba(220, 53, 69, 0.8)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+<style>
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-size: 1.5rem;
+    }
+    
+    .dashboard-stat-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .dashboard-stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+</style>
+{% endblock %}

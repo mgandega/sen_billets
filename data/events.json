@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "title": "Festival de Musique Dakar 2024",
+    "description": "Le plus grand festival de musique du Sénégal réunit les meilleurs artistes locaux et internationaux.",
+    "date": "2024-12-15",
+    "time": "19:00",
+    "venue": "Stade Léopold Sédar Senghor",
+    "category": "Musique",
+    "image": "https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "price": 25000
+  },
+  {
+    "id": 2,
+    "title": "Conférence Tech Sénégal",
+    "description": "Conférence sur les nouvelles technologies et l'innovation en Afrique.",
+    "date": "2024-11-28",
+    "time": "09:00",
+    "venue": "King Fahd Palace Hotel",
+    "category": "Technologie",
+    "image": "https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "price": 15000
+  },
+  {
+    "id": 3,
+    "title": "Théâtre National - Pièce Classique",
+    "description": "Représentation théâtrale exceptionnelle par la troupe nationale.",
+    "date": "2024-12-05",
+    "time": "20:00",
+    "venue": "Théâtre National Daniel Sorano",
+    "category": "Théâtre",
+    "image": "https://images.pexels.com/photos/109669/pexels-photo-109669.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "price": 8000
+  },
+  {
+    "id": 4,
+    "title": "Exposition d'Art Contemporain",
+    "description": "Découvrez les œuvres des artistes sénégalais contemporains les plus talentueux.",
+    "date": "2024-11-15",
+    "time": "10:00",
+    "venue": "Musée des Civilisations Noires",
+    "category": "Exposition",
+    "image": "https://images.pexels.com/photos/1509534/pexels-photo-1509534.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "price": 5000
+  },
+  {
+    "id": 5,
+    "title": "Match de Football - Finale",
+    "description": "Finale du championnat national de football.",
+    "date": "2024-12-20",
+    "time": "16:00",
+    "venue": "Stade Abdoulaye Wade",
+    "category": "Sport",
+    "image": "https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "price": 10000
+  },
+  {
+    "id": 6,
+    "title": "Festival International de Jazz",
+    "description": "Un événement musical qui réunit les meilleurs artistes de jazz du monde entier.",
+    "date": "2025-01-10",
+    "time": "18:00",
+    "venue": "Place du Souvenir",
+    "category": "Musique",
+    "image": "https://images.pexels.com/photos/4571219/pexels-photo-4571219.jpeg?auto=compress&cs=tinysrgb&w=800",
+    "price": 20000
+  }
+]

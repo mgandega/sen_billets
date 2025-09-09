@@ -1,0 +1,30 @@
+{# templates/invoice/pdf.html.twig #}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Billet</title>
+    <style>
+        body { font-family: DejaVu Sans, sans-serif; font-size: 14px; }
+        .qr { text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Billet pour {{ ticket.event.title }}</h1>
+
+    <p><strong>Client :</strong> {{ ticket.customerName }}</p>
+    <p><strong>Email :</strong> {{ ticket.customerEmail }}</p>
+    <p><strong>Type :</strong> {{ ticket.ticketType.name }}</p>
+    <p><strong>Statut :</strong> {{ ticket.status }}</p>
+
+    {% if ticket.qrCodeBase64 %}
+        <div class="qr">
+            <img src="data:image/png;base64,{{ ticket.qrCodeBase64 }}" width="150" alt="QR Code du billet">
+            <p style="font-size: 12px;">Code : {{ ticket.qrCode }}</p>
+        </div>
+    {% else %}
+        <p style="text-align: center; color: red;">QR Code indisponible</p>
+    {% endif %}
+</body>
+</html>

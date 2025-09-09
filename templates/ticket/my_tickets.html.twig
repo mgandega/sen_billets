@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Tickets{% endblock %}
+
+{% block body %}
+<h1>Mes Tickets</h1>
+
+{% if tickets is empty %}
+    <p>Aucun ticket trouvé.</p>
+{% else %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>QR Code</th>
+                <th>Nom client</th>
+                <th>Événement</th>
+                <th>Date d'achat</th>
+                <th>Statut</th>
+                <th>Détails</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for ticket in tickets %}
+            <tr>
+                <td>{{ ticket.qrCode }}</td>
+                <td>{{ ticket.customerName }}</td>
+                <td>{{ ticket.event.title }}</td>
+                <td>{{ ticket.purchasedAt|date('d/m/Y H:i') }}</td>
+                <td>
+                    <span class="badge {{ ticket.getStatusBadgeClass() }}">
+                        {{ ticket.getStatusLabel() }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{{ path('ticket_show', {qrCode: ticket.qrCode}) }}" class="btn btn-primary btn-sm">
+                        Voir
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+{% endblock %}

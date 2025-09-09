@@ -1,0 +1,21 @@
+{# templates/invoice/invoice.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Facture Ticket{% endblock %}
+
+{% block body %}
+    <h1>Facture du Paiement</h1>
+
+    <p><strong>Nom :</strong> {{ payment.user.name }}</p>
+    <p><strong>Email :</strong> {{ payment.user.email }}</p>
+    <p><strong>Montant :</strong> {{ payment.amount }} €</p>
+    <p><strong>Méthode :</strong> {{ payment.method }}</p>
+    <p><strong>Date :</strong> {{ payment.createdAt ? payment.createdAt|date('d/m/Y H:i') : 'N/A' }}</p>
+
+    <h2>QR Code</h2>
+    {# {% if payment.qrCodeImagePath %}
+        <img src="{{ payment.qrCodeImagePath }}" alt="QR Code du paiement" width="200">
+    {% else %} #}
+        {# <p>QR code non disponible</p>
+    {% endif %} #}
+{% endblock %}

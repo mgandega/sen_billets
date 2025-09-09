@@ -1,0 +1,22 @@
+{
+  "name": "sen-billets",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --no-warnings server.js",
+    "dev:nodemon": "nodemon server.js --ignore 'public/*.html' --ignore 'assets/*'",
+    "build": "echo 'Static assets ready for deployment'",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.2",
+    "bootstrap-icons": "^1.11.1",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "http-proxy-middleware": "^3.0.5",
+    "paydunya": "^1.0.12"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}

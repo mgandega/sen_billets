@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion - Sen-Billets{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block body %}
+<div class="min-vh-100 d-flex align-items-center" style="background: linear-gradient(135deg, var(--primary-color), var(--primary-dark), var(--secondary-color));">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7">
+                <!-- Back button -->
+                <div class="mb-4">
+                    <a href="{{ path('app_home') }}" class="text-white text-decoration-none">
+                        <i class="bi bi-arrow-left me-2"></i>Retour à l'accueil
+                    </a>
+                </div>
+
+                <!-- Login card -->
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-5">
+                        <!-- Logo -->
+                        <div class="text-center mb-5">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="bi bi-calendar-event fs-1"></i>
+                            </div>
+                            <h2 class="fw-bold text-dark mb-2">Connexion à Sen-Billets</h2>
+                            <p class="text-muted">Accédez à votre compte pour gérer vos billets</p>
+                        </div>
+
+                        {% if error %}
+                            <div class="alert alert-danger" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                {{ error.messageKey|trans(error.messageData, 'security') }}
+                            </div>
+                        {% endif %}
+
+                        <form method="post">
+                            <div class="mb-4">
+                                <label for="inputEmail" class="form-label fw-medium">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="bi bi-envelope text-muted"></i>
+                                    </span>
+                                    <input type="email" 
+                                           value="{{ last_username }}" 
+                                           name="email" 
+                                           id="inputEmail" 
+                                           class="form-control border-start-0 ps-0" 
+                                           placeholder="votre@email.com" 
+                                           autocomplete="email" 
+                                           required 
+                                           autofocus>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="inputPassword" class="form-label fw-medium">Mot de passe</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="bi bi-lock text-muted"></i>
+                                    </span>
+                                    <input type="password" 
+                                           name="password" 
+                                           id="inputPassword" 
+                                           class="form-control border-start-0 ps-0" 
+                                           placeholder="••••••••" 
+                                           autocomplete="current-password" 
+                                           required>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input type="checkbox" name="_remember_me" class="form-check-input" id="rememberMe">
+                                    <label class="form-check-label text-muted" for="rememberMe">
+                                        Se souvenir de moi
+                                    </label>
+                                </div>
+                                <a href="#" class="text-primary text-decoration-none">Mot de passe oublié ?</a>
+                            </div>
+
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                            <button type="submit" class="btn btn-primary w-100 btn-lg fw-bold mb-4">
+                                Se connecter
+                            </button>
+                        </form>
+
+                        <div class="text-center">
+                            <p class="text-muted mb-0">
+                                Pas encore de compte ? 
+                                <a href="#" class="text-primary text-decoration-none fw-medium">S'inscrire</a>
+                            </p>
+                        </div>
+
+                        <!-- Demo accounts -->
+                        <div class="mt-5 pt-4 border-top">
+                            <p class="text-center text-muted mb-3">
+                                <small>Comptes de démonstration</small>
+                            </p>
+                            <div class="row g-2">
+                                <div class="col-12">
+                                    <div class="alert alert-light mb-2 py-2">
+                                        <small>
+                                            <strong>Client :</strong> client@test.com / password
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="alert alert-light mb-0 py-2">
+                                        <small>
+                                            <strong>Organisateur :</strong> organizer@test.com / password
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

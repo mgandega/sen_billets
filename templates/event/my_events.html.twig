@@ -1,0 +1,112 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes événements - Sen-Billets{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="display-5 fw-bold text-dark">Mes événements</h1>
+                <p class="lead text-muted">Gérez vos événements et suivez leurs performances</p>
+            </div>
+            <a href="{{ path('event_new') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle me-2"></i>Nouvel événement
+            </a>
+        </div>
+
+        {% if events is empty %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-calendar-plus text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="fw-bold mb-3">Aucun événement créé</h3>
+                <p class="text-muted mb-4">Commencez par créer votre premier événement</p>
+                <a href="{{ path('event_new') }}" class="btn btn-primary btn-lg">
+                    Créer mon premier événement
+                </a>
+            </div>
+        {% else %}
+            <div class="row g-4">
+                {% for event in events %}
+                    <div class="col-lg-6">
+                        <div class="card h-100 border-0 shadow card-hover">
+                            <div class="row g-0 h-100">
+                                <div class="col-md-4">
+                                    {% if event.imageUrl %}
+                                        <img src="{{ event.imageUrl }}" class="img-fluid h-100 w-100" alt="{{ event.title }}" style="object-fit: cover;">
+                                    {% else %}
+                                        <div class="bg-light h-100 d-flex align-items-center justify-content-center">
+                                            <i class="bi bi-calendar-event text-muted fs-1"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="card-body h-100 d-flex flex-column">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <span class="badge bg-primary">{{ event.category }}</span>
+                                            <span class="badge {{ event.status == 'published' ? 'bg-success' : 'bg-warning' }}">
+                                                {{ event.status == 'published' ? 'Publié' : 'Brouillon' }}
+                                            </span>
+                                        </div>
+                                        
+                                        <h5 class="card-title fw-bold">{{ event.title }}</h5>
+                                        
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block">
+                                                <i class="bi bi-calendar me-1"></i>{{ event.eventDate|date('d/m/Y à H:i') }}
+                                            </small>
+                                            <small class="text-muted d-block">
+                                                <i class="bi bi-geo-alt me-1"></i>{{ event.venue }}
+                                            </small>
+                                        </div>
+
+                                        <div class="row g-2 mb-3">
+                                            <div class="col-6">
+                                                <div class="text-center p-2 bg-light rounded">
+                                                    <div class="fw-bold text-primary">{{ event.soldTickets }}</div>
+                                                    <small class="text-muted">Vendus</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="text-center p-2 bg-light rounded">
+                                                    <div class="fw-bold text-success">{{ (event.totalRevenue / 100)|number_format(0, ',', ' ') }}</div>
+                                                    <small class="text-muted">FCFA</small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="progress mb-3" style="height: 6px;">
+                                            <div class="progress-bar bg-success" style="width: {{ event.occupancyRate }}%"></div>
+                                        </div>
+
+                                        <div class="mt-auto">
+                                            <div class="btn-group w-100" role="group">
+                                                <a href="{{ path('event_show', {id: event.id}) }}" class="btn btn-outline-primary">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-outline-secondary">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                                <form method="post" action="{{ path('event_delete', {id: event.id}) }}" class="d-inline"
+                                                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')">
+                                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+                                                    <button type="submit" class="btn btn-outline-danger">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="text-center mt-5">
+                <p class="text-muted">{{ events|length }} événement(s) créé(s)</p>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

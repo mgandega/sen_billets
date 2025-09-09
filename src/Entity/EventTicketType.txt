@@ -1,0 +1,266 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\EventTicketTypeRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
+#[ORM\Entity(repositoryClass: EventTicketTypeRepository::class)]
+// #[ORM\Table(name: 'ticket_type')]
+class EventTicketType
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    #[Groups(['event:read', 'ticket_type:read'])]
+    private ?int $id = null;
+
+    #[ORM\Column(length: 255)]
+    #[Groups(['event:read', 'ticket_type:read', 'ticket_type:write'])]
+    #[Assert\NotBlank(message: 'Le nom du type de billet est obligatoire')]
+    #[Assert\Length(min: 2, max: 255, minMessage: 'Le nom doit contenir au moins 2 caractères')]
+    private ?string $name = null;
+
+    #[ORM\Column]
+    #[Groups(['event:read', 'ticket_type:read', 'ticket_type:write'])]
+    #[Assert\NotBlank(message: 'Le prix est obligatoire')]
+    #[Assert\PositiveOrZero(message: 'Le prix doit être positif ou nul')]
+    private ?int $price = null;
+
+    #[ORM\Column]
+    #[Groups(['event:read', 'ticket_type:read', 'ticket_type:write'])]
+    #[Assert\NotBlank(message: 'La quantité est obligatoire')]
+    #[Assert\Positive(message: 'La quantité doit être positive')]
+    private ?int $quantity = null;
+
+    #[ORM\Column]
+    #[Groups(['event:read', 'ticket_type:read'])]
+    private ?int $sold = 0;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['event:read', 'ticket_type:read', 'ticket_type:write'])]
+    private ?string $description = null;
+
+    #[ORM\Column]
+    #[Groups(['event:read', 'ticket_type:read', 'ticket_type:write'])]
+    private ?bool $earlyBird = false;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[Groups(['event:read', 'ticket_type:read', 'ticket_type:write'])]
+    private ?\DateTimeInterface $endDate = null;
+
+    #[ORM\ManyToOne(inversedBy: 'ticketTypes')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?Event $event = null;
+
+    #[ORM\OneToMany(mappedBy: 'ticketType', targetEntity: Ticket::class)]
+    private Collection $tickets;
+
+    #[ORM\OneToMany(mappedBy: 'ticketType', targetEntity: CartItem::class, cascade: ['remove'])]
+    private Collection $cartItems;
+
+    public function __construct()
+    {
+        $this->tickets = new ArrayCollection();
+        $this->cartItems = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setName(string $name): static
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
+
+    public function setPrice(int $price): static
+    {
+        $this->price = $price;
+        return $this;
+    }
+
+    public function getQuantity(): ?int
+    {
+        return $this->quantity;
+    }
+
+    public function setQuantity(int $quantity): static
+    {
+        $this->quantity = $quantity;
+        return $this;
+    }
+
+    public function getSold(): ?int
+    {
+        return $this->sold;
+    }
+
+    public function setSold(int $sold): static
+    {
+        $this->sold = $sold;
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function isEarlyBird(): ?bool
+    {
+        return $this->earlyBird;
+    }
+
+    public function setEarlyBird(bool $earlyBird): static
+    {
+        $this->earlyBird = $earlyBird;
+        return $this;
+    }
+
+    public function getEndDate(): ?\DateTimeInterface
+    {
+        return $this->endDate;
+    }
+
+    public function setEndDate(?\DateTimeInterface $endDate): static
+    {
+        $this->endDate = $endDate;
+        return $this;
+    }
+
+    public function getEvent(): ?Event
+    {
+        return $this->event;
+    }
+
+    public function setEvent(?Event $event): static
+    {
+        $this->event = $event;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Ticket>
+     */
+    public function getTickets(): Collection
+    {
+        return $this->tickets;
+    }
+
+    public function addTicket(Ticket $ticket): static
+    {
+        if (!$this->tickets->contains($ticket)) {
+            $this->tickets->add($ticket);
+            $ticket->setTicketType($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTicket(Ticket $ticket): static
+    {
+        if ($this->tickets->removeElement($ticket)) {
+            if ($ticket->getTicketType() === $this) {
+                $ticket->setTicketType(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CartItem>
+     */
+    public function getCartItems(): Collection
+    {
+        return $this->cartItems;
+    }
+
+    public function addCartItem(CartItem $cartItem): static
+    {
+        if (!$this->cartItems->contains($cartItem)) {
+            $this->cartItems->add($cartItem);
+            $cartItem->setTicketType($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCartItem(CartItem $cartItem): static
+    {
+        if ($this->cartItems->removeElement($cartItem)) {
+            if ($cartItem->getTicketType() === $this) {
+                $cartItem->setTicketType(null);
+            }
+        }
+
+        return $this;
+    }
+
+    // Méthodes utilitaires
+
+    public function getAvailableQuantity(): int
+    {
+        return $this->quantity - $this->sold;
+    }
+
+    public function isAvailable(): bool
+    {
+        if ($this->getAvailableQuantity() <= 0) {
+            return false;
+        }
+
+        if ($this->endDate && $this->endDate < new \DateTime()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getFormattedPrice(): string
+    {
+        return number_format($this->price / 100, 0, ',', ' ') . ' FCFA';
+    }
+
+    public function getSalesPercentage(): float
+    {
+        if ($this->quantity === 0) {
+            return 0;
+        }
+        return ($this->sold / $this->quantity) * 100;
+    }
+
+    public function getRevenue(): int
+    {
+        return $this->sold * $this->price;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name ?? '';
+    }
+}

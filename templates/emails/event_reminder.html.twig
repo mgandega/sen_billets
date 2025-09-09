@@ -1,0 +1,93 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Votre événement commence bientôt !{% endblock %}
+
+{% block header_title %}⏰ C'est bientôt !{% endblock %}
+{% block header_subtitle %}
+    <p style="color: #ffffff; margin: 10px 0 0 0; opacity: 0.9;">
+        {{ event.title }}
+    </p>
+{% endblock %}
+
+{% block content %}
+    <div class="text-center">
+        <div style="font-size: 4rem; margin-bottom: 20px;">⏰</div>
+        <h2 style="color: #ffc107; margin-bottom: 20px;">
+            Plus que {{ hours_until }} heure{{ hours_until > 1 ? 's' : '' }} !
+        </h2>
+        
+        <p style="font-size: 18px; margin-bottom: 30px;">
+            Votre événement <strong>{{ event.title }}</strong> commence bientôt. 
+            Préparez-vous pour une expérience inoubliable !
+        </p>
+    </div>
+
+    <!-- Event Quick Info -->
+    <div class="card" style="background-color: #e7f3ff; border-color: #0d6efd;">
+        <h3 style="color: #0d6efd; margin-top: 0;">📍 Rappel des informations</h3>
+        
+        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+            <span style="font-size: 1.5rem; margin-right: 10px;">📅</span>
+            <div>
+                <strong>{{ event.eventDate|date('l d F Y') }}</strong><br>
+                <span style="color: #6c757d;">{{ event.startTime|date('H:i') }} - {{ event.endTime|date('H:i') }}</span>
+            </div>
+        </div>
+        
+        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+            <span style="font-size: 1.5rem; margin-right: 10px;">📍</span>
+            <div>
+                <strong>{{ event.venue }}</strong><br>
+                <span style="color: #6c757d;">{{ event.address }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Your Tickets -->
+    <div class="card">
+        <h3 style="color: #198754; margin-top: 0;">🎫 Vos billets</h3>
+        
+        {% for ticket in user_tickets %}
+            <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px; margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>{{ ticket.ticketType.name }}</strong><br>
+                        <small style="color: #6c757d;">Code: {{ ticket.qrCode }}</small>
+                    </div>
+                    <span style="background-color: #198754; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                        VALIDE
+                    </span>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Checklist -->
+    <div class="card" style="background-color: #d1ecf1; border-color: #0dcaf0;">
+        <h4 style="color: #055160; margin-top: 0;">✅ Checklist avant de partir</h4>
+        <ul style="color: #055160; padding-left: 20px; margin-bottom: 0;">
+            <li>📱 Vérifiez que votre téléphone est chargé</li>
+            <li>🆔 Préparez une pièce d'identité</li>
+            <li>🚗 Planifiez votre trajet (parking, transports)</li>
+            <li>👕 Vérifiez la météo et habillez-vous en conséquence</li>
+            <li>💧 Hydratez-vous bien</li>
+        </ul>
+    </div>
+
+    <div class="text-center">
+        <a href="{{ app_url }}/tickets/my-tickets" class="btn btn-success">
+            📱 Mes billets
+        </a>
+        
+        <a href="https://maps.google.com/?q={{ event.address|url_encode }}" class="btn" style="background-color: #dc3545; color: white;">
+            🗺️ Itinéraire
+        </a>
+    </div>
+
+    <div class="text-center" style="margin-top: 30px;">
+        <p style="color: #6c757d;">
+            Partagez votre expérience sur les réseaux sociaux avec<br>
+            <strong>#SenBillets #{{ event.title|replace({' ': ''}) }}</strong>
+        </p>
+    </div>
+{% endblock %}

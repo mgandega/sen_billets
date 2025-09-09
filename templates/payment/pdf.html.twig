@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Facture #{{ payment.id }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            color: #333;
+        }
+        header {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 18px;
+        }
+        .company {
+            float: right;
+            text-align: right;
+        }
+        .clear {
+            clear: both;
+        }
+        .details, .items {
+            width: 100%;
+            margin-top: 20px;
+        }
+        .details th, .details td {
+            text-align: left;
+            padding: 5px;
+        }
+        .items th {
+            background-color: #eee;
+            padding: 8px;
+        }
+        .items td {
+            padding: 8px;
+        }
+        .total {
+            text-align: right;
+            font-weight: bold;
+            padding: 10px;
+            background-color: #f5f5f5;
+        }
+        footer {
+            position: fixed;
+            bottom: 0;
+            font-size: 10px;
+            text-align: center;
+            width: 100%;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div>
+        <h1>Facture</h1>
+        <p>Date : {{ payment.createdAt|date('d/m/Y H:i') }}</p>
+        <p>Facture n° : {{ payment.id }}</p>
+    </div>
+
+    <div class="company">
+        <strong>SEN BILLETS</strong><br>
+        123 Rue des Tickets<br>
+        Dakar, Sénégal<br>
+        contact@senbillets.sn
+    </div>
+    <div class="clear"></div>
+</header>
+
+<section>
+    <h3>Client</h3>
+    <p>
+        {{ payment.user.fullName }}<br>
+        {{ payment.user.email }}
+    </p>
+</section>
+
+<table class="items" cellspacing="0" cellpadding="0" border="1">
+    <thead>
+        <tr>
+            <th>Article</th>
+            <th>Quantité</th>
+            <th>Prix unitaire</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in payment.getCartItems() %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ (item.unit_price / 100)|number_format(0, ',', ' ') }} {{ payment.currency }}</td>
+                <td>{{ (item.unit_price * item.quantity / 100)|number_format(0, ',', ' ') }} {{ payment.currency }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">Aucun article</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p class="total">
+    Montant total : {{ payment.getFormattedAmount() }}
+</p>
+
+<section style="margin-top: 30px;">
+    <p><strong>Méthode de paiement :</strong> {{ payment.getMethodLabel() }}</p>
+    <p><strong>Statut :</strong> {{ payment.getStatusLabel() }}</p>
+</section>
+
+<footer>
+    Merci pour votre achat ! | Cette facture a été générée automatiquement par la plateforme SEN BILLETS.
+</footer>
+
+</body>
+</html>

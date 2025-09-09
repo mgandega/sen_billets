@@ -1,0 +1,154 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription - Sen-Billets{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block body %}
+<div class="min-vh-100 d-flex align-items-center" style="background: linear-gradient(135deg, var(--primary-color), var(--info-color));">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+
+                <!-- Back button -->
+                <div class="mb-4">
+                    <a href="{{ path('app_home') }}" class="text-white text-decoration-none">
+                        <i class="bi bi-arrow-left me-2"></i>Retour à l'accueil
+                    </a>
+                </div>
+
+                <!-- Registration card -->
+                <div class="card border-0 shadow-lg">
+                    <div class="card-body p-5">
+
+                        <!-- Logo -->
+                        <div class="text-center mb-5">
+                            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                <i class="bi bi-calendar-event fs-1"></i>
+                            </div>
+                            <h2 class="fw-bold text-dark mb-2">Rejoindre Sen-Billets</h2>
+                            <p class="text-muted">Créez votre compte pour découvrir et organiser des événements</p>
+                        </div>
+
+                        {{ form_start(registrationForm) }}
+                            <div class="row g-3">
+
+                                <!-- Nom -->
+                                <div class="col-12">
+                                    {{ form_label(registrationForm.name, 'Nom <span class="text-danger">*</span>', {
+                                        'label_attr': {'class': 'form-label fw-medium'}
+                                    }) }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="bi bi-person text-muted"></i>
+                                        </span>
+                                        {{ form_widget(registrationForm.name, {'attr': {'class': 'form-control border-start-0 ps-0'}}) }}
+                                    </div>
+                                    {{ form_errors(registrationForm.name) }}
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-12">
+                                    {{ form_label(registrationForm.email, 'Adresse email <span class="text-danger">*</span>', {
+                                        'label_attr': {'class': 'form-label fw-medium'}
+                                    }) }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="bi bi-envelope text-muted"></i>
+                                        </span>
+                                        {{ form_widget(registrationForm.email, {'attr': {'class': 'form-control border-start-0 ps-0'}}) }}
+                                    </div>
+                                    {{ form_errors(registrationForm.email) }}
+                                </div>
+
+                                <!-- Téléphone -->
+                                <div class="col-12">
+                                    {{ form_label(registrationForm.phone, 'Téléphone <span class="text-danger">*</span>', {
+                                        'label_attr': {'class': 'form-label fw-medium'}
+                                    }) }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="bi bi-telephone text-muted"></i>
+                                        </span>
+                                        {{ form_widget(registrationForm.phone, {'attr': {'class': 'form-control border-start-0 ps-0'}}) }}
+                                    </div>
+                                    {{ form_errors(registrationForm.phone) }}
+                                </div>
+
+                                <!-- Mot de passe -->
+                                <div class="col-md-6">
+                                    {{ form_label(registrationForm.plainPassword.first, 'Mot de passe <span class="text-danger">*</span>', {
+                                        'label_attr': {'class': 'form-label fw-medium'}
+                                    }) }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="bi bi-lock text-muted"></i>
+                                        </span>
+                                        {{ form_widget(registrationForm.plainPassword.first, {'attr': {'class': 'form-control border-start-0 ps-0'}}) }}
+                                    </div>
+                                    {{ form_errors(registrationForm.plainPassword.first) }}
+                                </div>
+
+                                <!-- Confirmation mot de passe -->
+                                <div class="col-md-6">
+                                    {{ form_label(registrationForm.plainPassword.second, 'Confirmation <span class="text-danger">*</span>', {
+                                        'label_attr': {'class': 'form-label fw-medium'}
+                                    }) }}
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-light border-end-0">
+                                            <i class="bi bi-lock text-muted"></i>
+                                        </span>
+                                        {{ form_widget(registrationForm.plainPassword.second, {'attr': {'class': 'form-control border-start-0 ps-0'}}) }}
+                                    </div>
+                                    {{ form_errors(registrationForm.plainPassword.second) }}
+                                </div>
+                            </div>
+
+                            <!-- Type de compte -->
+                            <div class="mt-4">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body p-3">
+                                        <h6 class="fw-bold mb-3">Type de compte</h6>
+                                        <div class="form-check">
+                                            {{ form_widget(registrationForm.isOrganizer) }}
+                                            {{ form_label(registrationForm.isOrganizer, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                                        </div>
+                                        <small class="text-muted">
+                                            En cochant cette case, vous pourrez créer et gérer vos propres événements
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Conditions d'utilisation -->
+                            <div class="mt-4">
+                                <div class="form-check">
+                                    {{ form_widget(registrationForm.agreeTerms) }}
+                                    {{ form_label(registrationForm.agreeTerms, 'J’accepte les conditions d’utilisation <span class="text-danger">*</span>', {
+                                        'label_attr': {'class': 'form-check-label'}
+                                    }) }}
+                                </div>
+                                {{ form_errors(registrationForm.agreeTerms) }}
+                            </div>
+
+                            <!-- Bouton -->
+                            <button type="submit" class="btn btn-primary w-100 btn-lg fw-bold mt-4 mb-4">
+                                Créer mon compte
+                            </button>
+                        {{ form_end(registrationForm) }}
+
+                        <!-- Déjà un compte -->
+                        <div class="text-center">
+                            <p class="text-muted mb-0">
+                                Déjà un compte ? 
+                                <a href="{{ path('app_login') }}" class="text-primary text-decoration-none fw-medium">Se connecter</a>
+                            </p>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Sen-Billets - Plateforme de billetterie{% endblock %}</title>
+        {# <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🎫</text></svg>"> #}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        {% block stylesheets %}
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+        {# Si asset_mapper fonctionne : #}
+        {# <link rel="stylesheet" href="{{ asset_mapper('styles/app.css') }}"> #}
+        <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+        {# <link rel="stylesheet" href="{{ asset_mapper('styles/bootstrap-icons/font/bootstrap-icons.css') }}"> #}
+
+        {# En attendant, fallback avec asset() : #}
+        <link rel="stylesheet" href="{{ asset('assets/styles/app.css') }}">
+        {% endblock %}
+
+    </head>
+    <body>
+        {% block header %}
+            <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+                <div class="container">
+                    <a class="navbar-brand d-flex align-items-center" href="{{ path('app_home') }}">
+                        <span class="me-2">🎫</span>
+                        <span class="fw-bold">Sen-Billets</span>
+                    </a>
+
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav me-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('app_home') }}">Accueil</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ path('event_index') }}">Événements</a>
+                            </li>
+                            {% if is_granted('ROLE_ORGANIZER') %}
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                        Organisateur
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="{{ path('app_dashboard') }}">Tableau de bord</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('event_my_events') }}">Mes événements</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{{ path('event_new') }}">Créer un événement</a></li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+                        </ul>
+
+                        <div class="d-flex align-items-center">
+                            {% if app.user %}
+                                <div class="dropdown">
+                                    <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-person-circle me-1"></i>
+                                        {{ app.user.name }}
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="#">Mon profil</a></li>
+                                        {# <li><a class="dropdown-item" href="{{ path('ticket_my_tickets') }}">Mes billets</a></li> #}
+                                        {% if is_granted('ROLE_ORGANIZER') %}
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="{{ path('app_dashboard') }}">Tableau de bord</a></li>
+                                        {% endif %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_logout') }}">Déconnexion</a></li>
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <a href="{{ path('app_login') }}" class="btn btn-outline-light me-2">
+                                    Connexion
+                                </a>
+                                <a href="{{ path('app_register') }}" class="btn btn-warning">
+                                    Inscription
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        {% endblock %}
+
+        <main>
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label == 'error' ? 'danger' : label }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+            {% block body %}{% endblock %}
+        </main>
+
+        {% block footer %}
+            <footer class="bg-dark text-light py-5 mt-5">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <h5 class="text-warning mb-3">🎫 Sen-Billets</h5>
+                            <p class="text-muted">La plateforme de billetterie moderne du Sénégal. Découvrez et organisez des événements exceptionnels.</p>
+                        </div>
+                        
+                        <div class="col-lg-2 col-md-6">
+                            <h6 class="text-white mb-3">Navigation</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="{{ path('app_home') }}" class="text-muted text-decoration-none">Accueil</a></li>
+                                <li class="mb-2"><a href="{{ path('event_index') }}" class="text-muted text-decoration-none">Événements</a></li>
+                                <li class="mb-2"><a href="{{ path('app_about') }}" class="text-muted text-decoration-none">À propos</a></li>
+                                <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Contact</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-lg-2 col-md-6">
+                            <h6 class="text-white mb-3">Organisateurs</h6>
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><a href="{{ path('event_new') }}" class="text-muted text-decoration-none">Créer un événement</a></li>
+                                <li class="mb-2"><a href="{{ path('app_dashboard') }}" class="text-muted text-decoration-none">Tableau de bord</a></li>
+                                <li class="mb-2"><a href="#" class="text-muted text-decoration-none">Support</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-lg-4">
+                            <h6 class="text-white mb-3">Contact</h6>
+                            <p class="text-muted">
+                                <i class="bi bi-geo-alt me-2"></i>Dakar, Sénégal<br>
+                                <i class="bi bi-envelope me-2"></i>contact@sen-billets.sn<br>
+                                <i class="bi bi-phone me-2"></i>+221 XX XXX XX XX
+                            </p>
+                            <div class="d-flex gap-3">
+                                <a href="#" class="text-light fs-4" data-bs-toggle="tooltip" title="Facebook">
+                                    <i class="bi bi-facebook"></i>
+                                </a>
+                                <a href="#" class="text-light fs-4" data-bs-toggle="tooltip" title="Twitter">
+                                    <i class="bi bi-twitter"></i>
+                                </a>
+                                <a href="#" class="text-light fs-4" data-bs-toggle="tooltip" title="Instagram">
+                                    <i class="bi bi-instagram"></i>
+                                </a>
+                                <a href="#" class="text-light fs-4" data-bs-toggle="tooltip" title="LinkedIn">
+                                    <i class="bi bi-linkedin"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4 border-secondary">
+                    <div class="text-center text-muted">
+                        <p>&copy; 2024 Sen-Billets. Tous droits réservés. Développé avec ❤️ au Sénégal.</p>
+                    </div>
+                </div>
+            </footer>
+
+            <!-- Toast container for notifications -->
+            <div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;"></div>
+        {% endblock %}
+        {% block javascripts %}
+            {% block importmap %}{{ importmap('app') }}{% endblock %}
+            <script>
+                // Global configuration
+                window.SEN_BILLETS_CONFIG = {
+                    baseUrl: '{{ app.request.schemeAndHttpHost }}',
+                    user: {% if app.user %}{{ {
+                        id: app.user.id,
+                        name: app.user.name,
+                        email: app.user.email,
+                        roles: app.user.roles
+                    }|json_encode|raw }}{% else %}null{% endif %}
+                };
+            </script>
+        {% endblock %}
+
+        <!-- Bootstrap JS -->
+            <script>
+            document.addEventListener("DOMContentLoaded", function () {
+            const passwordField = document.getElementById("password-field");
+            const toggleBtn = document.getElementById("toggle-password");
+            const icon = document.getElementById("password-icon");
+
+            if (toggleBtn && passwordField && icon) {
+                toggleBtn.addEventListener("click", function () {
+                    const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
+                    passwordField.setAttribute("type", type);
+                    icon.classList.toggle("bi-eye");
+                    icon.classList.toggle("bi-eye-slash");
+                });
+            }
+        });
+        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!--<script src="/assets/app.js"></script>-->
+        {#<script type="module" src="{{ asset_mapper('app.js') }}"></script>#}
+        <script type="module" src="{{ asset('app.js') }}"></script>
+        
+    </body>
+</html>

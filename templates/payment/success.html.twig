@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement réussi{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="text-center mb-4">
+        <h1 class="display-5 text-success">🎉 Paiement réussi</h1>
+        <p class="lead">Merci pour votre paiement. Voici les détails de votre transaction :</p>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Montant :</strong> {{ payment.amount }} FCFA</li>
+                <li class="list-group-item"><strong>Méthode de paiement :</strong> {{ payment.paymentMethod }}</li>
+                <li class="list-group-item"><strong>Date :</strong> {{ payment.createdAt|date('d/m/Y H:i') }}</li>
+            </ul>
+        </div>
+    </div>
+
+    {% if payment.qrCodeImagePath %}
+        <div class="text-center mb-4">
+            <h5 class="mb-3">QR Code du billet</h5>
+            <img src="{{ asset(payment.qrCodeImagePath) }}" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+        </div>
+    {% endif %}
+
+    <div class="text-center">
+        <a href="{{ asset('uploads/invoices/invoice_' ~ payment.id ~ '.pdf') }}"
+           class="btn btn-outline-primary me-2"
+           download>
+           📄 Télécharger la facture PDF ...
+        </a>
+        <a href="{{ path('payment_history') }}" class="btn btn-outline-secondary">
+            🔙 Retour à l'historique
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,176 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un événement - Sen-Billets{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('event_index') }}">Événements</a></li>
+                <li class="breadcrumb-item active">Créer un événement</li>
+            </ol>
+        </nav>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card border-0 shadow-lg">
+                    <div class="card-header bg-primary text-white py-4">
+                        <h1 class="h3 mb-0 fw-bold">
+                            <i class="bi bi-plus-circle me-2"></i>Créer un nouvel événement
+                        </h1>
+                    </div>
+                    
+                    <div class="card-body p-5">
+                        {{ form_start(form) }}
+                            <div class="row g-4">
+                                <!-- Informations générales -->
+                                <div class="col-12">
+                                    <h4 class="fw-bold text-primary mb-3">Informations générales</h4>
+                                </div>
+                                
+                                <div class="col-md-8">
+                                    {{ form_row(form.title) }}
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    {{ form_row(form.category) }}
+                                </div>
+                                
+                                <div class="col-12">
+                                    {{ form_row(form.description) }}
+                                </div>
+                                
+                                <div class="col-12">
+                                    {{ form_row(form.imageUrl) }}
+                                </div>
+
+                                <!-- Date et heure -->
+                                <div class="col-12">
+                                    <h4 class="fw-bold text-primary mb-3">Date et heure</h4>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    {{ form_row(form.eventDate) }}
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    {{ form_row(form.startTime) }}
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    {{ form_row(form.endTime) }}
+                                </div>
+
+                                <!-- Lieu -->
+                                <div class="col-12">
+                                    <h4 class="fw-bold text-primary mb-3">Lieu</h4>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    {{ form_row(form.venue) }}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    {{ form_row(form.address) }}
+                                </div>
+
+                                <!-- Capacité et statut -->
+                                <div class="col-12">
+                                    <h4 class="fw-bold text-primary mb-3">Configuration</h4>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    {{ form_row(form.capacity) }}
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    {{ form_row(form.status) }}
+                                </div>
+
+                                <!-- Types de billets -->
+                                <div class="col-12">
+                                    <h4 class="fw-bold text-primary mb-3">Types de billets</h4>
+                                    <div id="ticket-types-collection" data-prototype="{{ form_widget(form.ticketTypes.vars.prototype)|e('html_attr') }}">
+                                        {% for ticketType in form.ticketTypes %}
+                                            <div class="ticket-type-item border rounded p-3 mb-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <h6 class="fw-bold mb-0">Type de billet #{{ loop.index }}</h6>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm remove-ticket-type">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="row g-3">
+                                                    <div class="col-md-6">{{ form_row(ticketType.name) }}</div>
+                                                    <div class="col-md-6">{{ form_row(ticketType.price) }}</div>
+                                                    <div class="col-md-6">{{ form_row(ticketType.quantity) }}</div>
+                                                    <div class="col-md-6">{{ form_row(ticketType.endDate) }}</div>
+                                                    <div class="col-12">{{ form_row(ticketType.description) }}</div>
+                                                    <div class="col-12">{{ form_row(ticketType.earlyBird) }}</div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    <button type="button" class="btn btn-outline-primary" id="add-ticket-type">
+                                        <i class="bi bi-plus-circle me-2"></i>Ajouter un type de billet
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-3 mt-5">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-check-circle me-2"></i>Créer l'événement
+                                </button>
+                                
+                                <a href="{{ path('event_index') }}" class="btn btn-outline-secondary btn-lg">
+                                    <i class="bi bi-x-circle me-2"></i>Annuler
+                                </a>
+                            </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const collectionHolder = document.getElementById('ticket-types-collection');
+            const addButton = document.getElementById('add-ticket-type');
+            
+            let index = collectionHolder.children.length;
+
+            addButton.addEventListener('click', function() {
+                const prototype = collectionHolder.dataset.prototype;
+                const newForm = prototype.replace(/__name__/g, index);
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'ticket-type-item border rounded p-3 mb-3';
+                wrapper.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="fw-bold mb-0">Type de billet #${index + 1}</h6>
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-ticket-type">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    <div class="row g-3">${newForm}</div>
+                `;
+                
+                collectionHolder.appendChild(wrapper);
+                index++;
+                
+                // Add remove functionality
+                wrapper.querySelector('.remove-ticket-type').addEventListener('click', function() {
+                    wrapper.remove();
+                });
+            });
+
+            // Add remove functionality to existing items
+            document.querySelectorAll('.remove-ticket-type').forEach(button => {
+                button.addEventListener('click', function() {
+                    button.closest('.ticket-type-item').remove();
+                });
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,32 @@
+framework:
+    asset_mapper:
+        paths:
+            - assets
+        excluded_patterns:
+            - '*/tests/*'
+            - '*/node_modules/*'
+            - '*.md'
+            - '*.txt'
+        # The public prefix to use for assets
+        public_prefix: '/assets/'
+        # The manifest file path
+        # json_manifest_path: '%kernel.project_dir%/public/assets/manifest.json'
+        # The importmap file path
+        importmap_path: '%kernel.project_dir%/importmap.php'
+        # The vendor directory for downloaded assets
+        vendor_dir: '%kernel.project_dir%/assets/vendor'
+        # File extensions to process
+        extensions:
+            - '.js'
+            - '.css'
+            - '.png'
+            - '.jpg'
+            - '.jpeg'
+            - '.gif'
+            - '.svg'
+            - '.woff'
+            - '.woff2'
+            - '.ttf'
+            - '.eot'
+        # Enable server mode for development
+        server: true

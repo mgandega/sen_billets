@@ -1,0 +1,227 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Commande {{ order.orderNumber }} - Symfony 7.2{% endblock %}
+
+{% block body %}
+    <div class="container py-5">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('order_index') }}">Mes commandes</a></li>
+                <li class="breadcrumb-item active">{{ order.orderNumber }}</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card border-0 shadow">
+                    <div class="card-header bg-primary text-white py-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h1 class="h3 mb-1 fw-bold">Commande {{ order.orderNumber }}</h1>
+                                <small>Passée le {{ order.createdAt|date('d/m/Y à H:i') }}</small>
+                            </div>
+                            <span class="badge {{ order.statusBadgeClass }} fs-6">
+                                {{ order.statusLabel }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        <!-- Order Items -->
+                        <h5 class="fw-bold mb-3">Articles commandés</h5>
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th>Prix unitaire</th>
+                                        <th>Quantité</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order.orderItems %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    {% if item.product.imageUrl %}
+                                                        <img src="{{ item.product.imageUrl }}" alt="{{ item.product.name }}" 
+                                                             class="me-3 rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                    {% endif %}
+                                                    <div>
+                                                        <h6 class="mb-0">{{ item.product.name }}</h6>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{{ item.unitPrice }} €</td>
+                                            <td>{{ item.quantity }}</td>
+                                            <td class="fw-bold">{{ item.totalPrice }} €</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot class="table-light">
+                                    <tr>
+                                        <th colspan="3">Total</th>
+                                        <th class="fs-5 text-success">{{ order.totalAmount }} €</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <!-- Shipping Information -->
+                        <h5 class="fw-bold mb-3 mt-4">Adresse de livraison</h5>
+                        <div class="bg-light p-3 rounded">
+                            <p class="mb-1"><strong>{{ order.user.fullName }}</strong></p>
+                            <p class="mb-1">{{ order.shippingAddress }}</p>
+                            <p class="mb-0">{{ order.shippingPostalCode }} {{ order.shippingCity }}, {{ order.shippingCountry }}</p>
+                        </div>
+
+                        <!-- Payment Information -->
+                        <h5 class="fw-bold mb-3 mt-4">Informations de paiement</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="bg-light p-3 rounded">
+                                    <small class="text-muted d-block">Mode de paiement</small>
+                                    <span class="fw-bold">
+                                        {% if order.paymentMethod == 'credit_card' %}
+                                            <i class="bi bi-credit-card me-1"></i>Carte bancaire
+                                        {% elseif order.paymentMethod == 'paypal' %}
+                                            <i class="bi bi-paypal me-1"></i>PayPal
+                                        {% elseif order.paymentMethod == 'bank_transfer' %}
+                                            <i class="bi bi-bank me-1"></i>Virement bancaire
+                                        {% else %}
+                                            <i class="bi bi-cash me-1"></i>Paiement à la livraison
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="bg-light p-3 rounded">
+                                    <small class="text-muted d-block">Statut du paiement</small>
+                                    <span class="fw-bold text-warning">{{ order.paymentStatus|default('En attente') }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if order.notes %}
+                            <h5 class="fw-bold mb-3 mt-4">Notes</h5>
+                            <div class="bg-light p-3 rounded">
+                                <p class="mb-0">{{ order.notes }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow sticky-top" style="top: 2rem;">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0 fw-bold">Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if order.status in ['pending', 'confirmed'] %}
+                            <form method="post" action="{{ path('order_cancel', {id: order.id}) }}" class="mb-3"
+                                  onsubmit="return confirm('Êtes-vous sûr de vouloir annuler cette commande ?')">
+                                <button type="submit" class="btn btn-outline-danger w-100">
+                                    <i class="bi bi-x-circle me-2"></i>Annuler la commande
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        <a href="{{ path('order_index') }}" class="btn btn-outline-secondary w-100 mb-2">
+                            <i class="bi bi-arrow-left me-2"></i>Mes commandes
+                        </a>
+
+                        <a href="{{ path('product_index') }}" class="btn btn-primary w-100">
+                            <i class="bi bi-bag me-2"></i>Continuer mes achats
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Order Timeline -->
+                <div class="card border-0 shadow mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0 fw-bold">Suivi de commande</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item {{ order.status in ['confirmed', 'processing', 'shipped', 'delivered'] ? 'completed' : '' }}">
+                                <i class="bi bi-check-circle"></i>
+                                <div>
+                                    <strong>Commande confirmée</strong>
+                                    <small class="d-block text-muted">{{ order.createdAt|date('d/m/Y à H:i') }}</small>
+                                </div>
+                            </div>
+                            <div class="timeline-item {{ order.status in ['processing', 'shipped', 'delivered'] ? 'completed' : '' }}">
+                                <i class="bi bi-gear"></i>
+                                <div>
+                                    <strong>En préparation</strong>
+                                    <small class="d-block text-muted">En cours...</small>
+                                </div>
+                            </div>
+                            <div class="timeline-item {{ order.status in ['shipped', 'delivered'] ? 'completed' : '' }}">
+                                <i class="bi bi-truck"></i>
+                                <div>
+                                    <strong>Expédiée</strong>
+                                    <small class="d-block text-muted">En cours...</small>
+                                </div>
+                            </div>
+                            <div class="timeline-item {{ order.status == 'delivered' ? 'completed' : '' }}">
+                                <i class="bi bi-house"></i>
+                                <div>
+                                    <strong>Livrée</strong>
+                                    <small class="d-block text-muted">En cours...</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #dee2e6;
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .timeline-item i {
+            position: absolute;
+            left: -2rem;
+            top: 0.25rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+        
+        .timeline-item.completed i {
+            background: #198754;
+            border-color: #198754;
+            color: white;
+        }
+    </style>
+{% endblock %}

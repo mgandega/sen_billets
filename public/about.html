@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>À propos - Sen-Billets</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🎫</text></svg>">
+  <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/node_modules/bootstrap-icons/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="/assets/styles/app.css">
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container">
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <span class="me-2">🎫</span>
+        <span class="fw-bold">Sen-Billets</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/">Accueil</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/events">Événements</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              Catégories
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="/events/category/Musique">Musique</a></li>
+              <li><a class="dropdown-item" href="/events/category/Théâtre">Théâtre</a></li>
+              <li><a class="dropdown-item" href="/events/category/Danse">Danse</a></li>
+              <li><a class="dropdown-item" href="/events/category/Conférence">Conférence</a></li>
+              <li><a class="dropdown-item" href="/events/category/Sport">Sport</a></li>
+              <li><a class="dropdown-item" href="/events/category/Festival">Festival</a></li>
+              <li><a class="dropdown-item" href="/events/category/Exposition">Exposition</a></li>
+              <li><a class="dropdown-item" href="/events/category/Cinéma">Cinéma</a></li>
+              <li><a class="dropdown-item" href="/events/category/Technologie">Technologie</a></li>
+              <li><a class="dropdown-item" href="/events/category/Business">Business</a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="/about">À propos</a>
+          </li>
+        </ul>
+
+        <div class="d-flex align-items-center">
+          <a href="/login" class="btn btn-outline-light me-2">
+            Connexion
+          </a>
+          <a href="/register" class="btn btn-warning">
+            Inscription
+          </a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <div class="text-center mb-5">
+            <h1 class="display-4 fw-bold text-primary mb-4">À propos de Sen-Billets</h1>
+            <p class="lead text-muted">La plateforme de billetterie moderne du Sénégal</p>
+          </div>
+
+          <div class="card border-0 shadow-lg">
+            <div class="card-body p-5">
+              <h2 class="h3 fw-bold mb-4">Notre mission</h2>
+              
+              <p class="mb-4">
+                Sen-Billets a été créée avec une vision claire : faciliter l'accès aux événements culturels et de divertissement au Sénégal. Notre plateforme connecte les organisateurs d'événements avec leur public, en offrant une expérience de réservation simple, sécurisée et moderne.
+              </p>
+              
+              <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                  <div class="text-center">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                      <i class="bi bi-ticket-perforated text-primary fs-2"></i>
+                    </div>
+                    <h4 class="h5 fw-bold">Accessibilité</h4>
+                    <p class="text-muted small">Rendre les événements accessibles à tous les Sénégalais</p>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="text-center">
+                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                      <i class="bi bi-shield-check text-success fs-2"></i>
+                    </div>
+                    <h4 class="h5 fw-bold">Sécurité</h4>
+                    <p class="text-muted small">Garantir des transactions sécurisées et lutter contre la fraude</p>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="text-center">
+                    <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                      <i class="bi bi-stars text-warning fs-2"></i>
+                    </div>
+                    <h4 class="h5 fw-bold">Innovation</h4>
+                    <p class="text-muted small">Proposer des solutions technologiques adaptées au marché local</p>
+                  </div>
+                </div>
+              </div>
+
+              <h3 class="h4 fw-bold mb-3">Notre histoire</h3>
+              <p class="mb-4">
+                Fondée en 2023 par une équipe de passionnés de technologie et de culture, Sen-Billets est née d'un constat simple : le besoin d'une plateforme de billetterie moderne et adaptée aux réalités sénégalaises. Après des mois de développement et de tests, nous avons lancé notre service avec l'ambition de révolutionner l'organisation d'événements au Sénégal.
+              </p>
+
+              <div class="alert alert-primary" role="alert">
+                <h4 class="alert-heading">Notre vision</h4>
+                <p>Devenir la référence en matière de billetterie électronique en Afrique de l'Ouest, en proposant des solutions innovantes qui répondent aux besoins spécifiques du marché local.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Team Section -->
+          <div class="card border-0 shadow-lg mt-5">
+            <div class="card-body p-5">
+              <h2 class="h3 fw-bold mb-4 text-center">Notre équipe</h2>
+              
+              <div class="row g-4">
+                <div class="col-md-4">
+                  <div class="text-center">
+                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                      <i class="bi bi-person-circle text-primary fs-1"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">Amadou Diop</h5>
+                    <p class="text-muted mb-0">Fondateur & CEO</p>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="text-center">
+                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                      <i class="bi bi-person-circle text-success fs-1"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">Fatou Ndiaye</h5>
+                    <p class="text-muted mb-0">Directrice Marketing</p>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="text-center">
+                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 100px; height: 100px;">
+                      <i class="bi bi-person-circle text-info fs-1"></i>
+                    </div>
+                    <h5 class="fw-bold mb-1">Moussa Sow</h5>
+                    <p class="text-muted mb-0">Lead Developer</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Section -->
+          <div class="card border-0 shadow-lg mt-5">
+            <div class="card-body p-5">
+              <h2 class="h3 fw-bold mb-4 text-center">Contactez-nous</h2>
+              
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <h5 class="fw-bold mb-3">Informations de contact</h5>
+                  <ul class="list-unstyled">
+                    <li class="mb-3">
+                      <i class="bi bi-geo-alt text-primary me-2"></i>
+                      Dakar, Sénégal
+                    </li>
+                    <li class="mb-3">
+                      <i class="bi bi-envelope text-primary me-2"></i>
+                      contact@sen-billets.sn
+                    </li>
+                    <li class="mb-3">
+                      <i class="bi bi-phone text-primary me-2"></i>
+                      +221 XX XXX XX XX
+                    </li>
+                  </ul>
+                  
+                  <h5 class="fw-bold mb-3 mt-4">Suivez-nous</h5>
+                  <div class="d-flex gap-3">
+                    <a href="#" class="text-primary fs-4">
+                      <i class="bi bi-facebook"></i>
+                    </a>
+                    <a href="#" class="text-primary fs-4">
+                      <i class="bi bi-twitter"></i>
+                    </a>
+                    <a href="#" class="text-primary fs-4">
+                      <i class="bi bi-instagram"></i>
+                    </a>
+                    <a href="#" class="text-primary fs-4">
+                      <i class="bi bi-linkedin"></i>
+                    </a>
+                  </div>
+                </div>
+                
+                <div class="col-md-6">
+                  <h5 class="fw-bold mb-3">Envoyez-nous un message</h5>
+                  <form>
+                    <div class="mb-3">
+                      <input type="text" class="form-control" placeholder="Votre nom">
+                    </div>
+                    <div class="mb-3">
+                      <input type="email" class="form-control" placeholder="Votre email">
+                    </div>
+                    <div class="mb-3">
+                      <textarea class="form-control" rows="4" placeholder="Votre message"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                      <i class="bi bi-send me-2"></i>Envoyer
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-dark text-light py-5 mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4">
+          <h5 class="text-warning mb-3">🎫 Sen-Billets</h5>
+          <p class="text-muted">La plateforme de billetterie moderne du Sénégal. Découvrez et organisez des événements exceptionnels.</p>
+        </div>
+        
+        <div class="col-lg-2 col-md-6">
+          <h6 class="text-white mb-3">Navigation</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="/" class="text-muted text-decoration-none">Accueil</a></li>
+            <li class="mb-2"><a href="/events" class="text-muted text-decoration-none">Événements</a></li>
+            <li class="mb-2"><a href="/about" class="text-muted text-decoration-none">À propos</a></li>
+          </ul>
+        </div>
+        
+        <div class="col-lg-2 col-md-6">
+          <h6 class="text-white mb-3">Organisateurs</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="/events/new" class="text-muted text-decoration-none">Créer un événement</a></li>
+            <li class="mb-2"><a href="/admin/dashboard" class="text-muted text-decoration-none">Tableau de bord</a></li>
+          </ul>
+        </div>
+        
+        <div class="col-lg-4">
+          <h6 class="text-white mb-3">Contact</h6>
+          <p class="text-muted">
+            <i class="bi bi-geo-alt me-2"></i>Dakar, Sénégal<br>
+            <i class="bi bi-envelope me-2"></i>contact@sen-billets.sn<br>
+            <i class="bi bi-phone me-2"></i>+221 XX XXX XX XX
+          </p>
+        </div>
+      </div>
+      
+      <hr class="my-4 border-secondary">
+      <div class="text-center text-muted">
+        <p>&copy; 2024 Sen-Billets. Tous droits réservés.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Simple script to check if assets are loading correctly
+    console.log('About page loaded successfully');
+    
+    // Add event listeners to navigation links
+    document.addEventListener('DOMContentLoaded', function() {
+      const links = document.querySelectorAll('a[href]');
+      links.forEach(link => {
+        link.addEventListener('click', function(e) {
+          console.log('Navigating to:', this.getAttribute('href'));
+        });
+      });
+    });
+  </script>
+</body>
+</html>

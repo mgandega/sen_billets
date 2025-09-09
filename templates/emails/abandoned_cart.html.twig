@@ -1,0 +1,87 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Vous avez oublié vos billets !{% endblock %}
+
+{% block header_title %}🛒 Panier en attente{% endblock %}
+{% block header_subtitle %}
+    <p style="color: #ffffff; margin: 10px 0 0 0; opacity: 0.9;">
+        Vos billets vous attendent !
+    </p>
+{% endblock %}
+
+{% block content %}
+    <div class="text-center">
+        <div style="font-size: 4rem; margin-bottom: 20px;">🛒</div>
+        <h2 style="color: #ffc107; margin-bottom: 20px;">N'oubliez pas vos billets !</h2>
+        
+        <p style="font-size: 18px; margin-bottom: 30px;">
+            Vous avez des billets dans votre panier qui n'attendent que vous. 
+            Finalisez votre achat avant qu'ils ne soient plus disponibles !
+        </p>
+    </div>
+
+    <!-- Cart Items -->
+    <div class="card">
+        <h3 style="color: #0d6efd; margin-top: 0;">🎫 Dans votre panier</h3>
+        
+        {% for item in cart_items %}
+            <div style="border-bottom: 1px solid #dee2e6; padding: 15px 0;">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 5px 0; color: #333;">{{ item.event.title }}</h4>
+                        <p style="margin: 0 0 5px 0; color: #6c757d;">{{ item.ticketType.name }}</p>
+                        <small style="color: #6c757d;">
+                            📅 {{ item.event.eventDate|date('d/m/Y') }} à {{ item.event.startTime|date('H:i') }}
+                        </small>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-weight: bold; color: #198754;">
+                            {{ item.subtotal|number_format(0, ',', ' ') }} FCFA
+                        </div>
+                        <small style="color: #6c757d;">{{ item.quantity }} billet{{ item.quantity > 1 ? 's' : '' }}</small>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        
+        <div style="text-align: right; padding-top: 15px; border-top: 2px solid #0d6efd;">
+            <strong style="font-size: 18px; color: #0d6efd;">
+                Total : {{ cart_total|number_format(0, ',', ' ') }} FCFA
+            </strong>
+        </div>
+    </div>
+
+    <!-- Urgency Message -->
+    <div class="card" style="background-color: #fff3cd; border-color: #ffc107;">
+        <h4 style="color: #856404; margin-top: 0;">⚠️ Attention !</h4>
+        <p style="color: #856404; margin-bottom: 0;">
+            Les billets pour les événements populaires partent vite ! 
+            Ne manquez pas votre chance et finalisez votre achat maintenant.
+        </p>
+    </div>
+
+    <div class="text-center">
+        <a href="{{ app_url }}/cart" class="btn btn-warning" style="color: #000000; font-size: 18px; padding: 15px 40px;">
+            🛒 Finaliser mon achat
+        </a>
+    </div>
+
+    <!-- Special Offer -->
+    <div class="card" style="background-color: #d1ecf1; border-color: #0dcaf0;">
+        <h4 style="color: #055160; margin-top: 0;">🎁 Offre spéciale</h4>
+        <p style="color: #055160; margin-bottom: 15px;">
+            Finalisez votre achat dans les prochaines 24h et bénéficiez de la livraison gratuite de vos billets par email !
+        </p>
+        <p style="color: #055160; margin-bottom: 0; font-size: 14px;">
+            <em>Offre valable jusqu'au {{ "now"|date_modify("+1 day")|date("d/m/Y à H:i") }}</em>
+        </p>
+    </div>
+
+    <div class="text-center" style="margin-top: 30px;">
+        <p style="color: #6c757d;">
+            Besoin d'aide pour finaliser votre achat ?<br>
+            📧 <a href="mailto:support@sen-billets.sn">support@sen-billets.sn</a> | 
+            📞 +221 XX XXX XX XX
+        </p>
+    </div>
+{% endblock %}

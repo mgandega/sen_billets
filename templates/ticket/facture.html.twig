@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Facture - Ticket{% endblock %}
+
+{% block body %}
+    <h1>Facture du ticket ...</h1>
+
+    <p><strong>Nom :</strong> {{ ticket.customerName }}</p>
+    <p><strong>Email :</strong> {{ ticket.customerEmail }}</p>
+    <p><strong>Événement :</strong> {{ ticket.event.name }}</p>
+    <p><strong>Date :</strong> {{ ticket.event.eventDate|date('d/m/Y H:i') }}</p>
+    <p><strong>QR Code :</strong> {{ ticket.qrCode }}</p>
+
+    <div style="margin-top: 30px;">
+        <h3>Scanner ce QR Code à l'entrée :</h3>
+        <img src="{{ path('ticket_qrcode', { qrCode: ticket.qrCode }) }}" alt="QR Code">
+    </div>
+{% endblock %}

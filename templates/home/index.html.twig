@@ -1,0 +1,242 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - Sen-Billets{% endblock %}
+
+{% block body %}
+    <!-- Hero Section -->
+        
+<!-- CSS pour réduire la taille -->
+    <style>
+        .custom-carousel {
+            max-height: 300px;
+            overflow: hidden;
+        }
+        .custom-carousel img {
+            object-fit: cover;
+            height: 100%;
+        }
+    </style>
+
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6">
+
+        <!-- Carrousel -->
+        {# <div id="carouselExampleIndicators" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="2000">
+            <ol class="carousel-indicators">
+                {% for event in events %}
+                    <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}"></li>
+                {% endfor %}
+            </ol>
+            <div class="carousel-inner">
+                {% for event in events %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <img class="d-block w-100" src="{{ event.imageurl }}" alt="Slide {{ loop.index }}">
+                    </div>
+                {% endfor %}
+            </div>
+                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </a>
+            </div> #}
+        {# fin slide #}
+                    <h1 class="display-3 fw-bold mb-4 fade-in text-white">
+                        Découvrez les meilleurs événements du Sénégal
+                    </h1>
+                    <p class="lead mb-5 fs-4 slide-up text-white">
+                        Sen-Billets est la plateforme de référence pour découvrir, réserver et organiser des événements exceptionnels au Sénégal.
+                    </p>
+                    
+                    <div class="d-flex gap-3 justify-content-start flex-wrap">
+                        <a href="{{ path('event_index') }}" class="btn btn-warning btn-lg btn-custom">
+                            <i class="bi bi-calendar-event me-2"></i>Voir les événements
+                        </a>
+                        {% if not app.user %}
+                            <a href="{{ path('app_register') }}" class="btn btn-outline-light btn-lg btn-custom">
+                                <i class="bi bi-person-plus me-2"></i>Rejoindre
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {# <div class="col-lg-6 text-center">
+                    <div class="position-relative">
+                        <img src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?auto=compress&cs=tinysrgb&w=600" 
+                             alt="Événement musical" class="img-fluid rounded-3 shadow-lg">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 bg-primary bg-opacity-10 rounded-3"></div>
+                    </div>
+                </div> #}
+                <div class="col-lg-6 text-center">
+                <!-- Carrousel -->
+        <div id="carouselExampleIndicators" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="2000">
+            <ol class="carousel-indicators">
+                {% for event in events %}
+                    <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}"></li>
+                {% endfor %}
+            </ol>
+            <div class="carousel-inner">
+                {% for event in events %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <img class="d-block w-100" src="{{ event.imageurl }}" alt="Slide {{ loop.index }}">
+                    </div>
+                {% endfor %}
+            </div>
+                <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </a>
+            </div>
+        {# fin slide #}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section-padding bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold text-dark mb-4">Pourquoi choisir Sen-Billets ?</h2>
+                <p class="lead text-muted">Une plateforme moderne pour tous vos besoins événementiels</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 shadow card-hover">
+                        <div class="card-body text-center p-4">
+                            <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                <i class="bi bi-search text-primary fs-1"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Découverte facile</h4>
+                            <p class="text-muted">Trouvez facilement les événements qui vous intéressent grâce à notre système de recherche et de filtres avancés.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 shadow card-hover">
+                        <div class="card-body text-center p-4">
+                            <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                <i class="bi bi-shield-check text-success fs-1"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Réservation sécurisée</h4>
+                            <p class="text-muted">Réservez vos billets en toute sécurité avec notre système de paiement protégé et recevez vos billets instantanément.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 shadow card-hover">
+                        <div class="card-body text-center p-4">
+                            <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+                                <i class="bi bi-calendar-plus text-warning fs-1"></i>
+                            </div>
+                            <h4 class="fw-bold mb-3">Organisation simplifiée</h4>
+                            <p class="text-muted">Organisateurs, créez et gérez vos événements facilement avec nos outils intuitifs et notre tableau de bord complet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Events Section -->
+    <section class="section-padding">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold text-dark mb-4">Événements à la une</h2>
+                <p class="lead text-muted">Découvrez les événements les plus populaires du moment</p>
+            </div>
+
+            <div class="row g-4">
+                <!-- Ces événements seront chargés dynamiquement depuis la base de données -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 shadow card-hover">
+                        <img src="https://images.pexels.com/photos/1190298/pexels-photo-1190298.jpeg?auto=compress&cs=tinysrgb&w=400" 
+                             class="card-img-top" alt="Festival de Musique" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <span class="badge bg-primary mb-2">Musique</span>
+                            <h5 class="card-title fw-bold">Festival de Musique Dakar 2024</h5>
+                            <p class="card-text text-muted">Le plus grand festival de musique du Sénégal avec des artistes internationaux.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">15 Décembre 2024</small>
+                                <span class="text-success fw-bold">À partir de 25 000 FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 shadow card-hover">
+                        <img src="https://images.pexels.com/photos/2774556/pexels-photo-2774556.jpeg?auto=compress&cs=tinysrgb&w=400" 
+                             class="card-img-top" alt="Conférence Tech" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <span class="badge bg-info mb-2">Technologie</span>
+                            <h5 class="card-title fw-bold">Conférence Tech Sénégal</h5>
+                            <p class="card-text text-muted">Découvrez les dernières innovations technologiques en Afrique.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">28 Novembre 2024</small>
+                                <span class="text-success fw-bold">À partir de 15 000 FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 border-0 shadow card-hover">
+                        <img src="https://images.pexels.com/photos/109669/pexels-photo-109669.jpeg?auto=compress&cs=tinysrgb&w=400" 
+                             class="card-img-top" alt="Théâtre" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <span class="badge bg-warning mb-2">Théâtre</span>
+                            <h5 class="card-title fw-bold">Pièce Théâtrale Classique</h5>
+                            <p class="card-text text-muted">Une représentation exceptionnelle par la troupe nationale.</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">5 Décembre 2024</small>
+                                <span class="text-success fw-bold">À partir de 8 000 FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="{{ path('event_index') }}" class="btn btn-primary btn-lg">
+                    Voir tous les événements
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section for Organizers -->
+    {% if not app.user or not is_granted('ROLE_ORGANIZER') %}
+        <section class="bg-primary text-white section-padding">
+            <div class="container">
+                <div class="row justify-content-center text-center">
+                    <div class="col-lg-8">
+                        <h2 class="display-5 fw-bold mb-4">Vous organisez des événements ?</h2>
+                        <p class="lead mb-5">Rejoignez Sen-Billets et bénéficiez d'une plateforme complète pour gérer vos événements, vendre vos billets et analyser vos performances.</p>
+                        <div class="d-flex gap-3 justify-content-center flex-wrap">
+                            {% if not app.user %}
+                                <a href="{{ path('app_register') }}" class="btn btn-warning btn-lg btn-custom">
+                                    Devenir organisateur
+                                </a>
+                            {% endif %}
+                            <a href="#" class="btn btn-outline-light btn-lg btn-custom">
+                                En savoir plus
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+{% endblock %}

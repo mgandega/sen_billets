@@ -1,0 +1,60 @@
+# Configuration des services de paiement pour Symfony 7.2
+services:
+    # Service de paiement principal
+    App\Service\PaymentService:
+        arguments:
+            $stripeSecretKey: '%env(STRIPE_SECRET_KEY)%'
+            $paydunyaMasterKey: '%env(PAYDUNYA_MASTER_KEY)%'
+            $paydunyaPrivateKey: '%env(PAYDUNYA_PRIVATE_KEY)%'
+            $paydunyaPublicKey: '%env(PAYDUNYA_PUBLIC_KEY)%'
+            $paydunyaToken: '%env(PAYDUNYA_TOKEN)%'
+            $paydunyaMode: '%env(PAYDUNYA_MODE)%'
+            $orangeMoneyApiKey: '%env(ORANGE_MONEY_API_KEY)%'
+            $waveApiKey: '%env(WAVE_API_KEY)%'
+        calls:
+            - [setLogger, ['@logger']]
+
+# Configuration des paramètres de paiement
+parameters:
+    payment.currency: 'XOF'
+    payment.default_locale: 'fr'
+    payment.webhook_secret: '%env(APP_SECRET)%'
+    payment.store_name: 'Sen-Billets'
+    payment.store_description: 'Plateforme de billetterie au Sénégal'
+    payment.store_logo: 'https://sen-billets.sn/assets/images/logo.png'
+    payment.store_contact_email: 'contact@sen-billets.sn'
+    payment.store_contact_phone: '+221XXXXXXXX'
+    
+    # Configuration des méthodes de paiement
+    payment.methods:
+        paydunya_card:
+            name: 'Carte bancaire'
+            icon: 'bi-credit-card'
+            enabled: true
+            fee_percentage: 0
+            min_amount: 500
+            max_amount: 10000000
+        
+        paydunya_orange_money:
+            name: 'Orange Money'
+            icon: 'bi-phone'
+            enabled: true
+            fee_percentage: 0
+            min_amount: 500
+            max_amount: 1000000
+            
+        paydunya_wave:
+            name: 'Wave'
+            icon: 'bi-wallet2'
+            enabled: true
+            fee_percentage: 0
+            min_amount: 500
+            max_amount: 1000000
+            
+        bank_transfer:
+            name: 'Virement bancaire'
+            icon: 'bi-bank'
+            enabled: true
+            fee_percentage: 0
+            min_amount: 1000
+            max_amount: null

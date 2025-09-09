@@ -1,0 +1,100 @@
+{% extends 'emails/base.html.twig' %}
+
+{% block title %}Vos billets pour {{ event.title }}{% endblock %}
+
+{% block header_title %}Billets confirmés !{% endblock %}
+{% block header_subtitle %}
+    <p style="color: #ffffff; margin: 10px 0 0 0; opacity: 0.9;">
+        {{ event.title }}
+    </p>
+{% endblock %}
+
+{% block content %}
+    <div class="text-center">
+        <div style="font-size: 4rem; margin-bottom: 20px;">✅</div>
+        <h2 style="color: #198754; margin-bottom: 20px;">Vos billets sont prêts !</h2>
+        
+        <p style="font-size: 18px; margin-bottom: 30px;">
+            Félicitations ! Votre achat a été confirmé et vos billets sont maintenant disponibles.
+        </p>
+    </div>
+
+    <!-- Event Details -->
+    <div class="card">
+        <h3 style="color: #0d6efd; margin-top: 0;">📅 Détails de l'événement</h3>
+        
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <td style="padding: 8px 0; font-weight: bold; width: 30%;">Événement :</td>
+                <td style="padding: 8px 0;">{{ event.title }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; font-weight: bold;">Date :</td>
+                <td style="padding: 8px 0;">{{ event.eventDate|date('l d F Y') }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; font-weight: bold;">Heure :</td>
+                <td style="padding: 8px 0;">{{ event.startTime|date('H:i') }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; font-weight: bold;">Lieu :</td>
+                <td style="padding: 8px 0;">{{ event.venue }}</td>
+            </tr>
+            <tr>
+                <td style="padding: 8px 0; font-weight: bold;">Adresse :</td>
+                <td style="padding: 8px 0;">{{ event.address }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Ticket Details -->
+    <div class="card">
+        <h3 style="color: #198754; margin-top: 0;">🎫 Vos billets</h3>
+        
+        <div style="background-color: #ffffff; border: 2px dashed #198754; padding: 20px; border-radius: 8px; text-align: center;">
+            <h4 style="margin-top: 0; color: #198754;">{{ ticket.ticketType.name }}</h4>
+            <p style="font-size: 16px; margin: 10px 0;">
+                <strong>Code QR :</strong> <code style="background-color: #f8f9fa; padding: 4px 8px; border-radius: 4px;">{{ ticket.qrCode }}</code>
+            </p>
+            
+            {% if qr_code_url %}
+                <div style="margin: 20px 0;">
+                    <img src="{{ qr_code_url }}" alt="QR Code" style="max-width: 150px; height: auto;">
+                </div>
+            {% endif %}
+            
+            <p style="color: #6c757d; font-size: 14px; margin-bottom: 0;">
+                Présentez ce code QR à l'entrée de l'événement
+            </p>
+        </div>
+    </div>
+
+    <!-- Important Instructions -->
+    <div class="card" style="background-color: #fff3cd; border-color: #ffc107;">
+        <h4 style="color: #856404; margin-top: 0;">⚠️ Instructions importantes</h4>
+        <ul style="color: #856404; padding-left: 20px; margin-bottom: 0;">
+            <li>Arrivez 30 minutes avant le début de l'événement</li>
+            <li>Présentez votre code QR (sur votre téléphone ou imprimé)</li>
+            <li>Une pièce d'identité peut être demandée</li>
+            <li>Les billets ne sont ni échangeables ni remboursables</li>
+        </ul>
+    </div>
+
+    <div class="text-center">
+        <a href="{{ app_url }}/tickets/my-tickets" class="btn btn-success">
+            📱 Voir tous mes billets
+        </a>
+        
+        <a href="{{ app_url }}/events/{{ event.id }}" class="btn">
+            ℹ️ Détails de l'événement
+        </a>
+    </div>
+
+    <div class="text-center" style="margin-top: 30px;">
+        <p style="color: #6c757d;">
+            Ajoutez cet événement à votre calendrier :<br>
+            <a href="#" style="color: #0d6efd;">📅 Google Calendar</a> | 
+            <a href="#" style="color: #0d6efd;">📅 Outlook</a>
+        </p>
+    </div>
+{% endblock %}
