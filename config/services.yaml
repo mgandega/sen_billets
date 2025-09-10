@@ -57,13 +57,17 @@ services:
     #         $paydunyaPublicKey: '%paydunya.public_key%'
     #         $paydunyaToken: '%paydunya.token%'
     #         $paydunyaMode: '%paydunya.mode%'
+
     App\Service\PaymentService:
         arguments:
             $pdfGenerator: '@App\Service\PdfGenerator'
+            $paydunyaMasterKey: '%paydunya.master_key%'
             $paydunyaPrivateKey: '%paydunya.private_key%'
             $paydunyaPublicKey: '%paydunya.public_key%'
             $paydunyaToken: '%paydunya.token%'
             $paydunyaMode: '%paydunya.mode%'
+
+
     # App\Service\PaymentService:
     #     arguments:
     #         $pdfGenerator: '@App\Service\PdfGenerator'

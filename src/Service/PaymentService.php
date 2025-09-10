@@ -5,7 +5,6 @@ namespace App\Service;
 use App\Entity\User;
 use App\Entity\Ticket;
 use App\Entity\Payment;
-use App\Entity\CartItem;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -25,6 +24,7 @@ class PaymentService
     private string $projectDir;
     private Filesystem $filesystem;
 
+    private string $paydunyaMasterKey;
     private string $paydunyaPrivateKey;
     private string $paydunyaPublicKey;
     private string $paydunyaToken;
@@ -35,6 +35,7 @@ class PaymentService
         KernelInterface $kernel,
         UrlGeneratorInterface $urlGenerator,
         PdfGenerator $pdfGenerator,
+        string $paydunyaMasterKey,
         string $paydunyaPrivateKey,
         string $paydunyaPublicKey,
         string $paydunyaToken,
@@ -46,6 +47,7 @@ class PaymentService
         $this->projectDir = $kernel->getProjectDir();
         $this->filesystem = new Filesystem();
 
+        $this->paydunyaMasterKey = $paydunyaMasterKey;
         $this->paydunyaPrivateKey = $paydunyaPrivateKey;
         $this->paydunyaPublicKey = $paydunyaPublicKey;
         $this->paydunyaToken = $paydunyaToken;
@@ -53,7 +55,7 @@ class PaymentService
     }
 
     /**
-     * Crée une facture PayDunya DMP
+     * Crée une facture PayDunya
      */
     public function createPaydunyaInvoice(User $user, array $cartItems, Payment $payment, float $amount, string $returnUrl, string $cancelUrl): string
     {
@@ -63,21 +65,36 @@ class PaymentService
         $this->em->flush();
 
         $client = HttpClient::create();
-        $url = 'https://app.paydunya.com/api/v1/dmp-api';
+        $url = $this->paydunyaMode === 'sandbox'
+            ? 'https://app.paydunya.com/sandbox-api/v1/checkout-invoice/create'
+            : 'https://app.paydunya.com/api/v1/checkout-invoice/create';
+
         $headers = [
             'Content-Type' => 'application/json',
+            'PAYDUNYA-MASTER-KEY'  => $this->paydunyaMasterKey,
             'PAYDUNYA-PRIVATE-KEY' => $this->paydunyaPrivateKey,
-            'PAYDUNYA-TOKEN' => $this->paydunyaToken,
+            'PAYDUNYA-PUBLIC-KEY'  => $this->paydunyaPublicKey,
+            'PAYDUNYA-TOKEN'       => $this->paydunyaToken,
         ];
 
         $data = [
-            'recipient_email' => $user->getEmail(),
-            'amount' => $amount,
-            'send_notification' => 1,
-            'reference_number' => 'PAY-' . $payment->getId(),
-            'return_url' => $returnUrl,
-            'cancel_url' => $cancelUrl,
-            'support_fees' => 0
+            'invoice' => [
+                'items' => array_map(fn($item) => [
+                    'name'  => $item->getEvent()->getTitle(),
+                    'quantity' => 1,
+                    'unit_price' => $item->getTotalPrice(),
+                    'total_price' => $item->getTotalPrice(),
+                ], $cartItems),
+                'total_amount' => $amount,
+                'description' => 'Paiement de billets',
+            ],
+            'store' => [
+                'name' => 'Sen Billets',
+            ],
+            'actions' => [
+                'cancel_url' => $cancelUrl,
+                'return_url' => $returnUrl,
+            ]
         ];
 
         $response = $client->request('POST', $url, [
@@ -85,19 +102,45 @@ class PaymentService
             'json' => $data,
         ]);
 
-        $responseData = $response->toArray();
+        $responseData = $response->toArray(false);
 
-        if (!isset($responseData['success']) || !$responseData['success']) {
-            $errors = $responseData['errors'] ?? [];
-            $message = $responseData['message'] ?? 'Erreur inconnue';
-            throw new \Exception('Erreur PayDunya : ' . $message . ' | ' . json_encode($errors));
+        if (!isset($responseData['response_code']) || $responseData['response_code'] !== "00") {
+            throw new \Exception('Erreur PayDunya : ' . ($responseData['response_text'] ?? 'Erreur inconnue'));
         }
 
-        return $responseData['url'] ?? throw new \Exception('URL de paiement introuvable');
+        return $responseData['response_text'] ?? throw new \Exception('URL de paiement introuvable');
     }
 
     /**
-     * Finalise le paiement et génère tickets, QR code et PDF
+     * Vérifie la facture PayDunya (confirmation après retour)
+     */
+    public function verifyPaydunyaInvoice(Payment $payment): bool
+    {
+        $client = HttpClient::create();
+
+        $url = $this->paydunyaMode === 'sandbox'
+            ? 'https://app.paydunya.com/sandbox-api/v1/checkout-invoice/confirm/' . $payment->getId()
+            : 'https://app.paydunya.com/api/v1/checkout-invoice/confirm/' . $payment->getId();
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'PAYDUNYA-MASTER-KEY'  => $this->paydunyaMasterKey,
+            'PAYDUNYA-PRIVATE-KEY' => $this->paydunyaPrivateKey,
+            'PAYDUNYA-PUBLIC-KEY'  => $this->paydunyaPublicKey,
+            'PAYDUNYA-TOKEN'       => $this->paydunyaToken,
+        ];
+
+        $response = $client->request('GET', $url, [
+            'headers' => $headers,
+        ]);
+
+        $responseData = $response->toArray(false);
+
+        return isset($responseData['response_code']) && $responseData['response_code'] === "00";
+    }
+
+    /**
+     * Finalise le paiement : génère tickets + QR + PDF
      */
     public function finalizePayment(Payment $payment, User $user, array $cartItems): void
     {

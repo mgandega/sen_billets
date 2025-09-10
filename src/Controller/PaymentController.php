@@ -55,6 +55,18 @@ class PaymentController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function success(Payment $payment, PaymentService $paymentService, CartItemRepository $cartItemRepository): Response
     {
+        try {
+            $isValid = $paymentService->verifyPaydunyaInvoice($payment);
+        } catch (\Exception $e) {
+            $this->addFlash('danger', 'Erreur de vérification PayDunya : ' . $e->getMessage());
+            return $this->redirectToRoute('app_home');
+        }
+
+        if (!$isValid) {
+            $this->addFlash('danger', 'Le paiement n’a pas été validé par PayDunya.');
+            return $this->redirectToRoute('app_home');
+        }
+
         $cartItems = $cartItemRepository->findBy(['user' => $payment->getUser()]);
         $paymentService->finalizePayment($payment, $payment->getUser(), $cartItems);
 
