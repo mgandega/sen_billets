@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement réussi - Sen-Billets{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <h1 class="display-5 text-success mb-4">Paiement réussi !</h1>
+    <p>Merci pour votre achat. Voici vos billets :</p>
+
+    {% for ticket in tickets %}
+        <div class="card border-0 shadow mb-4 p-3">
+            <h3 class="fw-bold">{{ ticket.event.title }}</h3>
+            <p><strong>Type de billet :</strong> {{ ticket.ticketType.name }}</p>
+            <p><strong>Nom du client :</strong> {{ ticket.customerName }}</p>
+            <p><strong>Email :</strong> {{ ticket.customerEmail }}</p>
+            <p><strong>Status :</strong> <span class="badge {{ ticket.getStatusBadgeClass() }}">{{ ticket.getStatusLabel() }}</span></p>
+            
+            <div class="text-center mt-3">
+                {% if ticket.getQrCodeBase64() %}
+                    <img src="data:image/png;base64,{{ ticket.getQrCodeBase64() }}" width="150" height="150" alt="QR Code">
+                {% endif %}
+            </div>
+
+            <div class="mt-2 text-center">
+                <a href="{{ asset('/uploads/tickets/ticket_' ~ ticket.id ~ '.pdf') }}" class="btn btn-primary" target="_blank">
+                    Télécharger le billet (PDF)
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <p>Aucun billet trouvé.</p>
+    {% endfor %}
+
+    <div class="text-end mt-4">
+        <a href="{{ asset('/uploads/invoices/invoice_' ~ payment.id ~ '.pdf') }}" class="btn btn-success" target="_blank">
+            Télécharger la facture complète (PDF)
+        </a>
+    </div>
+</div>
+{% endblock %}

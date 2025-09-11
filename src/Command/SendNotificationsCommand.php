@@ -74,7 +74,7 @@ class SendNotificationsCommand extends Command
         $sentCount = 0;
 
         foreach ($events as $event) {
-            $tickets = $this->entityManager->getRepository('App:Ticket')
+            $tickets = $this->entityManager->getRepository(Ticket::class)
                 ->findBy(['event' => $event, 'status' => 'valid']);
 
             $notifiedUsers = [];

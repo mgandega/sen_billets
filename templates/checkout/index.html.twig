@@ -15,7 +15,9 @@
 
                 <div id="payment-errors"></div>
 
-                <form id="payment-form" action="{{ path('payment_process') }}" method="post">
+                {# <form id="payment-form" action="{{ path('payment_process') }}" method="post"> #}
+                <form id="payment-form" action="{{ path('checkout_process') }}" method="post">
+
                     <!-- Payment Method Selection -->
                     <div class="card border-0 shadow mb-4">
                         <div class="card-header bg-success text-white">

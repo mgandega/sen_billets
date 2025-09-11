@@ -351,13 +351,13 @@ class NotificationService
 
     private function getUserTicketsForEvent(User $user, Event $event): array
     {
-        return $this->entityManager->getRepository('App:Ticket')
+        return $this->entityManager->getRepository(Ticket::class)
             ->findBy(['user' => $user, 'event' => $event]);
     }
 
     private function getEventAttendees(Event $event): array
     {
-        $tickets = $this->entityManager->getRepository('App:Ticket')
+        $tickets = $this->entityManager->getRepository(Ticket::class)
             ->findBy(['event' => $event]);
 
         $attendees = [];
@@ -385,7 +385,7 @@ class NotificationService
         $totalRevenue = 0;
 
         foreach ($events as $event) {
-            $dailyTickets = $this->entityManager->getRepository('App:Ticket')
+            $dailyTickets = $this->entityManager->getRepository(Ticket::class)
                 ->createQueryBuilder('t')
                 ->where('t.event = :event')
                 ->andWhere('t.purchasedAt >= :today')

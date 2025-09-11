@@ -1,7 +1,9 @@
 <?php
 namespace App\Controller;
 
+use App\Entity\Payment;
 use App\Entity\Ticket;
+use App\Entity\CartItem;
 use App\Repository\CartItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Service\PaymentService;
@@ -17,83 +19,108 @@ class CheckoutController extends AbstractController
 {
     public function __construct(
         private PaymentService $paymentService    
-    ) {
-
-    }
+    ) {}
 
     #[Route('/', name: 'index')]
     public function index(CartItemRepository $cartItemRepository): Response
     {
-        
         $user = $this->getUser(); 
-        $cartItems = $cartItemRepository->findBy(['user' => $user]);
+        $cartItems = $cartItemRepository->findBy(['user' => $user, 'payment' => null]);
 
         if (empty($cartItems)) {
             $this->addFlash('warning', 'Votre panier est vide');
             return $this->redirectToRoute('cart_index');
         }
 
+        $total = array_reduce($cartItems, fn($sum, $item) => $sum + $item->getTotalPrice(), 0);
+
         return $this->render('checkout/index.html.twig', [
             'cartItems' => $cartItems,
+            'total' => $total,
         ]);
     }
 
     #[Route('/process', name: 'process', methods: ['POST'])]
     public function process(
         Request $request,
-        CartItemRepository $cartItemRepository, 
-        EntityManagerInterface $entityManager,
-        PaymentService $paymentService
+        CartItemRepository $cartItemRepository,
+        EntityManagerInterface $entityManager
     ): Response {
         $user = $this->getUser();
-        $cartItems = $cartItemRepository->findBy(['user' => $user]);
+        $cartItems = $cartItemRepository->findBy(['user' => $user, 'payment' => null]);
 
         if (empty($cartItems)) {
             $this->addFlash('error', 'Votre panier est vide');
             return $this->redirectToRoute('cart_index');
         }
 
-        $paymentMethod = $request->request->get('payment_method');
-        $paymentData = $request->request->all();
+        // Crée le paiement
+        $payment = new Payment();
+        $payment->setUser($user);
+        $payment->setAmount(array_reduce($cartItems, fn($sum, $item) => $sum + $item->getTotalPrice(), 0));
+        $payment->setStatus(Payment::STATUS_PROCESSING); // Obligatoire
+        $payment->setMethod('paydunya'); // Obligatoire
+        $entityManager->persist($payment);
+        $entityManager->flush();
+
+        // URLs de redirection
+        $returnUrl = $this->generateUrl('checkout_success', ['paymentId' => $payment->getId()], true);
+        $cancelUrl = $this->generateUrl('checkout_index', [], true);
 
         try {
-            $result = $paymentService->processPayment(
+            $redirectUrl = $this->paymentService->createPaydunyaInvoice(
+                $payment,
                 $cartItems,
-                $user,
-                $paymentMethod,
-                $paymentData
+                $payment->getAmount(),
+                $returnUrl,
+                $cancelUrl
             );
-
-            // Si le paiement nécessite une redirection
-            if (isset($result['redirect_url'])) {
-                // Remplacer le token dans les URLs
-                $redirectUrl = $result['redirect_url'];
-                if (isset($result['payment_id'])) {
-                    $redirectUrl = str_replace('TOKEN_TO_REPLACE', $result['payment_id'], $redirectUrl);
-                }
-                
-                return $this->redirect($redirectUrl);
-            }
-
-            // Si le paiement est réussi directement
-            if ($result['success']) {
-                // Vider le panier
-                foreach ($cartItems as $cartItem) {
-                    $entityManager->remove($cartItem);
-                }
-                $entityManager->flush();
-                
-                $this->addFlash('success', 'Paiement effectué avec succès !');
-                return $this->redirectToRoute('payment_success', ['id' => $result['payment_id']]);
-            }
-
-            // Cas par défaut
-            $this->addFlash('error', 'Une erreur est survenue lors du paiement');
-            return $this->redirectToRoute('checkout_index');
-
         } catch (\Exception $e) {
-            $this->addFlash('error', $e->getMessage());
+            $this->addFlash('error', 'Erreur lors de la création du paiement : ' . $e->getMessage());
             return $this->redirectToRoute('checkout_index');
         }
+
+        return $this->redirect($redirectUrl);
+    }
+
+    #[Route('/success/{paymentId}', name: 'success')]
+    public function success(int $paymentId, EntityManagerInterface $entityManager): Response
+    {
+        $payment = $entityManager->getRepository(Payment::class)->find($paymentId);
+
+        if (!$payment) {
+            throw $this->createNotFoundException('Paiement introuvable.');
+        }
+
+        try {
+            $confirmed = $this->paymentService->verifyPaydunyaInvoice($payment);
+        } catch (\Exception $e) {
+            $this->addFlash('error', 'Erreur lors de la vérification du paiement : ' . $e->getMessage());
+            return $this->redirectToRoute('checkout_index');
+        }
+
+        if (!$confirmed) {
+            $this->addFlash('error', 'Le paiement n\'a pas été confirmé.');
+            return $this->redirectToRoute('checkout_index');
+        }
+
+        // Récupère les items du panier pour ce paiement
+        $cartItems = $entityManager->getRepository(CartItem::class)
+            ->findBy(['user' => $payment->getUser(), 'payment' => null]);
+
+        // Marque les items comme payés
+        foreach ($cartItems as $item) {
+            $item->setPayment($payment);
+            $entityManager->persist($item);
+        }
+        $entityManager->flush();
+
+        // Génère les tickets individuels
+        $tickets = $this->paymentService->finalizePayment($payment, $payment->getUser(), $cartItems);
+
+        return $this->render('checkout/success.html.twig', [
+            'payment' => $payment,
+            'tickets' => $tickets,
+        ]);
     }
 }

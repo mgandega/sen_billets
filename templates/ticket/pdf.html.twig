@@ -2,99 +2,27 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <title>Billet #{{ ticket.id }}</title>
     <style>
-        body { 
-            font-family: "DejaVu Sans", sans-serif; 
-            font-size: 13px; 
-            color: #333; 
-            margin: 0; 
-            padding: 0; 
-        }
-
-        .container { width: 100%; max-width: 800px; margin: auto; padding: 20px; }
-
-        .ticket { 
-            border: 2px solid #2C3E50; 
-            border-radius: 10px; 
-            padding: 20px; 
-            margin-bottom: 25px; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .event-title { 
-            font-size: 20px; 
-            font-weight: bold; 
-            color: #2C3E50; 
-            margin-bottom: 10px; 
-            text-align: center;
-        }
-
-        .event-info p, .client-info p { 
-            margin: 3px 0; 
-        }
-
-        .event-info, .client-info { 
-            margin-bottom: 15px; 
-            text-align: center; 
-        }
-
-        .qrcode { 
-            text-align: center; 
-            margin-top: 15px; 
-        }
-
-        .qrcode img { 
-            border: 2px solid #2C3E50; 
-            border-radius: 10px; 
-            padding: 5px; 
-        }
-
-        hr { 
-            border: 0; 
-            border-top: 1px dashed #ccc; 
-            margin: 20px 0; 
-        }
-
-        .footer { 
-            text-align: center; 
-            font-size: 10px; 
-            color: #888; 
-            margin-top: 15px; 
-        }
+        body { font-family: Arial, sans-serif; text-align: center; }
+        .ticket { border: 2px dashed #333; padding: 20px; margin: 20px auto; width: 400px; }
+        .event-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+        .info { margin: 5px 0; }
+        .qrcode { margin-top: 15px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        {% for ticket in tickets %}
-        <div class="ticket">
-            <div class="event-title">{{ ticket.event.title }}</div>
-
-            <div class="event-info">
-                <p><strong>Date :</strong> {{ ticket.event.eventDate|date('d/m/Y H:i') }}</p>
-                <p><strong>Lieu :</strong> {{ ticket.event.venue }}</p>
-                <p><strong>Type de billet :</strong> {{ ticket.ticketType.name }}</p>
-            </div>
-
-            <div class="client-info">
-                <p><strong>Nom :</strong> {{ ticket.customerName }}</p>
-                <p><strong>Email :</strong> {{ ticket.customerEmail }}</p>
-            </div>
-
-            <div class="qrcode">
-                <p>QR Code sécurisé :</p>
-                {% if ticket.getQrCodeBase64() %}
-                <img src="data:image/png;base64,{{ ticket.getQrCodeBase64() }}" width="140" height="140">
-                {% endif %}
-            </div>
-
-            <hr>
-
-            <div class="footer">
-                Merci pour votre achat !<br>
-                Sen Billets - www.senbillets.com
-            </div>
+    <div class="ticket">
+        <div class="event-title">{{ ticket.event.title }}</div>
+        <div class="info"><strong>Type :</strong> {{ ticket.ticketType.name }}</div>
+        <div class="info"><strong>Nom :</strong> {{ ticket.customerName }}</div>
+        <div class="info"><strong>Email :</strong> {{ ticket.customerEmail }}</div>
+        <div class="info"><strong>Status :</strong> {{ ticket.getStatusLabel() }}</div>
+        <div class="qrcode">
+            {% if ticket.getQrCodeBase64() %}
+                <img src="data:image/png;base64,{{ ticket.getQrCodeBase64() }}" width="150" height="150">
+            {% endif %}
         </div>
-        {% endfor %}
     </div>
 </body>
 </html>

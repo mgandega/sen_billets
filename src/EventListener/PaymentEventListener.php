@@ -3,6 +3,7 @@
 namespace App\EventListener;
 
 use App\Entity\Payment;
+use App\Entity\Ticket;
 use App\Service\NotificationService;
 use Doctrine\Bundle\DoctrineBundle\Attribute\AsEntityListener;
 use Doctrine\ORM\Events;
@@ -26,7 +27,7 @@ class PaymentEventListener
             $this->notificationService->notifyPaymentConfirmation($payment);
 
             // Si des billets sont associés, envoyer notification de billets
-            $tickets = $entityManager->getRepository('App:Ticket')
+            $tickets = $entityManager->getRepository(Ticket::class)
                 ->findBy(['payment' => $payment]);
 
             foreach ($tickets as $ticket) {
