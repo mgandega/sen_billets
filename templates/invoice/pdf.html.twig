@@ -3,52 +3,83 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h1 { margin: 0; font-size: 20px; }
-        .info, .items { width: 100%; margin-bottom: 15px; }
-        .items th, .items td { border: 1px solid #444; padding: 6px; text-align: left; }
-        .items { border-collapse: collapse; }
-        .total { text-align: right; margin-top: 20px; font-size: 14px; font-weight: bold; }
-        .qrcode { text-align: center; margin-top: 20px; }
+        body { 
+            font-family: "DejaVu Sans", sans-serif; 
+            font-size: 12px; 
+            color: #333;
+            margin: 0; 
+            padding: 0;
+        }
+
+        .container { width: 100%; max-width: 800px; margin: auto; padding: 20px; }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { margin: 0; font-size: 28px; color: #2C3E50; }
+        .header p { margin: 5px 0 0 0; font-size: 14px; color: #555; }
+
+        .client-info { margin-bottom: 25px; }
+        .client-info p { margin: 2px 0; }
+
+        .items { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .items th, .items td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        .items th { background-color: #f5f5f5; font-weight: bold; }
+
+        .total { text-align: right; margin-top: 15px; font-size: 16px; font-weight: bold; color: #2C3E50; }
+
+        .qrcode { text-align: center; margin-top: 30px; }
+        .qrcode img { border: 2px solid #2C3E50; padding: 5px; border-radius: 10px; }
+
+        hr { border: 0; border-top: 1px solid #eee; margin: 15px 0; }
+
+        .footer { text-align: center; font-size: 10px; color: #888; margin-top: 30px; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Facture #{{ payment.id }}</h1>
-        <p>Émise le {{ payment.createdAt|date('d/m/Y H:i') }}</p>
-    </div>
+    <div class="container">
+        <div class="header">
+            <h1>Facture #{{ payment.id }}</h1>
+            <p>Émise le {{ payment.createdAt|date('d/m/Y H:i') }}</p>
+        </div>
 
-    <div class="info">
-        <p><strong>Client :</strong> {{ payment.user.name }}<br>
-        <strong>Email :</strong> {{ payment.user.email }}</p>
-    </div>
+        <div class="client-info">
+            <p><strong>Client :</strong> {{ payment.user.name }}</p>
+            <p><strong>Email :</strong> {{ payment.user.email }}</p>
+        </div>
 
-    <table class="items">
-        <thead>
-            <tr>
-                <th>Événement</th>
-                <th>Type de billet</th>
-                <th>Prix</th>
-            </tr>
-        </thead>
-        <tbody>
-       {% for ticket in tickets %}
-            <p>Nom : {{ ticket.customerName }}</p>
-            <p>Événement : {{ ticket.event.title }}</p>
-            <hr>
-        {% endfor %}
+        <table class="items">
+            <thead>
+                <tr>
+                    <th>Événement</th>
+                    <th>Type de billet</th>
+                    <th>Nom du client</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.event.title }}</td>
+                    <td>{{ ticket.ticketType.name }}</td>
+                    <td>{{ ticket.customerName }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-        </tbody>
-    </table>
+        <div class="total">
+            Total payé : {{ payment.amount }} €
+        </div>
 
-    <div class="total">
-        Total payé : {{ payment.amount }} €
-    </div>
+        <div class="qrcode">
+            <p>Scannez ce QR code pour vérifier cette facture :</p>
+            {% if tickets[0] is defined %}
+            <img src="data:image/png;base64,{{ tickets[0].getQrCodeBase64() }}" width="140" height="140">
+            {% endif %}
+        </div>
 
-    <div class="qrcode">
-        <p>Scannez ce QR code pour vérifier cette facture :</p>
-        <img src="data:image/png;base64,{{ tickets[0].getQrCodeBase64() }}" width="120" height="120">
+        <div class="footer">
+            Merci pour votre achat !<br>
+            Sen Billets - www.senbillets.com
+        </div>
     </div>
 </body>
 </html>
