@@ -371,10 +371,50 @@ class PaymentService
         return $publicPath;
     }
 
+    // private function generatePdf(Payment $payment, array $tickets): void
+    // {
+    //     $invoiceDir = rtrim($this->projectDir, '/') . '/public/uploads/invoices';
+    //     $ticketDir = rtrim($this->projectDir, '/') . '/public/uploads/tickets';
+
+    //     $filesystem = new Filesystem();
+    //     foreach ([$invoiceDir, $ticketDir] as $dir) {
+    //         if (!$filesystem->exists($dir)) {
+    //             $filesystem->mkdir($dir, 0755);
+    //         }
+    //     }
+
+    //     // Chemins des fichiers PDF
+    //     $invoiceFile = $invoiceDir . '/invoice_' . $payment->getId() . '.pdf';
+    //     $ticketsFile = $ticketDir . '/tickets_' . $payment->getId() . '.pdf';
+
+    //     // --- Génération de la facture ---
+    //     // Si ton template facture PDF attend un ticket unique, on prend le premier
+    //     $firstTicket = $tickets[0] ?? null;
+
+    //     $this->pdfGenerator->generateAndSave('invoice/pdf.html.twig', [
+    //         'payment' => $payment,
+    //         'tickets' => $tickets, // <-- tableau complet
+    //         'project_dir' => $this->projectDir,
+    //     ], $invoiceFile);
+
+
+    //     // --- Génération des tickets ---
+    //     // Ici, on passe le tableau complet pour que Twig puisse boucler dessus
+    //     $this->pdfGenerator->generateAndSave('ticket/pdf.html.twig', [
+    //         'tickets' => $tickets,
+    //         'project_dir' => $this->projectDir,
+    //     ], $ticketsFile);
+
+    //     // Stocke le chemin relatif de la facture dans l'entité
+    //     $payment->setInvoicePath('/uploads/invoices/invoice_' . $payment->getId() . '.pdf');
+    //     $this->em->persist($payment);
+    //     $this->em->flush();
+    // }
+
     private function generatePdf(Payment $payment, array $tickets): void
     {
         $invoiceDir = rtrim($this->projectDir, '/') . '/public/uploads/invoices';
-        $ticketDir = rtrim($this->projectDir, '/') . '/public/uploads/tickets';
+        $ticketDir  = rtrim($this->projectDir, '/') . '/public/uploads/tickets';
 
         $filesystem = new Filesystem();
         foreach ([$invoiceDir, $ticketDir] as $dir) {
@@ -383,32 +423,31 @@ class PaymentService
             }
         }
 
-        // Chemins des fichiers PDF
+        // --- Génération de la facture globale ---
         $invoiceFile = $invoiceDir . '/invoice_' . $payment->getId() . '.pdf';
-        $ticketsFile = $ticketDir . '/tickets_' . $payment->getId() . '.pdf';
-
-        // --- Génération de la facture ---
-        // Si ton template facture PDF attend un ticket unique, on prend le premier
-        $firstTicket = $tickets[0] ?? null;
-
         $this->pdfGenerator->generateAndSave('invoice/pdf.html.twig', [
-            'payment' => $payment,
-            'tickets' => $tickets, // <-- tableau complet
+            'payment'     => $payment,
+            'tickets'     => $tickets,
             'project_dir' => $this->projectDir,
         ], $invoiceFile);
 
+        // --- Génération d’un PDF par ticket ---
+        foreach ($tickets as $ticket) {
+            $ticketFile = $ticketDir . '/ticket_' . $ticket->getId() . '.pdf';
 
-        // --- Génération des tickets ---
-        // Ici, on passe le tableau complet pour que Twig puisse boucler dessus
-        $this->pdfGenerator->generateAndSave('ticket/pdf.html.twig', [
-            'tickets' => $tickets,
-            'project_dir' => $this->projectDir,
-        ], $ticketsFile);
+            $this->pdfGenerator->generateAndSave('ticket/pdf.html.twig', [
+                'ticket'      => $ticket,   // ⚠️ on passe UN ticket et pas le tableau complet
+                'project_dir' => $this->projectDir,
+            ], $ticketFile);
 
-        // Stocke le chemin relatif de la facture dans l'entité
-        $payment->setInvoicePath('/uploads/invoices/invoice_' . $payment->getId() . '.pdf');
+            // tu peux ajouter un champ `pdfPath` dans ton entité Ticket si tu veux le stocker
+            $ticket->setPdfPath('/uploads/tickets/ticket_' . $ticket->getId() . '.pdf');
+            $this->em->persist($ticket);
+        }
+
         $this->em->persist($payment);
         $this->em->flush();
     }
+
 
 }

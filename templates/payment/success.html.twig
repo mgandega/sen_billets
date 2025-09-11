@@ -4,23 +4,59 @@
 {% block title %}Paiement réussi{% endblock %}
 
 {% block body %}
-    <h1>Paiement validé</h1>
+<div class="container mt-5">
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <span class="me-2">✅</span>
+        <div>
+            <h1 class="h4 mb-0">Paiement validé</h1>
+            <p class="mb-0">Merci pour votre achat. Votre paiement <strong>#{{ payment.id }}</strong> a été confirmé.</p>
+        </div>
+    </div>
 
-    <p>Merci pour votre achat. Votre paiement #{{ payment.id }} a été confirmé.</p>
+    <section class="mt-4">
+        <h2 class="h5 mb-3">🎟️ Vos billets</h2>
+        <ul class="list-group">
+        {% for ticket in tickets %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <span>{{ ticket.event.title }}</span>
+                <div class="d-flex align-items-center gap-2">
+                    {% if ticket.qrCodeImagePath %}
+                        <img src="{{ app.request.schemeAndHttpHost ~ ticket.qrCodeImagePath }}" 
+                             alt="QR" 
+                             style="height:36px;">
+                    {% endif %}
+                    {% if ticket.pdfPath %}
+                        <a href="{{ ticket.pdfPath }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            📄 PDF
+                        </a>
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+        </ul>
+    </section>
 
-    <h2>Billets</h2>
-    <ul>
-    {% for item in tickets %}
-        <li>
-            <strong>{{ item.event.title }}</strong>
-            {% if item.qrCodeImagePath %}
-                — <img src="{{ app.request.schemeAndHttpHost ~ item.qrCodeImagePath }}" alt="QR" style="height:36px;vertical-align:middle;margin-left:8px">
-            {% endif %}
-        </li>
-    {% endfor %}
-    </ul>
+    <section class="mt-4">
+        <h2 class="h5 mb-3">📄 Facture</h2>
+        <div class="d-flex gap-3">
+            <a href="{{ payment.invoicePath }}" target="_blank" class="btn btn-outline-secondary">
+                👁️ Voir la facture
+            </a>
+            <a href="{{ path('invoice_download', {id: payment.id}) }}" class="btn btn-primary">
+                ⬇️ Télécharger la facture
+            </a>
+        </div>
+    </section>
 
-    <p>
-        Vous pouvez télécharger votre facture <a href="{{ payment.invoicePath }}">ici</a> (PDF).
-    </p>
+    {% if tickets|length > 1 %}
+        <section class="mt-4">
+            <h2 class="h5 mb-3">📥 Tous les tickets PDF</h2>
+            <div class="d-flex gap-3">
+                <a href="{{ path('tickets_download', {id: payment.id}) }}" class="btn btn-success">
+                    ⬇️ Télécharger tous les tickets
+                </a>
+            </div>
+        </section>
+    {% endif %}
+</div>
 {% endblock %}

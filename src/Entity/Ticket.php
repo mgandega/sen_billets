@@ -67,6 +67,9 @@ class Ticket
     #[ORM\ManyToOne(targetEntity: Payment::class)]
     private ?Payment $payment = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $pdfPath = null;
+
     public function __construct()
     {
         $this->purchasedAt = new \DateTime();
@@ -296,6 +299,17 @@ class Ticket
 
         $data = file_get_contents($path);
         return base64_encode($data);
+    }
+
+        public function getPdfPath(): ?string
+    {
+        return $this->pdfPath;
+    }
+
+    public function setPdfPath(?string $pdfPath): self
+    {
+        $this->pdfPath = $pdfPath;
+        return $this;
     }
 
 }

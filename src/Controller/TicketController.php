@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Payment;
 use App\Entity\Ticket;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TicketController extends AbstractController
@@ -13,7 +15,6 @@ class TicketController extends AbstractController
     #[Route('/ticket/verify/{qrCode}', name: 'ticket_verify')]
     public function verify(string $qrCode, EntityManagerInterface $em): Response
     {
-        // Décomposer le QR Code
         $parts = explode('-', $qrCode);
 
         if (count($parts) !== 3) {
@@ -44,7 +45,6 @@ class TicketController extends AbstractController
             ]);
         }
 
-        // Vérifier hash email
         $expectedHash = md5($ticket->getUser()->getEmail());
         if ($hash !== $expectedHash) {
             return $this->render('ticket/verify.html.twig', [
@@ -54,7 +54,6 @@ class TicketController extends AbstractController
             ]);
         }
 
-        // Vérifier statut du ticket
         if (!$ticket->isValid()) {
             return $this->render('ticket/verify.html.twig', [
                 'ticket'  => $ticket,
@@ -63,7 +62,7 @@ class TicketController extends AbstractController
             ]);
         }
 
-        // (Optionnel) Marquer comme utilisé dès le scan
+        // Marquer comme utilisé dès le scan
         $ticket->setStatus('used');
         $em->persist($ticket);
         $em->flush();
@@ -73,5 +72,24 @@ class TicketController extends AbstractController
             'status'  => 'valid',
             'message' => 'Ticket valide !',
         ]);
+    }
+
+    // ----------------------------
+    // Nouvelle route pour téléchargement des tickets PDF
+    // ----------------------------
+    #[Route('/tickets/{id}/download', name: 'tickets_download')]
+    public function downloadTickets(Payment $payment): Response
+    {
+        $filePath = $this->getParameter('kernel.project_dir') . '/public/uploads/tickets/tickets_' . $payment->getId() . '.pdf';
+
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException('Le fichier PDF des tickets n’existe pas.');
+        }
+
+        return $this->file(
+            $filePath,
+            'tickets_' . $payment->getId() . '.pdf',
+            ResponseHeaderBag::DISPOSITION_ATTACHMENT
+        );
     }
 }
