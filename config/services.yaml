@@ -13,12 +13,34 @@ parameters:
     twilio.account_sid: '%env(default::TWILIO_ACCOUNT_SID)%'
     twilio.auth_token: '%env(default::TWILIO_AUTH_TOKEN)%'
     twilio.phone_number: '%env(default::TWILIO_PHONE_NUMBER)%'
-
+# config/services.yaml
 services:
     # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        autowire: true      # Automatically injects dependencies
+        autoconfigure: true # Automatically applies certain tags
+        bind:
+            $projectDir: '%kernel.project_dir%'   # injection de projectDir
+            $paydunyaMasterKey: '%env(PAYDUNYA_MASTER_KEY)%'
+            $paydunyaPrivateKey: '%env(PAYDUNYA_PRIVATE_KEY)%'
+            $paydunyaPublicKey: '%env(PAYDUNYA_PUBLIC_KEY)%'
+            $paydunyaToken: '%env(PAYDUNYA_TOKEN)%'
+            $paydunyaMode: '%env(PAYDUNYA_MODE)%'
+
+    App\:
+        resource: '../src/*'
+        exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
+
+    # Définition explicite du PaymentService pour injections complexes
+    App\Service\PaymentService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+            $httpClient: '@http_client'
+            $pdfGenerator: '@App\Service\PdfGenerator'
+            $em: '@doctrine.orm.entity_manager'
+            $urlGenerator: '@router.default'
+            $slugger: '@slugger'
+
     App\Service\QRCodeService: ~
     Endroid\QrCode\Writer\PngWriter: ~
 
@@ -27,51 +49,10 @@ services:
     #     arguments:
     #         $writer: '@Endroid\QrCode\Writer\PngWriter'
 
-    # makes classes in src/ available to be used as services
-    # this creates a service per class whose id is the fully-qualified class name
-    App\:
-        resource: '../src/'
-        exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
-
-    # App\Service\PaymentService:
-    #     arguments:
-    #         $paydunyaMasterKey: '%paydunya.master_key%'
-    #         $paydunyaPrivateKey: '%paydunya.private_key%'
-    #         $paydunyaPublicKey: '%paydunya.public_key%'
-    #         $paydunyaToken: '%paydunya.token%'
-    #         $paydunyaMode: '%paydunya.mode%'
-    #         $qrCodeBuilderFactory: '@App\Factory\QrCodeBuilderFactory'
     App\Factory\QrCodeBuilderFactory: ~
 
     Endroid\QrCodeBundle\Twig\QrCodeExtension:
         tags: ['twig.extension']
-
-    # App\Service\PaymentService:
-    #     arguments:
-    #         $pdfGenerator: '@App\Service\PdfGenerator'
-    #         $paydunyaMasterKey: '%paydunya.master_key%'
-    #         $paydunyaPrivateKey: '%paydunya.private_key%'
-    #         $paydunyaPublicKey: '%paydunya.public_key%'
-    #         $paydunyaToken: '%paydunya.token%'
-    #         $paydunyaMode: '%paydunya.mode%'
-
-    App\Service\PaymentService:
-        arguments:
-            $pdfGenerator: '@App\Service\PdfGenerator'
-            $paydunyaMasterKey: '%paydunya.master_key%'
-            $paydunyaPrivateKey: '%paydunya.private_key%'
-            $paydunyaPublicKey: '%paydunya.public_key%'
-            $paydunyaToken: '%paydunya.token%'
-            $paydunyaMode: '%paydunya.mode%'
-
-
-    # App\Service\PaymentService:
-    #     arguments:
-    #         $pdfGenerator: '@App\Service\PdfGenerator'
-
 
     # Notification service configuration
     App\Service\NotificationChannelService:

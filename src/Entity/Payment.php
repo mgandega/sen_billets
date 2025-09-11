@@ -47,6 +47,9 @@ class Payment
     private ?string $qrCode = null;
     private ?string $qrCodeImagePath = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $paydunyaToken = null;
+
     public function __construct()
     {
         $this->cartItems = new ArrayCollection();
@@ -191,4 +194,18 @@ class Payment
         $this->qrCodeImagePath = $qrCodeImagePath;
         return $this;
     }
+
+    public function getFormattedAmount(): string
+    {
+        return number_format($this->amount, 2, ',', ' ') . ' XOF'; 
+        // Change 'XOF' selon ta monnaie
+    }
+
+    public function getPaydunyaToken(): ?string { 
+        return $this->paydunyaToken; 
+    }
+    public function setPaydunyaToken(?string $token): self { 
+        $this->paydunyaToken = $token; return $this; 
+    }
+    
 }

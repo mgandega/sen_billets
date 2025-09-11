@@ -7,92 +7,71 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Endroid\QrCode\Builder\Builder;
-use Endroid\QrCode\Writer\PngWriter;
-use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\RoundBlockSizeMode;
-use Endroid\QrCode\ErrorCorrectionLevel;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpKernel\KernelInterface;
-
 
 class TicketController extends AbstractController
 {
-    #[Route('/ticket/{qrCode}', name: 'ticket_show')]
-    public function show(string $qrCode, EntityManagerInterface $em): Response
-    {
-        $ticket = $em->getRepository(Ticket::class)->findOneBy(['qrCode' => $qrCode]);
-
-        if (!$ticket) {
-            throw $this->createNotFoundException('Ticket non trouvé.');
-        }
-
-        return $this->render('ticket/show.html.twig', [
-            'ticket' => $ticket,
-        ]);
-    }
-
     #[Route('/ticket/verify/{qrCode}', name: 'ticket_verify')]
     public function verify(string $qrCode, EntityManagerInterface $em): Response
     {
-        $ticket = $em->getRepository(Ticket::class)->findOneBy(['qrCode' => $qrCode]);
+        // Décomposer le QR Code
+        $parts = explode('-', $qrCode);
+
+        if (count($parts) !== 3) {
+            return $this->render('ticket/verify.html.twig', [
+                'ticket'  => null,
+                'status'  => 'invalid',
+                'message' => 'QR Code invalide.',
+            ]);
+        }
+
+        [$prefix, $ticketId, $hash] = $parts;
+
+        if ($prefix !== 'TICKET') {
+            return $this->render('ticket/verify.html.twig', [
+                'ticket'  => null,
+                'status'  => 'invalid',
+                'message' => 'QR Code invalide (mauvais préfixe).',
+            ]);
+        }
+
+        $ticket = $em->getRepository(Ticket::class)->find($ticketId);
 
         if (!$ticket) {
             return $this->render('ticket/verify.html.twig', [
-                'status' => 'invalid',
-                'message' => '❌ Ce ticket est invalide ou n’existe pas.',
+                'ticket'  => null,
+                'status'  => 'invalid',
+                'message' => 'Ticket introuvable.',
             ]);
         }
 
-        if ($ticket->isCancelled()) {
+        // Vérifier hash email
+        $expectedHash = md5($ticket->getUser()->getEmail());
+        if ($hash !== $expectedHash) {
             return $this->render('ticket/verify.html.twig', [
-                'status' => 'cancelled',
-                'message' => '⚠️ Ce ticket a été annulé.',
+                'ticket'  => null,
+                'status'  => 'invalid',
+                'message' => 'QR Code invalide (hash incorrect).',
             ]);
         }
 
-        if ($ticket->isUsed()) {
+        // Vérifier statut du ticket
+        if (!$ticket->isValid()) {
             return $this->render('ticket/verify.html.twig', [
-                'status' => 'used',
-                'message' => '❌ Ce ticket a déjà été utilisé le ' . $ticket->getUsedAt()?->format('d/m/Y H:i'),
+                'ticket'  => $ticket,
+                'status'  => 'invalid',
+                'message' => 'Ce ticket n’est plus valide.',
             ]);
         }
 
-        // Marquer le ticket comme utilisé (optionnel)
-        $ticket->setIsUsed(true);
+        // (Optionnel) Marquer comme utilisé dès le scan
         $ticket->setStatus('used');
-        $ticket->setUsedAt(new \DateTimeImmutable());
+        $em->persist($ticket);
         $em->flush();
 
         return $this->render('ticket/verify.html.twig', [
-            'status' => 'valid',
-            'ticket' => $ticket,
-            'message' => '✅ Ticket valide. Accès autorisé.',
+            'ticket'  => $ticket,
+            'status'  => 'valid',
+            'message' => 'Ticket valide !',
         ]);
     }
-
-    #[Route('/ticket/qrcode/{qrCode}', name: 'ticket_qrcode')]
-    public function generateQrCode(string $qrCode): Response
-    {
-        $validationUrl = $this->generateUrl('ticket_verify', ['qrCode' => $qrCode], UrlGeneratorInterface::ABSOLUTE_URL);
-
-        $builder = new Builder(
-            writer: new PngWriter(),
-            data: $validationUrl,
-            encoding: new Encoding('UTF-8'),
-            errorCorrectionLevel: ErrorCorrectionLevel::High,
-            size: 300,
-            margin: 10,
-            roundBlockSizeMode: RoundBlockSizeMode::Margin,
-        );
-
-        $qr = $builder->build();
-
-        return new Response($qr->getString(), 200, [
-            'Content-Type' => $qr->getMimeType(),
-        ]);
-    }
-
-
 }

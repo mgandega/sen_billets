@@ -28,6 +28,7 @@ class PaymentController extends AbstractController
         }
 
         $paymentMethod = $request->request->get('payment_method', 'paydunya');
+
         $totalAmount = array_sum(array_map(fn($item) => method_exists($item, 'getTotalPrice') ? $item->getTotalPrice() : 0, $cartItems));
 
         $payment = new Payment();
@@ -42,7 +43,8 @@ class PaymentController extends AbstractController
         $cancelUrl = $this->generateUrl('payment_cancel', [], UrlGeneratorInterface::ABSOLUTE_URL);
 
         try {
-            $payUrl = $paymentService->createPaydunyaInvoice($user, $cartItems, $payment, $totalAmount, $returnUrl, $cancelUrl);
+            // appel CORRIGÉ : signature du service attend (Payment, cartItems, amount, returnUrl, cancelUrl)
+            $payUrl = $paymentService->createPaydunyaInvoice($payment, $cartItems, $totalAmount, $returnUrl, $cancelUrl);
         } catch (\Exception $e) {
             $this->addFlash('danger', 'Erreur lors de la création du paiement : ' . $e->getMessage());
             return $this->redirectToRoute('app_home');
@@ -50,6 +52,33 @@ class PaymentController extends AbstractController
 
         return $this->redirect($payUrl);
     }
+
+    // #[Route('/paiement/succes/{id}', name: 'payment_success')]
+    // #[IsGranted('ROLE_USER')]
+    // public function success(Payment $payment, PaymentService $paymentService, CartItemRepository $cartItemRepository): Response
+    // {
+    //     try {
+    //         $isValid = $paymentService->verifyPaydunyaInvoice($payment);
+    //     } catch (\Exception $e) {
+    //         $this->addFlash('danger', 'Erreur de vérification PayDunya : ' . $e->getMessage());
+    //         return $this->redirectToRoute('app_home');
+    //     }
+
+    //     if (!$isValid) {
+    //         $this->addFlash('danger', 'Le paiement n’a pas été validé par PayDunya.');
+    //         return $this->redirectToRoute('app_home');
+    //     }
+
+    //     // récupère les items et finalize
+    //     $cartItems = $cartItemRepository->findBy(['user' => $payment->getUser()]);
+    //     $paymentService->finalizePayment($payment, $payment->getUser(), $cartItems);
+
+    //     // on peut afficher la page de succès avec les billets (les tickets contiennent désormais qrCodeImagePath)
+    //     return $this->render('payment/success.html.twig', [
+    //         'payment' => $payment,
+    //         'tickets' => $cartItems,
+    //     ]);
+    // }
 
     #[Route('/paiement/succes/{id}', name: 'payment_success')]
     #[IsGranted('ROLE_USER')]
@@ -68,13 +97,14 @@ class PaymentController extends AbstractController
         }
 
         $cartItems = $cartItemRepository->findBy(['user' => $payment->getUser()]);
-        $paymentService->finalizePayment($payment, $payment->getUser(), $cartItems);
+        $tickets = $paymentService->finalizePayment($payment, $payment->getUser(), $cartItems);
 
         return $this->render('payment/success.html.twig', [
             'payment' => $payment,
-            'tickets' => $cartItems,
+            'tickets' => $tickets, // ✅ maintenant ce sont des Ticket
         ]);
     }
+
 
     #[Route('/paiement/annule', name: 'payment_cancel')]
     public function cancel(): Response

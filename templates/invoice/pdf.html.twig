@@ -1,30 +1,54 @@
-{# templates/invoice/pdf.html.twig #}
-
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Billet</title>
     <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 14px; }
-        .qr { text-align: center; margin-top: 20px; }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 20px; }
+        .info, .items { width: 100%; margin-bottom: 15px; }
+        .items th, .items td { border: 1px solid #444; padding: 6px; text-align: left; }
+        .items { border-collapse: collapse; }
+        .total { text-align: right; margin-top: 20px; font-size: 14px; font-weight: bold; }
+        .qrcode { text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <h1 style="text-align: center;">Billet pour {{ ticket.event.title }}</h1>
+    <div class="header">
+        <h1>Facture #{{ payment.id }}</h1>
+        <p>Émise le {{ payment.createdAt|date('d/m/Y H:i') }}</p>
+    </div>
 
-    <p><strong>Client :</strong> {{ ticket.customerName }}</p>
-    <p><strong>Email :</strong> {{ ticket.customerEmail }}</p>
-    <p><strong>Type :</strong> {{ ticket.ticketType.name }}</p>
-    <p><strong>Statut :</strong> {{ ticket.status }}</p>
+    <div class="info">
+        <p><strong>Client :</strong> {{ payment.user.name }}<br>
+        <strong>Email :</strong> {{ payment.user.email }}</p>
+    </div>
 
-    {% if ticket.qrCodeBase64 %}
-        <div class="qr">
-            <img src="data:image/png;base64,{{ ticket.qrCodeBase64 }}" width="150" alt="QR Code du billet">
-            <p style="font-size: 12px;">Code : {{ ticket.qrCode }}</p>
-        </div>
-    {% else %}
-        <p style="text-align: center; color: red;">QR Code indisponible</p>
-    {% endif %}
+    <table class="items">
+        <thead>
+            <tr>
+                <th>Événement</th>
+                <th>Type de billet</th>
+                <th>Prix</th>
+            </tr>
+        </thead>
+        <tbody>
+       {% for ticket in tickets %}
+            <p>Nom : {{ ticket.customerName }}</p>
+            <p>Événement : {{ ticket.event.title }}</p>
+            <hr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+
+    <div class="total">
+        Total payé : {{ payment.amount }} €
+    </div>
+
+    <div class="qrcode">
+        <p>Scannez ce QR code pour vérifier cette facture :</p>
+        <img src="data:image/png;base64,{{ tickets[0].getQrCodeBase64() }}" width="120" height="120">
+    </div>
 </body>
 </html>
