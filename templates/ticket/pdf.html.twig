@@ -65,6 +65,9 @@
 </head>
 <body>
     <div class="container">
+        {% set ticketList = tickets is defined ? tickets : [ticket] %}
+
+        {% for ticket in ticketList %}
         <div class="ticket">
             <div class="event-title">{{ ticket.event.title }}</div>
 
@@ -81,8 +84,8 @@
 
             <div class="qrcode">
                 <p>QR Code sécurisé :</p>
-                {% if ticket.getQrCodeBase64() %}
-                <img src="data:image/png;base64,{{ ticket.getQrCodeBase64() }}" width="140" height="140">
+                {% if ticket.getQrCodeBase64() is defined and ticket.getQrCodeBase64() %}
+                    <img src="data:image/png;base64,{{ ticket.getQrCodeBase64() }}" width="140" height="140">
                 {% endif %}
             </div>
 
@@ -93,6 +96,7 @@
                 Sen Billets - www.senbillets.com
             </div>
         </div>
+        {% endfor %}
     </div>
 </body>
 </html>

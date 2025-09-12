@@ -50,6 +50,9 @@ class Payment
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $paydunyaToken = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $ticketsPath = null; // <-- nouveau champ
+
     public function __construct()
     {
         $this->cartItems = new ArrayCollection();
@@ -208,4 +211,14 @@ class Payment
         $this->paydunyaToken = $token; return $this; 
     }
     
+        public function getTicketsPath(): ?string
+    {
+        return $this->ticketsPath;
+    }
+
+    public function setTicketsPath(?string $ticketsPath): self
+    {
+        $this->ticketsPath = $ticketsPath;
+        return $this;
+    }
 }
