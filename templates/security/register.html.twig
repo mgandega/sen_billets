@@ -1,21 +1,8 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Inscription - Sen-Billets{% endblock %}
-{% block header %}{% endblock %}
 
 {% block body %}
-<style>
-    .asterix {
-        color: red;
-        font-weight: bold;
-    }
-    .option {
-        color: green;
-        font-size: 0.9rem;
-        margin-left: 5px;
-    }
-</style>
-
 <div class="min-vh-100 d-flex align-items-center" style="background: linear-gradient(135deg, var(--primary-color), var(--info-color));">
     <div class="container">
         <div class="row justify-content-center">
@@ -80,48 +67,32 @@
                                 {{ form_errors(registrationForm.phone) }}
                             </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label fw-medium">
-                                    {{ form_label(registrationForm.plainPassword.first) }} <span class="asterix">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0">
-                                        <i class="bi bi-lock text-muted"></i>
-                                    </span>
-                                    {{ form_widget(registrationForm.plainPassword.first, {
-                                        'attr': {
-                                            'class': 'form-control border-start-0 ps-0',
-                                            'id': 'passwordField'
-                                        }
-                                    }) }}
-                                    <button class="btn btn-outline-secondary" type="button" id="toggle-password-1">
-                                        <i class="bi bi-eye-slash" id="toggle-icon-1"></i>
-                                    </button>
-                                </div>
-                                {{ form_errors(registrationForm.plainPassword.first) }}
+                        {# Mot de passe #}
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.plainPassword.first) }}
+                            <div class="input-group">
+                                {{ form_widget(registrationForm.plainPassword.first, {
+                                    'attr': {'class': 'form-control password-field', 'type': 'password'}
+                                }) }}
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="bi bi-eye-slash"></i>
+                                </button>
                             </div>
+                            {{ form_errors(registrationForm.plainPassword.first) }}
+                        </div>
 
-                            <div class="col-md-6">
-                                <label class="form-label fw-medium">
-                                    {{ form_label(registrationForm.plainPassword.second) }} <span class="asterix">*</span>
-                                </label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-end-0">
-                                        <i class="bi bi-lock text-muted"></i>
-                                    </span>
-                                    {{ form_widget(registrationForm.plainPassword.second, {
-                                        'attr': {
-                                            'class': 'form-control border-start-0 ps-0',
-                                            'id': 'confirmPasswordField'
-                                        }
-                                    }) }}
-                                    <button class="btn btn-outline-secondary" type="button" id="toggle-password-2">
-                                        <i class="bi bi-eye-slash" id="toggle-icon-2"></i>
-                                    </button>
-                                </div>
-                                {{ form_errors(registrationForm.plainPassword.second) }}
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.plainPassword.second) }}
+                            <div class="input-group">
+                                {{ form_widget(registrationForm.plainPassword.second, {
+                                    'attr': {'class': 'form-control password-field', 'type': 'password'}
+                                }) }}
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="bi bi-eye-slash"></i>
+                                </button>
                             </div>
-
+                            {{ form_errors(registrationForm.plainPassword.second) }}
+                        </div>
                         </div>
 
                         <div class="mt-4">
@@ -168,28 +139,58 @@
     </div>
 </div>
 
+                        {# Mot de passe #}
+                        {# <div class="mb-3">
+                            {{ form_label(registrationForm.plainPassword.first) }}
+                            <div class="input-group">
+                                {{ form_widget(registrationForm.plainPassword.first, {
+                                    'attr': {'class': 'form-control password-field', 'type': 'password'}
+                                }) }}
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="bi bi-eye-slash"></i>
+                                </button>
+                            </div>
+                            {{ form_errors(registrationForm.plainPassword.first) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(registrationForm.plainPassword.second) }}
+                            <div class="input-group">
+                                {{ form_widget(registrationForm.plainPassword.second, {
+                                    'attr': {'class': 'form-control password-field', 'type': 'password'}
+                                }) }}
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="bi bi-eye-slash"></i>
+                                </button>
+                            </div>
+                            {{ form_errors(registrationForm.plainPassword.second) }}
+                        </div> #}
+
+{% endblock %}
+
 {% block javascripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        function togglePassword(buttonId, fieldId, iconId) {
-            const button = document.getElementById(buttonId);
-            const input = document.getElementById(fieldId);
-            const icon = document.getElementById(iconId);
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleButtons = document.querySelectorAll('.toggle-password');
 
-            if (button && input && icon) {
-                button.addEventListener('click', function () {
-                    console.log("ok")
-                    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-                    input.setAttribute('type', type);
-                    icon.classList.toggle('bi-eye');
-                    icon.classList.toggle('bi-eye-slash');
-                });
+    toggleButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const input = this.closest('.input-group').querySelector('input.password-field');
+            const icon = this.querySelector('i');
+
+            if (!input) return;
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
             }
-        }
-
-        togglePassword('toggle-password-1', 'passwordField', 'toggle-icon-1');
-        togglePassword('toggle-password-2', 'confirmPasswordField', 'toggle-icon-2');
+        });
     });
+});
 </script>
-{% endblock %}
 {% endblock %}

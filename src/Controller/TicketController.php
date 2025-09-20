@@ -77,10 +77,12 @@ class TicketController extends AbstractController
     // ----------------------------
     // Nouvelle route pour téléchargement des tickets PDF
     // ----------------------------
+   
+
     #[Route('/tickets/{id}/download', name: 'tickets_download')]
     public function downloadTickets(Payment $payment): Response
     {
-        $filePath = $this->getParameter('kernel.project_dir') . '/public/uploads/tickets/tickets_' . $payment->getId() . '.pdf';
+        $filePath = $this->getParameter('kernel.project_dir') . '/public' . $payment->getTicketsPath();
 
         if (!file_exists($filePath)) {
             throw $this->createNotFoundException('Le fichier PDF des tickets n’existe pas.');
@@ -92,4 +94,6 @@ class TicketController extends AbstractController
             ResponseHeaderBag::DISPOSITION_ATTACHMENT
         );
     }
+
+
 }

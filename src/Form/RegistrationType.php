@@ -61,14 +61,16 @@ class RegistrationType extends AbstractType
                     'label' => 'Mot de passe',
                     'attr' => [
                         'class' => 'form-control',
-                        'placeholder' => '••••••••'
+                        'placeholder' => '••••••••',
+                        'data-toggle-target' => 'registration_plainPassword_first'
                     ]
                 ],
                 'second_options' => [
                     'label' => 'Confirmer le mot de passe',
                     'attr' => [
                         'class' => 'form-control',
-                        'placeholder' => '••••••••'
+                        'placeholder' => '••••••••',
+                        'data-toggle-target' => 'registration_plainPassword_second'
                     ]
                 ],
             ])

@@ -8,7 +8,7 @@
 <!-- CSS pour réduire la taille -->
     <style>
         .custom-carousel {
-            max-height: 300px;
+            max-height: 590px;
             overflow: hidden;
         }
         .custom-carousel img {
@@ -20,10 +20,10 @@
     <section class="hero-section">
         <div class="container">
             <div class="row align-items-center min-vh-75">
-            <div class="col-lg-6">
-
-        <!-- Carrousel -->
-        {# <div id="carouselExampleIndicators" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="2000">
+                <div class="col-lg-12">
+                    {# <div class="col-lg-6 text-center"> #}
+                <!-- Carrousel -->
+        <div id="carouselExampleIndicators" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="2000">
             <ol class="carousel-indicators">
                 {% for event in events %}
                     <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="{{ loop.index0 }}" class="{% if loop.first %}active{% endif %}"></li>
@@ -44,8 +44,13 @@
                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                     <span class="visually-hidden">Next</span>
                 </a>
-            </div> #}
+            </div>
         {# fin slide #}
+                {# </div> #}
+                </div>
+            </div>
+            <div class="row align-items-center min-vh-75">
+            <div class="col-lg-12">
                     <h1 class="display-3 fw-bold mb-4 fade-in text-white">
                         Découvrez les meilleurs événements du Sénégal
                     </h1>
@@ -71,7 +76,7 @@
                         <div class="position-absolute top-0 start-0 w-100 h-100 bg-primary bg-opacity-10 rounded-3"></div>
                     </div>
                 </div> #}
-                <div class="col-lg-6 text-center">
+                {# <div class="col-lg-6 text-center">
                 <!-- Carrousel -->
         <div id="carouselExampleIndicators" class="carousel slide custom-carousel" data-bs-ride="carousel" data-bs-interval="2000">
             <ol class="carousel-indicators">
@@ -96,7 +101,7 @@
                 </a>
             </div>
         {# fin slide #}
-                </div>
+                </div> #}
             </div>
         </div>
     </section>

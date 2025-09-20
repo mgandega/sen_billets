@@ -48,11 +48,26 @@
         </div>
     </section>
 
-    {% if tickets|length > 1 %}
+    {# {% if tickets|length > 1 %}
         <section class="mt-4">
             <h2 class="h5 mb-3">📥 Tous les tickets PDF</h2>
             <div class="d-flex gap-3">
                 <a href="{{ path('tickets_download', {id: payment.id}) }}" class="btn btn-success">
+                    ⬇️ Télécharger tous les tickets
+                </a>
+            </div>
+        </section>
+    {% endif %} #}
+    {% if payment.ticketsPath %}
+    {# <div>
+    <a href="{{ path('tickets_download', {id: payment.id}) }}" class="btn btn-success">
+        ⬇️ Télécharger tous les tickets
+    </a>
+    </div> #}
+            <section class="mt-4">
+            <h2 class="h5 mb-3">📥 Tous les tickets PDF</h2>
+            <div class="d-flex gap-3">
+    <a href="{{ path('tickets_download', {id: payment.id}) }}" class="btn btn-success">
                     ⬇️ Télécharger tous les tickets
                 </a>
             </div>

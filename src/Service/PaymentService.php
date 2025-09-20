@@ -449,7 +449,56 @@ class PaymentService
     //     $this->em->flush();
     // }
 
-    private function generatePdf(Payment $payment, array $tickets): void
+    // private function generatePdf(Payment $payment, array $tickets): void
+    // {
+    //     $invoiceDir = rtrim($this->projectDir, '/') . '/public/uploads/invoices';
+    //     $ticketDir  = rtrim($this->projectDir, '/') . '/public/uploads/tickets';
+
+    //     $filesystem = new Filesystem();
+    //     foreach ([$invoiceDir, $ticketDir] as $dir) {
+    //         if (!$filesystem->exists($dir)) {
+    //             $filesystem->mkdir($dir, 0755);
+    //         }
+    //     }
+
+    //     // --- Génération de la facture ---
+    //     $invoiceFile = $invoiceDir . '/invoice_' . $payment->getId() . '.pdf';
+    //     $this->pdfGenerator->generateAndSave('invoice/pdf.html.twig', [
+    //         'payment'     => $payment,
+    //         'tickets'     => $tickets,
+    //         'project_dir' => $this->projectDir,
+    //     ], $invoiceFile);
+
+    //     // Enregistre le chemin relatif dans l'entité Payment
+    //     $payment->setInvoicePath('/uploads/invoices/invoice_' . $payment->getId() . '.pdf');
+
+    //     // --- Génération d’un PDF individuel par ticket ---
+    //     foreach ($tickets as $ticket) {
+    //         $ticketFile = $ticketDir . '/ticket_' . $ticket->getId() . '.pdf';
+    //         $this->pdfGenerator->generateAndSave('ticket/pdf.html.twig', [
+    //             'ticket'      => $ticket, 
+    //             'project_dir' => $this->projectDir,
+    //         ], $ticketFile);
+
+    //         $ticket->setPdfPath('/uploads/tickets/ticket_' . $ticket->getId() . '.pdf');
+    //         $this->em->persist($ticket);
+    //     }
+
+    //     // --- Génération d’un PDF combiné pour tous les tickets ---
+    //     $ticketsCombinedFile = $ticketDir . '/tickets_' . $payment->getId() . '.pdf';
+    //     $this->pdfGenerator->generateAndSave('ticket/pdf.html.twig', [
+    //         'tickets'     => $tickets, // 🔑 passer le tableau complet
+    //         'project_dir' => $this->projectDir,
+    //     ], $ticketsCombinedFile);
+
+    //     // Enregistre le chemin relatif dans Payment
+    //     $payment->setTicketsPath('/uploads/tickets/tickets_' . $payment->getId() . '.pdf');
+
+    //     $this->em->persist($payment);
+    //     $this->em->flush();
+    // }
+
+   private function generatePdf(Payment $payment, array $tickets): void
     {
         $invoiceDir = rtrim($this->projectDir, '/') . '/public/uploads/invoices';
         $ticketDir  = rtrim($this->projectDir, '/') . '/public/uploads/tickets';
@@ -461,22 +510,20 @@ class PaymentService
             }
         }
 
-        // --- Génération de la facture ---
+        // --- PDF Facture ---
         $invoiceFile = $invoiceDir . '/invoice_' . $payment->getId() . '.pdf';
         $this->pdfGenerator->generateAndSave('invoice/pdf.html.twig', [
             'payment'     => $payment,
             'tickets'     => $tickets,
             'project_dir' => $this->projectDir,
         ], $invoiceFile);
-
-        // Enregistre le chemin relatif dans l'entité Payment
         $payment->setInvoicePath('/uploads/invoices/invoice_' . $payment->getId() . '.pdf');
 
-        // --- Génération d’un PDF individuel par ticket ---
+        // --- PDF individuel par ticket ---
         foreach ($tickets as $ticket) {
             $ticketFile = $ticketDir . '/ticket_' . $ticket->getId() . '.pdf';
             $this->pdfGenerator->generateAndSave('ticket/pdf.html.twig', [
-                'ticket'      => $ticket, 
+                'ticket'      => $ticket,
                 'project_dir' => $this->projectDir,
             ], $ticketFile);
 
@@ -484,19 +531,19 @@ class PaymentService
             $this->em->persist($ticket);
         }
 
-        // --- Génération d’un PDF combiné pour tous les tickets ---
-        $ticketsCombinedFile = $ticketDir . '/tickets_' . $payment->getId() . '.pdf';
+        // --- PDF global regroupant tous les tickets ---
+        $allTicketsFile = $ticketDir . '/tickets_' . $payment->getId() . '.pdf';
         $this->pdfGenerator->generateAndSave('ticket/pdf.html.twig', [
-            'tickets'     => $tickets, // 🔑 passer le tableau complet
+            'tickets' => $tickets, // tableau complet
             'project_dir' => $this->projectDir,
-        ], $ticketsCombinedFile);
+        ], $allTicketsFile);
 
-        // Enregistre le chemin relatif dans Payment
         $payment->setTicketsPath('/uploads/tickets/tickets_' . $payment->getId() . '.pdf');
 
         $this->em->persist($payment);
         $this->em->flush();
     }
+
 
 
 }
