@@ -1,7 +1,7 @@
 class QRScanner {
-    constructor(videoElementId, validateUrl) {
+    constructor(videoElementId, validateUrlTemplate) {
         this.videoElement = document.getElementById(videoElementId);
-        this.validateUrl = validateUrl;
+        this.validateUrlTemplate = validateUrlTemplate;
         this.codeReader = new ZXing.BrowserMultiFormatReader();
         this.currentStream = null;
         this.selectedDeviceId = null;
@@ -10,17 +10,16 @@ class QRScanner {
     async init() {
         try {
             const devices = await ZXing.BrowserCodeReader.listVideoInputDevices();
-            if (devices.length === 0) {
+            if (!devices.length) {
                 this.showResult("Aucune caméra détectée", "danger");
                 return;
             }
 
             // caméra par défaut
             this.selectedDeviceId = devices[0].deviceId;
-
             this.startScan();
-        } catch (error) {
-            this.showResult("Erreur d’accès à la caméra : " + error.message, "danger");
+        } catch (err) {
+            this.showResult("Erreur d’accès à la caméra : " + err.message, "danger");
         }
     }
 
@@ -28,22 +27,31 @@ class QRScanner {
         try {
             this.videoElement.style.display = "block";
 
-            this.codeReader.decodeFromVideoDevice(this.selectedDeviceId, this.videoElement, (result, err) => {
-                if (result) {
-                    this.validate(result.getText());
+            this.codeReader.decodeFromVideoDevice(
+                this.selectedDeviceId,
+                this.videoElement,
+                (result, err) => {
+                    if (result) {
+                        // Remplace PLACEHOLDER dans l'URL par le QR scanné
+                        // const validateUrl = this.validateUrlTemplate.replace("PLACEHOLDER", encodeURIComponent(result.getText()));
+                        const validateUrl = "{{ path('scanner_api_validate', {'qrCode': 'PLACEHOLDER'}) }}".replace('PLACEHOLDER', encodeURIComponent(result.getText()));
+
+                        this.validate(validateUrl);
+                    }
+
+                    if (err && !(err instanceof ZXing.NotFoundException)) {
+                        console.error(err);
+                    }
                 }
-                if (err && !(err instanceof ZXing.NotFoundException)) {
-                    console.error(err);
-                }
-            });
-        } catch (error) {
-            this.showResult("Impossible de démarrer le scanner : " + error.message, "danger");
+            );
+        } catch (err) {
+            this.showResult("Impossible de démarrer le scanner : " + err.message, "danger");
         }
     }
 
-    async validate(qrCode) {
+    async validate(url) {
         try {
-            const response = await fetch(this.validateUrl.replace("PLACEHOLDER", encodeURIComponent(qrCode)), {
+            const response = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" }
             });
@@ -61,8 +69,8 @@ class QRScanner {
             } else {
                 this.showResult("❌ " + (data.message || "Billet invalide"), "danger");
             }
-        } catch (error) {
-            this.showResult("Erreur de connexion au serveur : " + error.message, "danger");
+        } catch (err) {
+            this.showResult("Erreur de connexion au serveur : " + err.message, "danger");
         }
     }
 
@@ -80,8 +88,8 @@ class QRScanner {
 
             this.codeReader.reset();
             this.startScan();
-        } catch (error) {
-            this.showResult("Erreur en changeant de caméra : " + error.message, "danger");
+        } catch (err) {
+            this.showResult("Erreur en changeant de caméra : " + err.message, "danger");
         }
     }
 
@@ -91,3 +99,4 @@ class QRScanner {
         resultDiv.innerHTML = message;
     }
 }
+

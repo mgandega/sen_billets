@@ -2,84 +2,73 @@
 
 namespace App\Service;
 
+use App\Entity\Event;
 use App\Repository\TicketRepository;
-use App\Entity\Ticket;
-use Doctrine\ORM\EntityManagerInterface;
 
 class QRCodeService
 {
-    public function __construct(
-        private TicketRepository $ticketRepository,
-        private EntityManagerInterface $em
-    ) {}
+    public function __construct(private TicketRepository $ticketRepository) {}
 
-    /**
-     * Valide un seul billet par son QR code
-     */
-    public function validate(string $qrCode): ?Ticket
-    {
-        $ticket = $this->ticketRepository->findOneBy(['qrCode' => $qrCode]);
-
-        if (!$ticket) {
-            return null; // billet introuvable
-        }
-
-        // Si déjà validé, on peut renvoyer null ou le ticket avec status "déjà validé"
-        if ($ticket->getStatus() === 'validated') {
-            return null;
-        }
-
-        $ticket->setStatus('validated');
-        $this->em->persist($ticket);
-        $this->em->flush();
-
-        return $ticket;
-    }
-
-    /**
-     * Valide une liste de billets
-     */
-    public function bulkValidate(array $qrCodes): array
-    {
-        $results = [];
-
-        foreach ($qrCodes as $code) {
-            $ticket = $this->validate($code);
-            $results[$code] = $ticket ? true : false;
-        }
-
-        return $results;
-    }
-
-    /**
-     * Exemple de stats pour un event
-     */
-    public function getValidationStats($event): array
+    public function getValidationStats(Event $event): array
     {
         $tickets = $this->ticketRepository->findBy(['event' => $event]);
-
         $total = count($tickets);
-        $validated = count(array_filter($tickets, fn ($t) => $t->getStatus() === 'validated'));
+        $validated = count(array_filter($tickets, fn($t) => $t->isUsed()));
+        $pending = $total - $validated;
+
+        $lastValidations = array_reverse(array_filter($tickets, fn($t) => $t->isUsed()));
+        $lastValidations = array_slice($lastValidations, 0, 10);
 
         return [
             'total' => $total,
             'validated' => $validated,
-            'remaining' => $total - $validated
+            'pending' => $pending,
+            'lastValidations' => $lastValidations
         ];
     }
 
-    /**
-     * Exemple de rapport
-     */
-    public function generateValidationReport($event): array
+    public function generateValidationReport(Event $event): array
     {
         $tickets = $this->ticketRepository->findBy(['event' => $event]);
+        $ticketTypes = [];
 
-        return array_map(fn ($t) => [
-            'id' => $t->getId(),
-            'customer' => $t->getCustomerName(),
-            'status' => $t->getStatus(),
-            'qrCode' => $t->getQrCode(),
-        ], $tickets);
+        foreach ($tickets as $ticket) {
+            $type = $ticket->getTicketType()->getName();
+            if (!isset($ticketTypes[$type])) {
+                $ticketTypes[$type] = ['name' => $type, 'total' => 0, 'validated' => 0];
+            }
+            $ticketTypes[$type]['total']++;
+            if ($ticket->isUsed()) $ticketTypes[$type]['validated']++;
+        }
+
+        return [
+            'stats' => $this->getValidationStats($event),
+            'ticketTypes' => array_values($ticketTypes),
+            'generatedAt' => new \DateTime()
+        ];
+    }
+
+    public function validate(string $qrCode)
+    {
+        $ticket = $this->ticketRepository->findOneBy(['qrCode' => $qrCode]);
+        if ($ticket && $ticket->isValid()) {
+            $ticket->setStatus('used');
+            return $ticket;
+        }
+        return null;
+    }
+
+    public function bulkValidate(array $qrCodes): array
+    {
+        $success = 0;
+        $errors = 0;
+
+        foreach ($qrCodes as $code) {
+            $ticket = $this->validate($code);
+            if ($ticket) $success++;
+            else $errors++;
+        }
+
+        return ['summary' => ['success' => $success, 'errors' => $errors]];
     }
 }
