@@ -126,6 +126,7 @@ class TicketController extends AbstractController
     #[Route('/ticket/verify/{qrCode}', name: 'ticket_verify')]
     public function verify(string $qrCode, TicketRepository $ticketRepository): Response
     {
+        die('ok1');
         $ticket = $ticketRepository->findOneBy(['qrCode' => $qrCode]);
 
         if (!$ticket) {

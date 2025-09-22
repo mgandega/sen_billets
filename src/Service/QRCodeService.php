@@ -1,51 +1,85 @@
-<?php 
+<?php
+
 namespace App\Service;
 
-use Endroid\QrCode\Builder\Builder;
-use Endroid\QrCode\Writer\PngWriter;
-use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\RoundBlockSizeMode;
-use Endroid\QrCode\Label\Font\OpenSans;
-use Endroid\QrCode\ErrorCorrectionLevel;
-use Endroid\QrCode\Label\LabelAlignment;
-use Symfony\Component\Filesystem\Filesystem;
-
+use App\Repository\TicketRepository;
+use App\Entity\Ticket;
+use Doctrine\ORM\EntityManagerInterface;
 
 class QRCodeService
 {
-    public function generate(string $text, string $filename): string
-        {
-            $builder = new Builder(
-                writer: new PngWriter(),
-                writerOptions: [],
-                validateResult: false,
-                data: 'Custom QR code contents',
-                encoding: new Encoding('UTF-8'),
-                errorCorrectionLevel: ErrorCorrectionLevel::High,
-                size: 300,
-                margin: 10,
-                roundBlockSizeMode: RoundBlockSizeMode::Margin,
-                logoPath: __DIR__.'/assets/logo.png',
-                logoResizeToWidth: 50,
-                logoPunchoutBackground: true,
-                labelText: 'This is the label',
-                labelFont: new OpenSans(20),
-                labelAlignment: LabelAlignment::Center
-            );
+    public function __construct(
+        private TicketRepository $ticketRepository,
+        private EntityManagerInterface $em
+    ) {}
 
-        $result = $builder->build();
+    /**
+     * Valide un seul billet par son QR code
+     */
+    public function validate(string $qrCode): ?Ticket
+    {
+        $ticket = $this->ticketRepository->findOneBy(['qrCode' => $qrCode]);
 
-
-        $dir = __DIR__ . '/../../public/uploads/qrcodes';
-        $filesystem = new Filesystem();
-
-        if (!$filesystem->exists($dir)) {
-            $filesystem->mkdir($dir, 0775);
+        if (!$ticket) {
+            return null; // billet introuvable
         }
 
-        $fullPath = $dir . '/' . $filename;
-        $result->saveToFile($fullPath);
+        // Si déjà validé, on peut renvoyer null ou le ticket avec status "déjà validé"
+        if ($ticket->getStatus() === 'validated') {
+            return null;
+        }
 
-        return '/uploads/qrcodes/' . $filename;
+        $ticket->setStatus('validated');
+        $this->em->persist($ticket);
+        $this->em->flush();
+
+        return $ticket;
+    }
+
+    /**
+     * Valide une liste de billets
+     */
+    public function bulkValidate(array $qrCodes): array
+    {
+        $results = [];
+
+        foreach ($qrCodes as $code) {
+            $ticket = $this->validate($code);
+            $results[$code] = $ticket ? true : false;
+        }
+
+        return $results;
+    }
+
+    /**
+     * Exemple de stats pour un event
+     */
+    public function getValidationStats($event): array
+    {
+        $tickets = $this->ticketRepository->findBy(['event' => $event]);
+
+        $total = count($tickets);
+        $validated = count(array_filter($tickets, fn ($t) => $t->getStatus() === 'validated'));
+
+        return [
+            'total' => $total,
+            'validated' => $validated,
+            'remaining' => $total - $validated
+        ];
+    }
+
+    /**
+     * Exemple de rapport
+     */
+    public function generateValidationReport($event): array
+    {
+        $tickets = $this->ticketRepository->findBy(['event' => $event]);
+
+        return array_map(fn ($t) => [
+            'id' => $t->getId(),
+            'customer' => $t->getCustomerName(),
+            'status' => $t->getStatus(),
+            'qrCode' => $t->getQrCode(),
+        ], $tickets);
     }
 }

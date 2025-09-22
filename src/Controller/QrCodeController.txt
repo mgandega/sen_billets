@@ -1,0 +1,125 @@
+<?php
+
+namespace App\Controller;
+
+use App\Repository\TicketRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
+
+#[Route('/api/qr')]
+class QrCodeController extends AbstractController
+{
+    #[Route('/validate/{code}', name: 'api_qr_validate', methods: ['POST'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function validateTicket(
+        string $code,
+        TicketRepository $repo,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $ticket = $repo->findOneBy(['qrCode' => $code]);
+
+        if (!$ticket) {
+            return $this->json(['valid' => false, 'message' => 'QR Code invalide'], 404);
+        }
+
+        $event = $ticket->getEvent();
+        if ($event->getOrganizer() !== $this->getUser() && !$this->isGranted('ROLE_ADMIN')) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if ($ticket->isUsed()) {
+            return $this->json([
+                'valid' => false,
+                'message' => 'Billet déjà utilisé',
+                'ticket' => [
+                    'customerName' => $ticket->getCustomerName(),
+                    'ticketType' => ['name' => $ticket->getTicketType()->getName()],
+                    'qrCode' => $ticket->getQrCode(),
+                ]
+            ]);
+        }
+
+        $ticket->setUsedAt(new \DateTimeImmutable());
+        $ticket->setValidatedBy($this->getUser());
+        $em->flush();
+
+        return $this->json([
+            'valid' => true,
+            'ticket' => [
+                'customerName' => $ticket->getCustomerName(),
+                'ticketType' => ['name' => $ticket->getTicketType()->getName()],
+                'qrCode' => $ticket->getQrCode()
+            ],
+            'event' => [
+                'title' => $event->getTitle()
+            ]
+        ]);
+    }
+
+    #[Route('/bulk-validate', name: 'api_qr_bulk_validate', methods: ['POST'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function bulkValidate(
+        Request $request,
+        TicketRepository $repo,
+        EntityManagerInterface $em
+    ): JsonResponse {
+        $data = json_decode($request->getContent(), true);
+        if (!isset($data['codes']) || !is_array($data['codes'])) {
+            return $this->json(['error' => 'Format invalide'], 400);
+        }
+
+        $results = [];
+        foreach ($data['codes'] as $code) {
+            $ticket = $repo->findOneBy(['qrCode' => $code]);
+
+            if (!$ticket) {
+                $results[$code] = ['valid' => false, 'message' => 'QR Code invalide'];
+                continue;
+            }
+
+            $event = $ticket->getEvent();
+            if ($event->getOrganizer() !== $this->getUser() && !$this->isGranted('ROLE_ADMIN')) {
+                $results[$code] = ['valid' => false, 'message' => 'Accès refusé'];
+                continue;
+            }
+
+            if ($ticket->isUsed()) {
+                $results[$code] = [
+                    'valid' => false,
+                    'message' => 'Billet déjà utilisé',
+                    'ticket' => ['customerName' => $ticket->getCustomerName()]
+                ];
+                continue;
+            }
+
+            $ticket->setUsedAt(new \DateTimeImmutable());
+            $ticket->setValidatedBy($this->getUser());
+            $results[$code] = [
+                'valid' => true,
+                'ticket' => ['customerName' => $ticket->getCustomerName()]
+            ];
+        }
+
+        $em->flush();
+
+        return $this->json($results);
+    }
+
+    #[Route('/stats/{eventId}', name: 'api_qr_stats', methods: ['GET'])]
+    #[IsGranted('ROLE_ORGANIZER')]
+    public function stats(
+        int $eventId,
+        TicketRepository $repo
+    ): JsonResponse {
+        $stats = $repo->getEventStats($eventId);
+
+        return $this->json([
+            'scanned' => $stats['scanned'],
+            'remaining' => $stats['remaining']
+        ]);
+    }
+}

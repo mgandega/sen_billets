@@ -44,6 +44,9 @@ services:
     App\Service\QRCodeService: ~
     Endroid\QrCode\Writer\PngWriter: ~
 
+    App\EventListener\CorsListener:
+        tags:
+            - { name: kernel.event_listener, event: kernel.response }
 
     # Endroid\QrCode\Builder\PngBuilder:
     #     arguments:

@@ -70,6 +70,11 @@ class Ticket
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $pdfPath = null;
 
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?User $validatedBy = null;
+
     public function __construct()
     {
         $this->purchasedAt = new \DateTime();
@@ -311,5 +316,17 @@ class Ticket
         $this->pdfPath = $pdfPath;
         return $this;
     }
+
+    public function getValidatedBy(): ?User
+    {
+        return $this->validatedBy;
+    }
+
+    public function setValidatedBy(?User $user): static
+    {
+        $this->validatedBy = $user;
+        return $this;
+    }
+
 
 }

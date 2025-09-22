@@ -24,7 +24,7 @@ class NotificationService
         private NotificationTemplateManager $templateManager,
         private ?string $smsApiKey = null,
         private ?string $pushApiKey = null,
-        private string $fromEmail = 'noreply@sen-billets.sn', 
+        private string $fromEmail = 'mgandega@gmail.com', 
         private string $fromName = 'Sen-Billets'
     ) {}
 
@@ -68,7 +68,7 @@ class NotificationService
                 ->context(array_merge($data, [
                     'user' => $user,
                     'app_name' => 'Sen-Billets',
-                    'app_url' => 'https://sen-billets.sn'
+                    'app_url' => 'https://e8c978d51935.ngrok-free.app'
                 ]));
 
             $this->mailer->send($email);

@@ -1,305 +1,161 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Dashboard - {{ event.title }} - Sen-Billets{% endblock %}
+{% block title %}Dashboard - {{ event.title }}{% endblock %}
 
 {% block body %}
-    <div class="container py-5">
-        <!-- Header -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h1 class="display-5 fw-bold">Dashboard de validation</h1>
-                        <p class="lead text-muted">{{ event.title }}</p>
-                    </div>
-                    <div>
-                        <a href="{{ path('scanner_event', {id: event.id}) }}" class="btn btn-primary">
-                            <i class="bi bi-qr-code-scan me-2"></i>Retour au scanner
-                        </a>
-                    </div>
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h1 class="display-5 fw-bold">Dashboard de validation</h1>
+            <a href="{{ path('scanner_event', {id: event.id}) }}" class="btn btn-primary">
+                <i class="bi bi-qr-code-scan me-2"></i>Retour au scanner
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-5">
+        {% set stats = report.stats %}
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-ticket text-primary fs-1 mb-3"></i>
+                    <h3 class="fw-bold">{{ stats.total }}</h3>
+                    <p class="text-muted mb-0">Total billets</p>
                 </div>
             </div>
         </div>
-
-        <!-- Stats Overview -->
-        <div class="row g-4 mb-5">
-            <div class="col-lg-3 col-md-6">
-                <div class="card border-0 shadow h-100">
-                    <div class="card-body text-center">
-                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                            <i class="bi bi-ticket text-primary fs-3"></i>
-                        </div>
-                        <h3 class="fw-bold">{{ report.stats.total }}</h3>
-                        <p class="text-muted mb-0">Total billets</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6">
-                <div class="card border-0 shadow h-100">
-                    <div class="card-body text-center">
-                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                            <i class="bi bi-check-circle text-success fs-3"></i>
-                        </div>
-                        <h3 class="fw-bold text-success">{{ report.stats.validated }}</h3>
-                        <p class="text-muted mb-0">Validés</p>
-                        <small class="text-success">{{ report.stats.validationRate|round(1) }}%</small>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6">
-                <div class="card border-0 shadow h-100">
-                    <div class="card-body text-center">
-                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                            <i class="bi bi-clock text-warning fs-3"></i>
-                        </div>
-                        <h3 class="fw-bold text-warning">{{ report.stats.pending }}</h3>
-                        <p class="text-muted mb-0">En attente</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-lg-3 col-md-6">
-                <div class="card border-0 shadow h-100">
-                    <div class="card-body text-center">
-                        <div class="bg-danger bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                            <i class="bi bi-x-circle text-danger fs-3"></i>
-                        </div>
-                        <h3 class="fw-bold text-danger">{{ report.stats.cancelled }}</h3>
-                        <p class="text-muted mb-0">Annulés</p>
-                    </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-check-circle text-success fs-1 mb-3"></i>
+                    <h3 class="fw-bold">{{ stats.validated }}</h3>
+                    <p class="text-muted mb-0">Validés</p>
+                    <small class="text-success">{{ (stats.validated / stats.total * 100)|round(1) }}%</small>
                 </div>
             </div>
         </div>
-
-        <div class="row">
-            <!-- Validation Chart -->
-            <div class="col-lg-8">
-                <div class="card border-0 shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-graph-up me-2"></i>Validations par heure
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="validationChart" width="400" height="200"></canvas>
-                    </div>
-                </div>
-
-                <!-- Ticket Types Stats -->
-                <div class="card border-0 shadow mt-4">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-pie-chart me-2"></i>Validation par type de billet
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Type de billet</th>
-                                        <th>Vendus</th>
-                                        <th>Validés</th>
-                                        <th>Taux</th>
-                                        <th>Progression</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for ticketType in report.ticketTypes %}
-                                        {% set rate = ticketType.total > 0 ? (ticketType.validated / ticketType.total * 100) : 0 %}
-                                        <tr>
-                                            <td><strong>{{ ticketType.name }}</strong></td>
-                                            <td>{{ ticketType.total }}</td>
-                                            <td class="text-success">{{ ticketType.validated }}</td>
-                                            <td>{{ rate|round(1) }}%</td>
-                                            <td>
-                                                <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar bg-success" style="width: {{ rate }}%"></div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-clock text-warning fs-1 mb-3"></i>
+                    <h3 class="fw-bold">{{ stats.pending }}</h3>
+                    <p class="text-muted mb-0">En attente</p>
                 </div>
             </div>
-
-            <!-- Recent Activity -->
-            <div class="col-lg-4">
-                <div class="card border-0 shadow">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-activity me-2"></i>Activité récente
-                        </h5>
-                    </div>
-                    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
-                        {% for validation in report.stats.lastValidations %}
-                            <div class="d-flex align-items-center py-2 {% if not loop.last %}border-bottom{% endif %}">
-                                <div class="bg-success rounded-circle p-2 me-3">
-                                    <i class="bi bi-check text-white"></i>
-                                </div>
-                                <div class="flex-grow-1">
-                                    <strong>{{ validation.customerName }}</strong>
-                                    <small class="text-muted d-block">{{ validation.ticketType.name }}</small>
-                                </div>
-                                <div class="text-end">
-                                    <small class="text-muted">{{ validation.usedAt|date('H:i') }}</small>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <!-- Export Actions -->
-                <div class="card border-0 shadow mt-4">
-                    <div class="card-header bg-warning text-dark">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-download me-2"></i>Exports
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-grid gap-2">
-                            <a href="{{ path('api_qr_export', {id: event.id}) }}" class="btn btn-outline-success">
-                                <i class="bi bi-file-earmark-spreadsheet me-2"></i>Export CSV
-                            </a>
-                            <button class="btn btn-outline-primary" onclick="generatePDFReport()">
-                                <i class="bi bi-file-earmark-pdf me-2"></i>Rapport PDF
-                            </button>
-                            <button class="btn btn-outline-info" onclick="printReport()">
-                                <i class="bi bi-printer me-2"></i>Imprimer
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Real-time Updates -->
-                <div class="card border-0 shadow mt-4">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-broadcast me-2"></i>Temps réel
-                        </h5>
-                    </div>
-                    <div class="card-body text-center">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="realTimeUpdates" checked>
-                            <label class="form-check-label" for="realTimeUpdates">
-                                Mises à jour automatiques
-                            </label>
-                        </div>
-                        <small class="text-muted">Dernière mise à jour : <span id="lastUpdate">{{ report.generatedAt|date('H:i:s') }}</span></small>
-                    </div>
+        </div>
+        <div class="col-lg-3 col-md-6">
+            <div class="card border-0 shadow text-center h-100">
+                <div class="card-body">
+                    <i class="bi bi-x-circle text-danger fs-1 mb-3"></i>
+                    <h3 class="fw-bold">{{ stats.total - stats.validated - stats.pending }}</h3>
+                    <p class="text-muted mb-0">Annulés</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        // Graphique des validations par heure
-        const ctx = document.getElementById('validationChart').getContext('2d');
-        const validationChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [{% for hour in 0..23 %}'{{ hour }}h'{% if not loop.last %},{% endif %}{% endfor %}],
-                datasets: [{
-                    label: 'Validations',
-                    data: [
-                        {% for hour in 0..23 %}
-                            {% set count = 0 %}
-                            {% for validation in report.stats.validationsByHour %}
-                                {% if validation.hour == hour %}
-                                    {% set count = validation.count %}
-                                {% endif %}
-                            {% endfor %}
-                            {{ count }}{% if not loop.last %},{% endif %}
-                        {% endfor %}
-                    ],
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                    tension: 0.1,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            stepSize: 1
-                        }
-                    }
-                }
-            }
-        });
+    <!-- Graph & Ticket Types -->
+    <div class="row g-4">
+        <!-- Validations par heure -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-graph-up me-2"></i>Validations par heure
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="validationChart" width="400" height="200"></canvas>
+                </div>
+            </div>
 
-        // Mises à jour en temps réel
-        let updateInterval;
-        
-        function startRealTimeUpdates() {
-            updateInterval = setInterval(async () => {
-                try {
-                    const response = await fetch(`/api/qr/stats/{{ event.id }}`);
-                    const data = await response.json();
-                    
-                    // Mettre à jour les statistiques
-                    updateStats(data);
-                    
-                    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
-                } catch (error) {
-                    console.error('Erreur mise à jour:', error);
-                }
-            }, 30000); // Toutes les 30 secondes
-        }
+            <!-- Ticket Types -->
+            <div class="card border-0 shadow">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-pie-chart me-2"></i>Validation par type de billet
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Type</th>
+                                    <th>Vendus</th>
+                                    <th>Validés</th>
+                                    <th>Taux</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for type in report.ticketTypes %}
+                                    {% set rate = type.total > 0 ? (type.validated / type.total * 100) : 0 %}
+                                    <tr>
+                                        <td>{{ type.name }}</td>
+                                        <td>{{ type.total }}</td>
+                                        <td>{{ type.validated }}</td>
+                                        <td>{{ rate|round(1) }}%</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        function stopRealTimeUpdates() {
-            if (updateInterval) {
-                clearInterval(updateInterval);
-            }
-        }
+        <!-- Dernières validations -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="bi bi-clock-history me-2"></i>Dernières validations
+                    </h5>
+                </div>
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                    {% for validation in stats.lastValidations %}
+                        <div class="d-flex justify-content-between py-2 {% if not loop.last %}border-bottom{% endif %}">
+                            <div>
+                                <strong>{{ validation.customerName }}</strong>
+                                <small class="text-muted d-block">{{ validation.ticketType.name }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge bg-success">Validé</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center">Aucune validation récente</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-        function updateStats(data) {
-            // Mettre à jour les cartes de statistiques
-            // (Code pour mettre à jour l'interface)
-        }
-
-        // Toggle des mises à jour temps réel
-        document.getElementById('realTimeUpdates').addEventListener('change', function() {
-            if (this.checked) {
-                startRealTimeUpdates();
-            } else {
-                stopRealTimeUpdates();
-            }
-        });
-
-        // Fonctions d'export
-        function generatePDFReport() {
-            // Générer un rapport PDF
-            window.print();
-        }
-
-        function printReport() {
-            window.print();
-        }
-
-        // Démarrer les mises à jour automatiques
-        startRealTimeUpdates();
-    </script>
-
-    <style>
-        @media print {
-            .btn, .card-header { display: none !important; }
-            .card { border: 1px solid #000 !important; }
-        }
-    </style>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('validationChart').getContext('2d');
+const validationChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: Array.from({length: 24}, (_, i) => i + 'h'),
+        datasets: [{
+            label: 'Validations',
+            data: Array(24).fill(0),
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.1,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+});
+</script>
 {% endblock %}

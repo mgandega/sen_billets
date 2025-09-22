@@ -225,7 +225,9 @@
 
             async validateQRCode(qrCode) {
                 try {
-                    const response = await fetch(`/api/qr/validate/${qrCode}`, {
+                    // const response = await fetch(`/api/qr/validate/${qrCode}`, {
+                    const response = await fetch(`/scanner/api/validate/${qrCode}`, {
+
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -288,7 +290,7 @@
                         <div class="d-flex align-items-center">
                             <i class="bi bi-x-circle-fill fs-3 me-3"></i>
                             <div class="flex-grow-1">
-                                <h5 class="alert-heading mb-1">❌ Validation échouée</h5>
+                                <h5 class="alert-heading mb-1">❌ Validation échouée .</h5>
                                 <p class="mb-0">${message}</p>
                                 ${details}
                             </div>
