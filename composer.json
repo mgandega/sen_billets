@@ -17,7 +17,7 @@
         "endroid/qr-code": "*",
         "endroid/qr-code-bundle": "^6.0",
         "liip/imagine-bundle": "^2.13",
-        "nelmio/cors-bundle": "*",
+        "nelmio/cors-bundle": "^2.5",
         "paydunya/paydunya": "^1.0",
         "rmccue/requests": "1.8",
         "scienta/doctrine-json-functions": "^5.3",

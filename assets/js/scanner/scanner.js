@@ -157,12 +157,36 @@ class QRScanner {
     }
 
 
-    showSuccess(result) { this.results.innerHTML = `<div class="alert alert-success alert-dismissible fade show" role="alert">
-        <div class="d-flex align-items-center"><i class="bi bi-check-circle-fill fs-3 me-3"></i>
-        <div class="flex-grow-1"><h5 class="alert-heading mb-1">✅ Billet validé !</h5>
-        <p class="mb-1"><strong>${result.ticket?.customerName || 'N/A'}</strong> - ${result.ticket?.ticketType?.name || 'N/A'}</p>
-        <small class="text-muted">${result.event?.title || ''} • ${result.ticket?.qrCode || ''}</small></div></div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`; this.playSound('success'); }
+    // showSuccess(result) { this.results.innerHTML = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+    //     <div class="d-flex align-items-center"><i class="bi bi-check-circle-fill fs-3 me-3"></i>
+    //     <div class="flex-grow-1"><h5 class="alert-heading mb-1">✅ Billet validé !</h5>
+    //     <p class="mb-1"><strong>${result.ticket?.customerName || 'N/A'}</strong> - ${result.ticket?.ticketType?.name || 'N/A'}</p>
+    //     <small class="text-muted">${result.event?.title || ''} • ${result.ticket?.qrCode || ''}</small></div></div>
+    //     <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`; this.playSound('success'); }
+    showSuccess(result) {
+    this.results.innerHTML = `
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+            <div class="flex-grow-1">
+                <h5 class="alert-heading mb-1">✅ Billet validé !</h5>
+                <p class="mb-1">
+                    <strong>${result.ticket?.customerName || 'N/A'}</strong> 
+                    - ${result.ticket?.ticketType?.name || 'N/A'}
+                </p>
+                <small class="text-muted">
+                    ${result.event?.title || ''} • ${result.ticket?.qrCode || ''}
+                </small><br>
+                <small class="text-muted">
+                    Validé par : ${result.ticket?.validatedBy || 'N/A'} à ${result.ticket?.usedAt || ''}
+                </small>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>`;
+    this.playSound('success');
+}
+
 
     showError(message) { this.results.innerHTML = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
         <div class="d-flex align-items-center"><i class="bi bi-x-circle-fill fs-3 me-3"></i>

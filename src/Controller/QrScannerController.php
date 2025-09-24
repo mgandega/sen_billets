@@ -3,15 +3,17 @@
 namespace App\Controller;
 
 use App\Entity\Event;
+use App\Service\QRCodeService;
 use App\Repository\EventRepository;
 use App\Repository\TicketRepository;
-use App\Service\QRCodeService;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/scanner', name: 'scanner_')]
 #[IsGranted('ROLE_ORGANIZER')]
@@ -60,157 +62,221 @@ class QrScannerController extends AbstractController
         ]);
     }
 
-    // #[Route('/api/validate/{qrCode}', name: 'api_validate', methods: ['POST','GET'])]
-    // public function validateQRCode(string $qrCode): JsonResponse
-    // {
-    //     $ticket = $this->qrCodeService->validate($qrCode);
 
-    //     if ($ticket) {
-    //         $event = $ticket->getEvent();
+        // #[Route('/scanner/api/validate', name: 'api_validate', methods: ['POST','OPTIONS'])]
+        // public function validateQRCode(Request $request, TicketRepository $ticketRepository, EntityManagerInterface $em, Security $security): JsonResponse
+        // {
+        //     $origin = $request->headers->get('Origin');
 
-    //         return $this->json([
-    //             'valid' => true,
-    //             'ticket' => [
-    //                 'id'           => $ticket->getId(),
-    //                 'customerName' => $ticket->getCustomerName(),
-    //                 'status'       => $ticket->getStatus(),
-    //                 'qrCode'       => $ticket->getQrCode(),
-    //                 'ticketType'   => [
-    //                     'id'   => $ticket->getTicketType()->getId(),
-    //                     'name' => $ticket->getTicketType()->getName(),
-    //                 ],
-    //             ],
-    //             'event' => [
-    //                 'id'    => $event->getId(),
-    //                 'title' => $event->getTitle(),
-    //                 'date'  => $event->getEventDate()->format('Y-m-d H:i'),
-    //             ]
-    //         ]);
-    //     }
+        //     // Réponse préflight
+        //     if ($request->getMethod() === 'OPTIONS') {
+        //         $resp = new JsonResponse(null, 204);
+        //         $resp->headers->set('Access-Control-Allow-Origin', $origin ?: '*');
+        //         $resp->headers->set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+        //         $resp->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        //         $resp->headers->set('Access-Control-Allow-Credentials', 'true');
+        //         return $resp;
+        //     }
 
-    //     return $this->json([
-    //         'valid' => false,
-    //         'message' => 'Billet invalide ou déjà scanné',
-    //     ]);
-    // }
-    // #[Route('/api/validate/{qrCode}', name: 'api_validate', methods: ['POST'])]
-    // public function validateQRCode(string $qrCode): JsonResponse
-    // {
-    //     $ticket = $this->qrCodeService->validate($qrCode);
+        //     // lecture du JSON (si tu envoies JSON)
+        //     $data = json_decode($request->getContent(), true);
+        //     $code = $data['code'] ?? null;
 
-    //     if ($ticket) {
-    //         $event = $ticket->getEvent();
+        //     if (!$code) {
+        //         $resp = new JsonResponse(['valid' => false, 'message' => 'Code manquant'], 400);
+        //         $resp->headers->set('Access-Control-Allow-Origin', $origin ?: '*');
+        //         $resp->headers->set('Access-Control-Allow-Credentials', 'true');
+        //         return $resp;
+        //     }
 
-    //         return $this->json([
-    //             'valid' => true,
-    //             'ticket' => [
-    //                 'id'           => $ticket->getId(),
-    //                 'customerName' => $ticket->getCustomerName(),
-    //                 'status'       => $ticket->getStatus(),
-    //                 'qrCode'       => $ticket->getQrCode(),
-    //                 'ticketType'   => [
-    //                     'id'   => $ticket->getTicketType()->getId(),
-    //                     'name' => $ticket->getTicketType()->getName(),
-    //                 ],
-    //             ],
-    //             'event' => [
-    //                 'id'    => $event->getId(),
-    //                 'title' => $event->getTitle(),
-    //                 'date'  => $event->getEventDate()->format('Y-m-d H:i'),
-    //             ]
-    //         ]);
-    //     }
+        //     // Exemple de recherche
+        //     $ticket = $ticketRepository->findOneBy(['qrCode' => $code]);
+        //     if (!$ticket) {
+        //         $resp = new JsonResponse(['valid' => false, 'message' => 'Ticket introuvable'], 404);
+        //         $resp->headers->set('Access-Control-Allow-Origin', $origin ?: '*');
+        //         $resp->headers->set('Access-Control-Allow-Credentials', 'true');
+        //         return $resp;
+        //     }
 
-    //     return $this->json([
-    //         'valid' => false,
-    //         'message' => 'Billet invalide ou déjà scanné',
-    //     ]);
-    // }
+        //     // ... ta logique de validation ...
+        //     $ticket->setStatus('used');
+        //     $ticket->setUsedAt(new \DateTime());
+        //     $ticket->setValidatedBy($security->getUser());
+        //     $em->persist($ticket);
+        //     $em->flush();
 
-    // #[Route('/api/validate', name: 'api_validate', methods: ['POST'])]
-    // public function validateQRCode(Request $request): JsonResponse
-    // {
-    //     dd('ok');
-    //     $data = json_decode($request->getContent(), true);
-    //     $qrCode = $data['code'] ?? null;
+        //     $resp = new JsonResponse(['valid' => true, 'ticket' => ['id' => $ticket->getId()]]);
+        //     $resp->headers->set('Access-Control-Allow-Origin', $origin ?: '*');
+        //     $resp->headers->set('Access-Control-Allow-Credentials', 'true');
+        //     return $resp;
+        // }
 
-    //     if (!$qrCode) {
-    //         return $this->json([
-    //             'valid' => false,
-    //             'message' => 'Code QR manquant'
-    //         ], 400);
-    //     }
+        // #[Route('/api/validate', name: 'api_validate', methods: ['POST','OPTIONS'])]
+        // public function validateQRCode(Request $request, TicketRepository $ticketRepository, EntityManagerInterface $em, Security $security): JsonResponse
+        // {
+        //     $origin = $request->headers->get('Origin');
 
-    //     $ticket = $this->qrCodeService->validate($qrCode);
+        //     // Autoriser seulement ton frontend
+        //     $allowedOrigins = ['http://127.0.0.1:8081'];
+        //     $allowOrigin = in_array($origin, $allowedOrigins) ? $origin : null;
 
-    //     if ($ticket) {
-    //         $event = $ticket->getEvent();
-    //         return $this->json([
-    //             'valid' => true,
-    //             'ticket' => [
-    //                 'id' => $ticket->getId(),
-    //                 'customerName' => $ticket->getCustomerName(),
-    //                 'status' => $ticket->getStatus(),
-    //                 'qrCode' => $ticket->getQrCode(),
-    //                 'ticketType' => [
-    //                     'id' => $ticket->getTicketType()->getId(),
-    //                     'name' => $ticket->getTicketType()->getName(),
-    //                 ],
-    //             ],
-    //             'event' => [
-    //                 'id' => $event->getId(),
-    //                 'title' => $event->getTitle(),
-    //                 'date' => $event->getEventDate()->format('Y-m-d H:i'),
-    //             ]
-    //         ]);
-    //     }
+        //     // Réponse préflight
+        //     if ($request->getMethod() === 'OPTIONS') {
+        //         $resp = new JsonResponse(null, 204);
+        //         $resp->headers->set('Access-Control-Allow-Origin', $allowOrigin ?: '*');
+        //         $resp->headers->set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+        //         $resp->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        //         $resp->headers->set('Access-Control-Allow-Credentials', 'true');
+        //         return $resp;
+        //     }
 
-    //     return $this->json([
-    //         'valid' => false,
-    //         'message' => 'Billet invalide ou déjà scanné',
-    //     ]);
-    // }
+        //     $data = json_decode($request->getContent(), true);
+        //     $code = $data['code'] ?? null;
 
-    #[Route('/api/validate', name: 'api_validate', methods: ['POST'])]
-    // #[Route('/api/validate/{qrCode}', name: 'api_validate', requirements: ['qrCode' => '.+'], methods: ['POST'])]
-    public function validateQRCode(Request $request): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
-        $qrCode = $data['code'] ?? null;
-        if (!$qrCode) {
-            return $this->json(['valid'=>false,'message'=>'Code manquant'], 400);
-        }
-            $ticket = $this->qrCodeService->validate($qrCode);
+        //     if (!$code) {
+        //         $resp = new JsonResponse(['valid' => false, 'message' => 'Code manquant'], 400);
+        //         $resp->headers->set('Access-Control-Allow-Origin', $allowOrigin ?: '*');
+        //         $resp->headers->set('Access-Control-Allow-Credentials', 'true');
+        //         return $resp;
+        //     }
 
-            if ($ticket) {
-                $event = $ticket->getEvent();
-                return $this->json([
-                    'valid' => true,
-                    'ticket' => [
-                        'id' => $ticket->getId(),
-                        'customerName' => $ticket->getCustomerName(),
-                        'status' => $ticket->getStatus(),
-                        'qrCode' => $ticket->getQrCode(),
-                        'ticketType' => [
-                            'id' => $ticket->getTicketType()->getId(),
-                            'name' => $ticket->getTicketType()->getName(),
-                        ],
-                    ],
-                    'event' => [
-                        'id' => $event->getId(),
-                        'title' => $event->getTitle(),
-                        'date' => $event->getEventDate()->format('Y-m-d H:i'),
-                    ]
-                ]);
+        //     $ticket = $ticketRepository->findOneBy(['qrCode' => $code]);
+        //     if (!$ticket) {
+        //         $resp = new JsonResponse(['valid' => false, 'message' => 'Ticket introuvable'], 404);
+        //         $resp->headers->set('Access-Control-Allow-Origin', $allowOrigin ?: '*');
+        //         $resp->headers->set('Access-Control-Allow-Credentials', 'true');
+        //         return $resp;
+        //     }
+
+        //     // Valider le ticket
+        //     $ticket->setStatus('used');
+        //     $ticket->setUsedAt(new \DateTime());
+        //     $ticket->setValidatedBy($security->getUser());
+        //     $em->persist($ticket);
+        //     $em->flush();
+
+        //     // $resp = new JsonResponse(['valid' => true, 'ticket' => ['id' => $ticket->getId()]]);
+            
+        // $resp = new JsonResponse([
+        //     'valid' => true,
+        //     'ticket' => [
+        //         'id' => $ticket->getId(),
+        //         'qrCode' => $ticket->getQrCode(),
+        //         // 'customerName' => $ticket->getCustomerName()?->getFullName(), // si ton entité a un Customer
+        //         'customerName' => $ticket->getCustomerName(), // si ton entité a un Customer
+        //         'ticketType' => [
+        //             'id' => $ticket->getTicketType()?->getId(),
+        //             'name' => $ticket->getTicketType()?->getName(),
+        //         ],
+        //         'validatedBy' => $ticket->getValidatedBy()?->getUserIdentifier(),
+        //         'usedAt' => $ticket->getUsedAt()?->format('Y-m-d H:i:s'),
+        //     ],
+        //     'event' => [
+        //         'id' => $ticket->getEvent()?->getId(),
+        //         'title' => $ticket->getEvent()?->getTitle(),
+        //     ]
+        // ]);
+        // $resp->headers->set('Access-Control-Allow-Origin', $origin ?: '*');
+        // $resp->headers->set('Access-Control-Allow-Credentials', 'true');
+
+        //     return $resp;
+        // }
+
+        #[Route('/api/validate', name: 'api_validate', methods: ['POST','OPTIONS'])]
+        public function validateQRCode(
+            Request $request,
+            TicketRepository $ticketRepository,
+            EntityManagerInterface $em,
+            Security $security
+        ): JsonResponse {
+            $origin = $request->headers->get('Origin');
+
+            // 🔹 Gestion du préflight OPTIONS
+            if ($request->getMethod() === 'OPTIONS') {
+                $resp = new JsonResponse(null, 204);
+                $resp->headers->set('Access-Control-Allow-Origin', $origin ?: '*');
+                $resp->headers->set('Access-Control-Allow-Methods', 'POST, OPTIONS');
+                $resp->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+                $resp->headers->set('Access-Control-Allow-Credentials', 'true');
+                return $resp;
             }
 
-            return $this->json([
-                'valid' => false,
-                'message' => 'Billet invalide ou déjà scanné',
-            ]);
-    
-    }
+            // 🔹 Lecture du JSON envoyé
+            $data = json_decode($request->getContent(), true);
+            $code = $data['code'] ?? null;
 
+            if (!$code) {
+                return $this->corsJson(['valid' => false, 'message' => 'Code manquant'], $origin, 400);
+            }
+
+            // 🔹 Recherche du billet
+            $ticket = $ticketRepository->findOneBy(['qrCode' => $code]);
+            if (!$ticket) {
+                return $this->corsJson(['valid' => false, 'message' => 'Ticket introuvable'], $origin, 404);
+            }
+
+            // 🔹 Vérifie si déjà utilisé
+            if ($ticket->getStatus() === 'used') {
+                return $this->corsJson([
+                    'valid' => false,
+                    'message' => 'Billet déjà utilisé',
+                    'ticket' => $this->serializeTicket($ticket),
+                    'event'  => $this->serializeEvent($ticket->getEvent())
+                ], $origin, 400);
+            }
+
+            // 🔹 Validation du billet
+            $ticket->setStatus('used');
+            $ticket->setUsedAt(new \DateTimeImmutable());
+            $ticket->setValidatedBy($security->getUser());
+
+            $em->persist($ticket);
+            $em->flush();
+
+            // 🔹 Réponse enrichie
+            return $this->corsJson([
+                'valid' => true,
+                'message' => 'Billet validé avec succès',
+                'ticket' => $this->serializeTicket($ticket),
+                'event'  => $this->serializeEvent($ticket->getEvent())
+            ], $origin);
+        }
+
+        /**
+         * Helpers pour rendre le code clean et premium 😎
+         */
+        private function corsJson(array $data, ?string $origin, int $status = 200): JsonResponse
+        {
+            $resp = new JsonResponse($data, $status);
+            $resp->headers->set('Access-Control-Allow-Origin', $origin ?: '*');
+            $resp->headers->set('Access-Control-Allow-Credentials', 'true');
+            return $resp;
+        }
+
+        private function serializeTicket(\App\Entity\Ticket $ticket): array
+        {
+            return [
+                'id' => $ticket->getId(),
+                'qrCode' => $ticket->getQrCode(),
+                'customerName' => $ticket->getCustomerName() ?? 'Invité',
+                'ticketType' => [
+                    'id'   => $ticket->getTicketType()?->getId(),
+                    'name' => $ticket->getTicketType()?->getName() ?? 'Standard',
+                ],
+                'validatedBy' => $ticket->getValidatedBy()?->getUserIdentifier(),
+                'usedAt' => $ticket->getUsedAt()?->format('Y-m-d H:i:s'),
+            ];
+        }
+
+        private function serializeEvent(?\App\Entity\Event $event): ?array
+        {
+            if (!$event) return null;
+            return [
+                'id'    => $event->getId(),
+                'title' => $event->getTitle(),
+                'date'  => $event->getEventDate()?->format('Y-m-d H:i'),
+            ];
+        }
 
     #[Route('/api/bulk-validate', name: 'api_bulk_validate', methods: ['POST'])]
     public function bulkValidate(Request $request): JsonResponse

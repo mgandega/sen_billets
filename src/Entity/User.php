@@ -312,6 +312,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     // src/Entity/User.php
 
+public function getFullName(): string
+{
+    return $this->name;
+}
 public function FullName(): string
 {
     return $this->name;
