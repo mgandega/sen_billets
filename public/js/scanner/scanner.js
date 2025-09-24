@@ -90,4 +90,38 @@ class QRScanner {
         resultDiv.className = `alert alert-${type} mt-3`;
         resultDiv.innerHTML = message;
     }
+
+    async validateQRCode(qrCode) {
+        if (!qrCode) return this.showError('Code QR vide');
+
+        const encodedQR = encodeURIComponent(qrCode);
+        const url = `/scanner/api/validate/${encodedQR}`;
+
+        try {
+            // const response = await fetch(url, { method: 'POST' });
+            const response = await fetch(`/scanner/api/validate/${encodeURIComponent(qrCode)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+            });
+
+
+            if (!response.ok) {
+                const text = await response.text().catch(() => '[body non lisible]');
+                return this.showError(`Erreur serveur ${response.status} ${response.statusText}`);
+            }
+
+            const result = await response.json();
+
+            if (result.valid) {
+                this.showSuccess(result);
+                this.addToRecentValidations(result);
+            } else {
+                this.showError(result.message || 'Billet invalide', result);
+            }
+        } catch (error) {
+            console.error('Erreur réseau / CORS:', error);
+            this.showError('Erreur de connexion ou problème CORS');
+        }
+    }
+
 }

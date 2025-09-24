@@ -29,7 +29,7 @@ services:
       PMA_PASSWORD: root
       MYSQL_ROOT_PASSWORD: root
     ports:
-      - "8080:80"
+      - "8004:80"
     depends_on:
       - mysql
 

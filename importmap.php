@@ -17,15 +17,18 @@ return [
         'entrypoint' => true,
     ],
     'bootstrap' => [
-        'version' => '5.3.2',
+    'version' => '5.3.2',
     ],
-    'bootstrap/dist/css/bootstrap.min.css' => [
-        'version' => '5.3.2',
-        'type' => 'css',
+    'bootstrap.min.css' => [
+    'path' => './assets/vendor/bootstrap/dist/css/bootstrap.min.css',
+    'entrypoint' => true,
+    'type' => 'css',
     ],
-    'bootstrap/dist/js/bootstrap.bundle.min.js' => [
-        'version' => '5.3.2',
-    ],
+    'bootstrap.bundle.min.js' => [
+    'path' => './assets/vendor/bootstrap/dist/js/bootstrap.bundle.min.js',
+    'entrypoint' => true,
+],
+
     'bootstrap-icons/font/bootstrap-icons.css' => [
         'version' => '1.11.1',
         'type' => 'css',

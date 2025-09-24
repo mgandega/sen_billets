@@ -3,389 +3,257 @@
 {% block title %}Scanner QR - Sen-Billets{% endblock %}
 
 {% block body %}
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="text-center mb-5">
-                    <h1 class="display-4 fw-bold text-primary mb-3">Scanner QR</h1>
-                    <p class="lead text-muted">Validez les billets en scannant leur QR code</p>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Titre -->
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold text-primary mb-3">Scanner QR</h1>
+                <p class="lead text-muted">Validez les billets en scannant leur QR code</p>
+            </div>
+
+            <!-- Scanner Card -->
+            <div class="card border-0 shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-qr-code-scan me-2"></i>Scanner de billets</h5>
                 </div>
+                <div class="card-body p-4">
 
-                <!-- Scanner Interface -->
-                <div class="card border-0 shadow-lg">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-qr-code-scan me-2"></i>Scanner de billets
-                        </h5>
-                    </div>
-                    <div class="card-body p-4">
-                        <!-- Camera Preview -->
-                        <div class="text-center mb-4">
-                            <div id="scanner-container" class="position-relative mx-auto" style="max-width: 400px;">
-                                <video id="scanner-video" class="w-100 rounded" style="display: none;"></video>
-                                <canvas id="scanner-canvas" class="w-100 rounded" style="display: none;"></canvas>
-                                
-                                <!-- Scanner Overlay -->
-                                <div id="scanner-overlay" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
-                                    <div class="text-center">
-                                        <i class="bi bi-camera text-muted" style="font-size: 4rem;"></i>
-                                        <p class="text-muted mt-3">Cliquez pour démarrer le scanner</p>
-                                        <button id="start-scanner" class="btn btn-primary btn-lg">
-                                            <i class="bi bi-play-fill me-2"></i>Démarrer le scanner
-                                        </button>
-                                    </div>
-                                </div>
+                    <!-- Camera Preview -->
+                    <div class="text-center mb-4">
+                        <div id="scanner-container" class="position-relative mx-auto" style="max-width: 400px;">
+                            <video id="scanner-video" class="w-100 rounded" style="display: none;"></video>
+                            <canvas id="scanner-canvas" class="w-100 rounded" style="display: none;"></canvas>
 
-                                <!-- Scanner Frame -->
-                                <div id="scanner-frame" class="position-absolute top-50 start-50 translate-middle" style="display: none;">
-                                    <div class="border border-primary border-3 rounded" style="width: 250px; height: 250px; border-style: dashed !important;"></div>
+                            <!-- Overlay -->
+                            <div id="scanner-overlay" class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="cursor: pointer;">
+                                <div class="text-center">
+                                    <i class="bi bi-camera text-muted" style="font-size: 4rem;"></i>
+                                    <p class="text-muted mt-3">Cliquez pour démarrer le scanner</p>
+                                    <button id="start-scanner" class="btn btn-primary btn-lg">
+                                        <i class="bi bi-play-fill me-2"></i>Démarrer le scanner
+                                    </button>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Manual Input -->
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-8">
-                                <label for="manual-qr" class="form-label fw-bold">Ou saisissez le code QR manuellement :</label>
-                                <input type="text" class="form-control" id="manual-qr" placeholder="SB-123-456-ABC123">
-                            </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <button id="validate-manual" class="btn btn-success w-100">
-                                    <i class="bi bi-check-circle me-2"></i>Valider
-                                </button>
+                            <!-- Scanner Frame -->
+                            <div id="scanner-frame" class="position-absolute top-50 start-50 translate-middle" style="display: none;">
+                                <div class="border border-primary border-3 rounded" style="width: 250px; height: 250px; border-style: dashed !important;"></div>
                             </div>
                         </div>
-
-                        <!-- Scanner Controls -->
-                        <div class="d-flex gap-2 justify-content-center mb-4" id="scanner-controls" style="display: none !important;">
-                            <button id="stop-scanner" class="btn btn-outline-danger">
-                                <i class="bi bi-stop-fill me-2"></i>Arrêter
-                            </button>
-                            <button id="switch-camera" class="btn btn-outline-secondary">
-                                <i class="bi bi-camera-reels me-2"></i>Changer caméra
-                            </button>
-                            <button id="toggle-flash" class="btn btn-outline-warning">
-                                <i class="bi bi-lightbulb me-2"></i>Flash
-                            </button>
-                        </div>
-
-                        <!-- Results -->
-                        <div id="validation-results"></div>
                     </div>
+
+                    <!-- Manual Input -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-8">
+                            <label for="manual-qr" class="form-label fw-bold">Ou saisissez le code QR manuellement :</label>
+                            <input type="text" class="form-control" id="manual-qr" placeholder="SB-123-456-ABC123">
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button id="validate-manual" class="btn btn-success w-100">
+                                <i class="bi bi-check-circle me-2"></i>Valider
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Scanner Controls -->
+                    <div class="d-flex gap-2 justify-content-center mb-4" id="scanner-controls" style="display: none;">
+                        <button id="stop-scanner" class="btn btn-outline-danger">
+                            <i class="bi bi-stop-fill me-2"></i>Arrêter
+                        </button>
+                        <button id="switch-camera" class="btn btn-outline-secondary">
+                            <i class="bi bi-camera-reels me-2"></i>Changer caméra
+                        </button>
+                        <button id="toggle-flash" class="btn btn-outline-warning">
+                            <i class="bi bi-lightbulb me-2"></i>Flash
+                        </button>
+                    </div>
+
+                    <!-- Validation Results -->
+                    <div id="validation-results"></div>
                 </div>
+            </div>
 
-                <!-- Recent Validations -->
-                <div class="card border-0 shadow mt-4">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-clock-history me-2"></i>Validations récentes
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="recent-validations">
-                            <p class="text-muted text-center">Aucune validation récente</p>
-                        </div>
+            <!-- Recent Validations -->
+            <div class="card border-0 shadow mt-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i>Validations récentes</h5>
+                </div>
+                <div class="card-body">
+                    <div id="recent-validations">
+                        <p class="text-muted text-center">Aucune validation récente</p>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
+</div>
 
-    <!-- QR Scanner JavaScript -->
-    <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
-    <script>
-        class QRScanner {
-            constructor() {
-                this.codeReader = new ZXing.BrowserQRCodeReader();
-                this.selectedDeviceId = null;
-                this.isScanning = false;
-                this.recentValidations = [];
-                
-                this.initializeElements();
-                this.bindEvents();
-                this.loadRecentValidations();
-            }
+{% block javascripts %}
+<script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+ <script type="module" src="{{ asset('js/scanner/scanner.js') }}" defer></script>
+<script>
+// class QRScanner {
+//     constructor() {
+//         this.codeReader = new ZXing.BrowserQRCodeReader();
+//         this.selectedDeviceId = null;
+//         this.isScanning = false;
+//         this.recentValidations = [];
 
-            initializeElements() {
-                this.startBtn = document.getElementById('start-scanner');
-                this.stopBtn = document.getElementById('stop-scanner');
-                this.switchBtn = document.getElementById('switch-camera');
-                this.flashBtn = document.getElementById('toggle-flash');
-                this.video = document.getElementById('scanner-video');
-                this.canvas = document.getElementById('scanner-canvas');
-                this.overlay = document.getElementById('scanner-overlay');
-                this.frame = document.getElementById('scanner-frame');
-                this.controls = document.getElementById('scanner-controls');
-                this.manualInput = document.getElementById('manual-qr');
-                this.validateBtn = document.getElementById('validate-manual');
-                this.results = document.getElementById('validation-results');
-                this.recentContainer = document.getElementById('recent-validations');
-            }
+//         this.initializeElements();
+//         this.bindEvents();
+//         this.loadRecentValidations();
+//     }
 
-            bindEvents() {
-                this.startBtn.addEventListener('click', () => this.startScanning());
-                this.stopBtn.addEventListener('click', () => this.stopScanning());
-                this.switchBtn.addEventListener('click', () => this.switchCamera());
-                this.validateBtn.addEventListener('click', () => this.validateManual());
-                
-                this.manualInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') {
-                        this.validateManual();
-                    }
-                });
-            }
+//     initializeElements() {
+//         this.startBtn = document.getElementById('start-scanner');
+//         this.stopBtn = document.getElementById('stop-scanner');
+//         this.switchBtn = document.getElementById('switch-camera');
+//         this.flashBtn = document.getElementById('toggle-flash');
+//         this.video = document.getElementById('scanner-video');
+//         this.overlay = document.getElementById('scanner-overlay');
+//         this.frame = document.getElementById('scanner-frame');
+//         this.controls = document.getElementById('scanner-controls');
+//         this.manualInput = document.getElementById('manual-qr');
+//         this.validateBtn = document.getElementById('validate-manual');
+//         this.results = document.getElementById('validation-results');
+//         this.recentContainer = document.getElementById('recent-validations');
+//         if (this.startBtn) this.startBtn.disabled = false;
+//     }
 
-            async startScanning() {
-                try {
-                    const devices = await this.codeReader.getVideoInputDevices();
-                    
-                    if (devices.length === 0) {
-                        this.showError('Aucune caméra détectée');
-                        return;
-                    }
+//     bindEvents() {
+//         if (this.startBtn) this.startBtn.addEventListener('click', () => this.startScanning());
+//         if (this.stopBtn) this.stopBtn.addEventListener('click', () => this.stopScanning());
+//         if (this.switchBtn) this.switchBtn.addEventListener('click', () => this.switchCamera());
+//         if (this.validateBtn) this.validateBtn.addEventListener('click', () => this.validateManual());
+//         if (this.manualInput) this.manualInput.addEventListener('keypress', e => { if (e.key === 'Enter') this.validateManual(); });
+//         if (this.overlay) this.overlay.addEventListener('click', e => { if (e.target === this.overlay) this.startScanning(); });
+//     }
 
-                    this.selectedDeviceId = devices[0].deviceId;
-                    
-                    this.overlay.style.display = 'none';
-                    this.video.style.display = 'block';
-                    this.frame.style.display = 'block';
-                    this.controls.style.display = 'flex';
-                    
-                    this.isScanning = true;
-                    
-                    this.codeReader.decodeFromVideoDevice(
-                        this.selectedDeviceId,
-                        this.video,
-                        (result, err) => {
-                            if (result) {
-                                this.handleScanResult(result.text);
-                            }
-                        }
-                    );
+//     async getVideoDevices() {
+//         try { return await this.codeReader.getVideoInputDevices() || []; }
+//         catch { return []; }
+//     }
 
-                } catch (error) {
-                    console.error('Erreur scanner:', error);
-                    this.showError('Impossible d\'accéder à la caméra');
-                }
-            }
+//     async startScanning() {
+//         if (this.isScanning) return;
+//         try { await navigator.mediaDevices.getUserMedia({ video: true }); } 
+//         catch { return this.showError('Accès caméra refusé'); }
 
-            stopScanning() {
-                this.codeReader.reset();
-                this.isScanning = false;
-                
-                this.video.style.display = 'none';
-                this.frame.style.display = 'none';
-                this.controls.style.display = 'none';
-                this.overlay.style.display = 'flex';
-            }
+//         const devices = await this.getVideoDevices();
+//         if (!devices.length) return this.showError('Aucune caméra détectée');
+//         this.selectedDeviceId = devices[0].deviceId;
 
-            async switchCamera() {
-                if (!this.isScanning) return;
+//         this.overlay.style.display = 'none';
+//         this.video.style.display = 'block';
+//         this.frame.style.display = 'block';
+//         this.controls.style.display = 'flex';
+//         this.isScanning = true;
 
-                try {
-                    const devices = await this.codeReader.getVideoInputDevices();
-                    const currentIndex = devices.findIndex(d => d.deviceId === this.selectedDeviceId);
-                    const nextIndex = (currentIndex + 1) % devices.length;
-                    
-                    this.selectedDeviceId = devices[nextIndex].deviceId;
-                    
-                    this.codeReader.reset();
-                    this.codeReader.decodeFromVideoDevice(
-                        this.selectedDeviceId,
-                        this.video,
-                        (result, err) => {
-                            if (result) {
-                                this.handleScanResult(result.text);
-                            }
-                        }
-                    );
-                } catch (error) {
-                    console.error('Erreur changement caméra:', error);
-                }
-            }
+//         this.codeReader.reset();
+//         this.codeReader.decodeFromVideoDevice(this.selectedDeviceId, this.video, (result, err) => {
+//             if (result) { this.handleScanResult(result.text); this.stopScanning(); }
+//         });
+//     }
 
-            handleScanResult(qrCode) {
-                // Extraire le code QR de l'URL si nécessaire
-                const match = qrCode.match(/\/api\/tickets\/validate\/(.+)$/);
-                const code = match ? match[1] : qrCode;
-                
-                this.validateQRCode(code);
-            }
+//     stopScanning() {
+//         try { this.codeReader.reset(); } catch {}
+//         this.isScanning = false;
+//         this.video.style.display = 'none';
+//         this.frame.style.display = 'none';
+//         this.controls.style.display = 'none';
+//         this.overlay.style.display = 'flex';
+//     }
 
-            validateManual() {
-                const qrCode = this.manualInput.value.trim();
-                if (!qrCode) {
-                    this.showError('Veuillez saisir un code QR');
-                    return;
-                }
-                
-                this.validateQRCode(qrCode);
-                this.manualInput.value = '';
-            }
+//     async switchCamera() {
+//         if (!this.isScanning) return;
+//         const devices = await this.getVideoDevices();
+//         if (devices.length < 2) return;
+//         const currentIndex = devices.findIndex(d => d.deviceId === this.selectedDeviceId);
+//         this.selectedDeviceId = devices[(currentIndex + 1) % devices.length].deviceId;
+//         this.codeReader.reset();
+//         this.codeReader.decodeFromVideoDevice(this.selectedDeviceId, this.video, (result) => { if (result) { this.handleScanResult(result.text); this.stopScanning(); }});
+//     }
 
-            async validateQRCode(qrCode) {
-                try {
-                    // const response = await fetch(`/api/qr/validate/${qrCode}`, {
-                    const response = await fetch(`/scanner/api/validate/${qrCode}`, {
+//     handleScanResult(qrCode) { if (!qrCode) return this.showError('QR vide'); this.validateQRCode(qrCode.trim()); }
 
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        }
-                    });
+//     validateManual() { const code = this.manualInput.value.trim(); if (!code) return this.showError('Veuillez saisir un code QR'); this.manualInput.value = ''; this.validateQRCode(code); }
 
-                    const result = await response.json();
-                    
-                    if (result.valid) {
-                        this.showSuccess(result);
-                        this.addToRecentValidations(result);
-                    } else {
-                        this.showError(result.message, result);
-                    }
+//     // async validateQRCode(qrCode) {
+//     //     try {
+//     //         const response = await fetch('/scanner/api/validate', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({code: qrCode}) });
+//     //         if (!response.ok) return this.showError(`Erreur serveur ${response.status}`);
+//     //         const result = await response.json();
+//     //         if (result.valid) { this.showSuccess(result); this.addToRecentValidations(result); }
+//     //         else this.showError(result.message || 'Billet invalide', result);
+//     //     } catch { this.showError('Erreur réseau'); }
+//     // }
+//     async validateQRCode(qrCode) {
+//         if (!qrCode) return this.showError('Code QR vide');
 
-                } catch (error) {
-                    console.error('Erreur validation:', error);
-                    this.showError('Erreur de connexion');
-                }
-            }
+//         const encodedQR = encodeURIComponent(qrCode);
+//         const url = `/scanner/api/validate/${encodedQR}`;
 
-            showSuccess(result) {
-                const ticket = result.ticket;
-                const event = result.event;
-                
-                this.results.innerHTML = `
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-check-circle-fill fs-3 me-3"></i>
-                            <div class="flex-grow-1">
-                                <h5 class="alert-heading mb-1">✅ Billet validé avec succès !</h5>
-                                <p class="mb-1"><strong>${ticket.customerName}</strong> - ${ticket.ticketType.name}</p>
-                                <small class="text-muted">${event.title} • ${ticket.qrCode}</small>
-                            </div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                `;
+//         try {
+//             const response = await fetch(url, { method: 'POST' });
 
-                // Son de succès
-                this.playSound('success');
-            }
+//             if (!response.ok) {
+//                 const text = await response.text().catch(() => '[body non lisible]');
+//                 return this.showError(`Erreur serveur ${response.status} ${response.statusText}`);
+//             }
 
-            showError(message, result = null) {
-                let details = '';
-                
-                if (result && result.ticket) {
-                    const ticket = result.ticket;
-                    details = `
-                        <div class="mt-2">
-                            <small><strong>Client :</strong> ${ticket.customerName}</small><br>
-                            <small><strong>Billet :</strong> ${ticket.ticketType?.name || 'N/A'}</small><br>
-                            <small><strong>Code :</strong> ${ticket.qrCode}</small>
-                        </div>
-                    `;
-                }
+//             const result = await response.json();
 
-                this.results.innerHTML = `
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-x-circle-fill fs-3 me-3"></i>
-                            <div class="flex-grow-1">
-                                <h5 class="alert-heading mb-1">❌ Validation échouée .</h5>
-                                <p class="mb-0">${message}</p>
-                                ${details}
-                            </div>
-                        </div>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                `;
+//             if (result.valid) {
+//                 this.showSuccess(result);
+//                 this.addToRecentValidations(result);
+//             } else {
+//                 this.showError(result.message || 'Billet invalide', result);
+//             }
+//         } catch (error) {
+//             console.error('Erreur réseau / CORS:', error);
+//             this.showError('Erreur de connexion ou problème CORS');
+//         }
+//     }
 
-                // Son d'erreur
-                this.playSound('error');
-            }
 
-            addToRecentValidations(result) {
-                const validation = {
-                    ...result,
-                    timestamp: new Date()
-                };
 
-                this.recentValidations.unshift(validation);
-                this.recentValidations = this.recentValidations.slice(0, 10);
-                
-                this.updateRecentValidationsDisplay();
-                this.saveRecentValidations();
-            }
+//     showSuccess(result) { this.results.innerHTML = `<div class="alert alert-success alert-dismissible fade show" role="alert">
+//         <div class="d-flex align-items-center"><i class="bi bi-check-circle-fill fs-3 me-3"></i>
+//         <div class="flex-grow-1"><h5 class="alert-heading mb-1">✅ Billet validé !</h5>
+//         <p class="mb-1"><strong>${result.ticket?.customerName || 'N/A'}</strong> - ${result.ticket?.ticketType?.name || 'N/A'}</p>
+//         <small class="text-muted">${result.event?.title || ''} • ${result.ticket?.qrCode || ''}</small></div></div>
+//         <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`; this.playSound('success'); }
 
-            updateRecentValidationsDisplay() {
-                if (this.recentValidations.length === 0) {
-                    this.recentContainer.innerHTML = '<p class="text-muted text-center">Aucune validation récente</p>';
-                    return;
-                }
+//     showError(message) { this.results.innerHTML = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+//         <div class="d-flex align-items-center"><i class="bi bi-x-circle-fill fs-3 me-3"></i>
+//         <div class="flex-grow-1"><h5 class="alert-heading mb-1">❌ Validation échouée</h5><p class="mb-0">${message}</p></div></div>
+//         <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`; this.playSound('error'); }
 
-                const html = this.recentValidations.map(validation => {
-                    const ticket = validation.ticket;
-                    const time = validation.timestamp.toLocaleTimeString();
-                    
-                    return `
-                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                            <div>
-                                <strong>${ticket.customerName}</strong>
-                                <small class="text-muted d-block">${ticket.ticketType.name} • ${ticket.qrCode}</small>
-                            </div>
-                            <div class="text-end">
-                                <span class="badge bg-success">Validé</span>
-                                <small class="text-muted d-block">${time}</small>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+//     addToRecentValidations(result) { this.recentValidations.unshift({ ...result, timestamp: new Date() }); this.recentValidations = this.recentValidations.slice(0,10); this.updateRecentValidationsDisplay(); this.saveRecentValidations(); }
 
-                this.recentContainer.innerHTML = html;
-            }
+//     updateRecentValidationsDisplay() {
+//         if (!this.recentValidations.length) { this.recentContainer.innerHTML='<p class="text-muted text-center">Aucune validation récente</p>'; return; }
+//         this.recentContainer.innerHTML = this.recentValidations.map(v=>`<div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+//             <div><strong>${v.ticket?.customerName||'Inconnu'}</strong><small class="text-muted d-block">${v.ticket?.ticketType?.name||''} • ${v.ticket?.qrCode||''}</small></div>
+//             <div class="text-end"><span class="badge bg-success">Validé</span><small class="text-muted d-block">${new Date(v.timestamp).toLocaleTimeString()}</small></div>
+//         </div>`).join('');
+//     }
 
-            loadRecentValidations() {
-                const saved = localStorage.getItem('recentValidations');
-                if (saved) {
-                    this.recentValidations = JSON.parse(saved).map(v => ({
-                        ...v,
-                        timestamp: new Date(v.timestamp)
-                    }));
-                    this.updateRecentValidationsDisplay();
-                }
-            }
+//     loadRecentValidations() { const saved = localStorage.getItem('recentValidations'); if (saved) { this.recentValidations=JSON.parse(saved).map(v=>({...v,timestamp:new Date(v.timestamp)})); this.updateRecentValidationsDisplay(); } }
+//     saveRecentValidations() { localStorage.setItem('recentValidations',JSON.stringify(this.recentValidations)); }
 
-            saveRecentValidations() {
-                localStorage.setItem('recentValidations', JSON.stringify(this.recentValidations));
-            }
+//     playSound(type) { try { const ctx=new (window.AudioContext||window.webkitAudioContext)(); const osc=ctx.createOscillator(); const gain=ctx.createGain(); osc.connect(gain); gain.connect(ctx.destination);
+//         if(type==='success'){osc.frequency.setValueAtTime(800,ctx.currentTime);osc.frequency.setValueAtTime(1000,ctx.currentTime+0.1);}
+//         else{osc.frequency.setValueAtTime(300,ctx.currentTime);osc.frequency.setValueAtTime(200,ctx.currentTime+0.1);}
+//         gain.gain.setValueAtTime(0.3,ctx.currentTime);gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.2);osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.2);}
+//         catch(e){}
+//     }
+// }
 
-            playSound(type) {
-                // Créer un son simple avec Web Audio API
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-
-                if (type === 'success') {
-                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-                    oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
-                } else {
-                    oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
-                    oscillator.frequency.setValueAtTime(200, audioContext.currentTime + 0.1);
-                }
-
-                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-
-                oscillator.start(audioContext.currentTime);
-                oscillator.stop(audioContext.currentTime + 0.2);
-            }
-        }
-
-        // Initialiser le scanner quand la page est chargée
-        document.addEventListener('DOMContentLoaded', () => {
-            new QRScanner();
-        });
-    </script>
+// document.addEventListener('DOMContentLoaded',()=>new QRScanner());
+</script>
+{% endblock %}
 {% endblock %}

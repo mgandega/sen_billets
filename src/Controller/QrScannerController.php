@@ -60,39 +60,157 @@ class QrScannerController extends AbstractController
         ]);
     }
 
-    #[Route('/api/validate/{qrCode}', name: 'api_validate', methods: ['POST'])]
-    public function validateQRCode(string $qrCode): JsonResponse
-    {
-        $ticket = $this->qrCodeService->validate($qrCode);
+    // #[Route('/api/validate/{qrCode}', name: 'api_validate', methods: ['POST','GET'])]
+    // public function validateQRCode(string $qrCode): JsonResponse
+    // {
+    //     $ticket = $this->qrCodeService->validate($qrCode);
 
-        if ($ticket) {
-            $event = $ticket->getEvent();
+    //     if ($ticket) {
+    //         $event = $ticket->getEvent();
+
+    //         return $this->json([
+    //             'valid' => true,
+    //             'ticket' => [
+    //                 'id'           => $ticket->getId(),
+    //                 'customerName' => $ticket->getCustomerName(),
+    //                 'status'       => $ticket->getStatus(),
+    //                 'qrCode'       => $ticket->getQrCode(),
+    //                 'ticketType'   => [
+    //                     'id'   => $ticket->getTicketType()->getId(),
+    //                     'name' => $ticket->getTicketType()->getName(),
+    //                 ],
+    //             ],
+    //             'event' => [
+    //                 'id'    => $event->getId(),
+    //                 'title' => $event->getTitle(),
+    //                 'date'  => $event->getEventDate()->format('Y-m-d H:i'),
+    //             ]
+    //         ]);
+    //     }
+
+    //     return $this->json([
+    //         'valid' => false,
+    //         'message' => 'Billet invalide ou déjà scanné',
+    //     ]);
+    // }
+    // #[Route('/api/validate/{qrCode}', name: 'api_validate', methods: ['POST'])]
+    // public function validateQRCode(string $qrCode): JsonResponse
+    // {
+    //     $ticket = $this->qrCodeService->validate($qrCode);
+
+    //     if ($ticket) {
+    //         $event = $ticket->getEvent();
+
+    //         return $this->json([
+    //             'valid' => true,
+    //             'ticket' => [
+    //                 'id'           => $ticket->getId(),
+    //                 'customerName' => $ticket->getCustomerName(),
+    //                 'status'       => $ticket->getStatus(),
+    //                 'qrCode'       => $ticket->getQrCode(),
+    //                 'ticketType'   => [
+    //                     'id'   => $ticket->getTicketType()->getId(),
+    //                     'name' => $ticket->getTicketType()->getName(),
+    //                 ],
+    //             ],
+    //             'event' => [
+    //                 'id'    => $event->getId(),
+    //                 'title' => $event->getTitle(),
+    //                 'date'  => $event->getEventDate()->format('Y-m-d H:i'),
+    //             ]
+    //         ]);
+    //     }
+
+    //     return $this->json([
+    //         'valid' => false,
+    //         'message' => 'Billet invalide ou déjà scanné',
+    //     ]);
+    // }
+
+    // #[Route('/api/validate', name: 'api_validate', methods: ['POST'])]
+    // public function validateQRCode(Request $request): JsonResponse
+    // {
+    //     dd('ok');
+    //     $data = json_decode($request->getContent(), true);
+    //     $qrCode = $data['code'] ?? null;
+
+    //     if (!$qrCode) {
+    //         return $this->json([
+    //             'valid' => false,
+    //             'message' => 'Code QR manquant'
+    //         ], 400);
+    //     }
+
+    //     $ticket = $this->qrCodeService->validate($qrCode);
+
+    //     if ($ticket) {
+    //         $event = $ticket->getEvent();
+    //         return $this->json([
+    //             'valid' => true,
+    //             'ticket' => [
+    //                 'id' => $ticket->getId(),
+    //                 'customerName' => $ticket->getCustomerName(),
+    //                 'status' => $ticket->getStatus(),
+    //                 'qrCode' => $ticket->getQrCode(),
+    //                 'ticketType' => [
+    //                     'id' => $ticket->getTicketType()->getId(),
+    //                     'name' => $ticket->getTicketType()->getName(),
+    //                 ],
+    //             ],
+    //             'event' => [
+    //                 'id' => $event->getId(),
+    //                 'title' => $event->getTitle(),
+    //                 'date' => $event->getEventDate()->format('Y-m-d H:i'),
+    //             ]
+    //         ]);
+    //     }
+
+    //     return $this->json([
+    //         'valid' => false,
+    //         'message' => 'Billet invalide ou déjà scanné',
+    //     ]);
+    // }
+
+    #[Route('/api/validate', name: 'api_validate', methods: ['POST'])]
+    // #[Route('/api/validate/{qrCode}', name: 'api_validate', requirements: ['qrCode' => '.+'], methods: ['POST'])]
+    public function validateQRCode(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $qrCode = $data['code'] ?? null;
+        if (!$qrCode) {
+            return $this->json(['valid'=>false,'message'=>'Code manquant'], 400);
+        }
+            $ticket = $this->qrCodeService->validate($qrCode);
+
+            if ($ticket) {
+                $event = $ticket->getEvent();
+                return $this->json([
+                    'valid' => true,
+                    'ticket' => [
+                        'id' => $ticket->getId(),
+                        'customerName' => $ticket->getCustomerName(),
+                        'status' => $ticket->getStatus(),
+                        'qrCode' => $ticket->getQrCode(),
+                        'ticketType' => [
+                            'id' => $ticket->getTicketType()->getId(),
+                            'name' => $ticket->getTicketType()->getName(),
+                        ],
+                    ],
+                    'event' => [
+                        'id' => $event->getId(),
+                        'title' => $event->getTitle(),
+                        'date' => $event->getEventDate()->format('Y-m-d H:i'),
+                    ]
+                ]);
+            }
 
             return $this->json([
-                'valid' => true,
-                'ticket' => [
-                    'id'           => $ticket->getId(),
-                    'customerName' => $ticket->getCustomerName(),
-                    'status'       => $ticket->getStatus(),
-                    'qrCode'       => $ticket->getQrCode(),
-                    'ticketType'   => [
-                        'id'   => $ticket->getTicketType()->getId(),
-                        'name' => $ticket->getTicketType()->getName(),
-                    ],
-                ],
-                'event' => [
-                    'id'    => $event->getId(),
-                    'title' => $event->getTitle(),
-                    'date'  => $event->getEventDate()->format('Y-m-d H:i'),
-                ]
+                'valid' => false,
+                'message' => 'Billet invalide ou déjà scanné',
             ]);
-        }
-
-        return $this->json([
-            'valid' => false,
-            'message' => 'Billet invalide ou déjà scanné',
-        ]);
+    
     }
+
 
     #[Route('/api/bulk-validate', name: 'api_bulk_validate', methods: ['POST'])]
     public function bulkValidate(Request $request): JsonResponse

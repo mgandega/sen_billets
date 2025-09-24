@@ -1,0 +1,6 @@
+- ne jamais oublier : 
+    -   rm -rf public/assets/*
+    - php bin/console assets:install
+    -  php bin/console asset-map:compile
+    - php bin/console cache:clear
+
