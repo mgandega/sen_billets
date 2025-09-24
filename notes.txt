@@ -4,3 +4,5 @@
     -  php bin/console asset-map:compile
     - php bin/console cache:clear
 
+- pour filtrer que les routes qui contiennent validate 
+    - php bin/console debug:router | grep validate
