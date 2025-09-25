@@ -127,12 +127,46 @@ class QRScanner {
     //     }
     // }
 
+    // async validateQRCode(rawText) {
+    //     // 1) essayer d'extraire le ticket (TICKET-...); sinon fallback au texte entier
+    //     const ticketMatch = String(rawText).match(/TICKET-[0-9a-fA-F\-]{10,}/i);
+    //     const code = ticketMatch ? ticketMatch[0] : rawText;
+
+    //     if (!code) return this.showError('Code QR vide');
+
+    //     try {
+    //         const response = await fetch('/scanner/api/validate', {
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({ code })
+    //         });
+
+    //         if (!response.ok) {
+    //             const text = await response.text().catch(()=>'');
+    //             return this.showError(`Erreuuur serveur ${response.status} ${response.statusText} ${text}`);
+    //         }
+
+    //         const result = await response.json();
+    //         // if (result.valid) { this.showSuccess(result); this.addToRecentValidations(result); }
+    //         // else this.showError(result.message || 'Billet invalide', result);
+    //         if (result.valid) {
+    //         this.showSuccess(result);
+    //         this.addToRecentValidations(result);
+    //         } else {
+    //             this.showError(result);
+    //         }
+
+    //     } catch (err) {
+    //         console.error(err);
+    //         this.showError('Erreur réseau / CORS');
+    //     }
+    // }
     async validateQRCode(rawText) {
-        // 1) essayer d'extraire le ticket (TICKET-...); sinon fallback au texte entier
+        // extraction du code (comme tu fais)
         const ticketMatch = String(rawText).match(/TICKET-[0-9a-fA-F\-]{10,}/i);
         const code = ticketMatch ? ticketMatch[0] : rawText;
 
-        if (!code) return this.showError('Code QR vide');
+        if (!code) return this.showError({ message: 'Code QR vide' });
 
         try {
             const response = await fetch('/scanner/api/validate', {
@@ -141,18 +175,37 @@ class QRScanner {
                 body: JSON.stringify({ code })
             });
 
-            if (!response.ok) {
-                const text = await response.text().catch(()=>'');
-                return this.showError(`Erreuuur serveur ${response.status} ${response.statusText} ${text}`);
+            // Essayer de parser JSON si présent, sinon récupérer le texte
+            const contentType = (response.headers.get('content-type') || '').toLowerCase();
+            let payload;
+            if (contentType.includes('application/json')) {
+                try {
+                    payload = await response.json();
+                } catch (e) {
+                    payload = { message: 'Réponse JSON invalide du serveur' };
+                }
+            } else {
+                // fallback texte (rare si ton backend renvoie JSON)
+                const text = await response.text().catch(() => null);
+                payload = { message: text || (response.ok ? 'Réponse vide' : `Erreur serveur ${response.status}`) };
             }
 
-            const result = await response.json();
-            if (result.valid) { this.showSuccess(result); this.addToRecentValidations(result); }
-            else this.showError(result.message || 'Billet invalide', result);
+            // Si le serveur a répondu avec une erreur HTTP, afficher le JSON retourné (s'il existe)
+            if (!response.ok) {
+                return this.showError(payload);
+            }
 
+            // Réponse OK
+            if (payload.valid) {
+                this.showSuccess(payload);
+                this.addToRecentValidations(payload);
+            } else {
+                // payload est un objet JSON du serveur (ex: { valid: false, message: "...", ticket: {...} })
+                this.showError(payload);
+            }
         } catch (err) {
-            console.error(err);
-            this.showError('Erreur réseau / CORS');
+            console.error('Erreur fetch / CORS:', err);
+            this.showError({ message: 'Erreur réseau / CORS' });
         }
     }
 
@@ -163,35 +216,132 @@ class QRScanner {
     //     <p class="mb-1"><strong>${result.ticket?.customerName || 'N/A'}</strong> - ${result.ticket?.ticketType?.name || 'N/A'}</p>
     //     <small class="text-muted">${result.event?.title || ''} • ${result.ticket?.qrCode || ''}</small></div></div>
     //     <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`; this.playSound('success'); }
+//     showSuccess(result) {
+//     this.results.innerHTML = `
+//     <div class="alert alert-success alert-dismissible fade show" role="alert">
+//         <div class="d-flex align-items-center">
+//             <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+//             <div class="flex-grow-1">
+//                 <h5 class="alert-heading mb-1">✅ Billet validé !</h5>
+//                 <p class="mb-1">
+//                     <strong>${result.ticket?.customerName || 'N/A'}</strong> 
+//                     - ${result.ticket?.ticketType?.name || 'N/A'}
+//                 </p>
+//                 <small class="text-muted">
+//                     ${result.event?.title || ''} • ${result.ticket?.qrCode || ''}
+//                 </small><br>
+//                 <small class="text-muted">
+//                     Validé par : ${result.ticket?.validatedBy || 'N/A'} à ${result.ticket?.usedAt || ''}
+//                 </small>
+//             </div>
+//         </div>
+//         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+//     </div>`;
+//     this.playSound('success');
+// }
+
+
+    // showError(message) { this.results.innerHTML = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    //     <div class="d-flex align-items-center"><i class="bi bi-x-circle-fill fs-3 me-3"></i>
+    //     <div class="flex-grow-1"><h5 class="alert-heading mb-1">❌ Validation échouée</h5><p class="mb-0">${message}</p></div></div>
+    //     <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`; this.playSound('error'); }
+
     showSuccess(result) {
-    this.results.innerHTML = `
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <div class="d-flex align-items-center">
-            <i class="bi bi-check-circle-fill fs-3 me-3"></i>
-            <div class="flex-grow-1">
-                <h5 class="alert-heading mb-1">✅ Billet validé !</h5>
-                <p class="mb-1">
-                    <strong>${result.ticket?.customerName || 'N/A'}</strong> 
-                    - ${result.ticket?.ticketType?.name || 'N/A'}
-                </p>
-                <small class="text-muted">
-                    ${result.event?.title || ''} • ${result.ticket?.qrCode || ''}
-                </small><br>
-                <small class="text-muted">
-                    Validé par : ${result.ticket?.validatedBy || 'N/A'} à ${result.ticket?.usedAt || ''}
-                </small>
+        const t = result.ticket;
+        const e = result.event;
+
+        this.results.innerHTML = `
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-check-circle-fill fs-3 me-3"></i>
+                    <div class="flex-grow-1">
+                        <h5 class="alert-heading mb-1">✅ Billet validé avec succès</h5>
+                        <p class="mb-1">
+                            <strong>${t?.customerName || 'Client inconnu'}</strong> 
+                            (${t?.ticketType?.name || 'Standard'})<br>
+                            🎟 ${e?.title || ''} — ${e?.date || ''}
+                        </p>
+                        <small class="text-muted">
+                            Validé par ${t?.validatedBy || 'N/A'} le ${t?.usedAt || '---'}
+                        </small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+        this.playSound('success');
+    }
+
+//     showError(result) {
+//     const t = result.ticket;
+//     const e = result.event;
+
+//     // Message principal
+//     const message = result.message || 'Erreur inconnue';
+
+//     // Détails si disponibles
+//     let details = '';
+//     if (t) {
+//         details = `
+//             <p class="mb-1"><strong>${t.customerName || 'Client inconnu'}</strong> (${t.ticketType?.name || '---'})</p>
+//             <small class="text-muted">Déjà validé par ${t.validatedBy || 'N/A'} le ${t.usedAt || '---'}</small>
+//             <br><small class="text-muted">Événement : ${e?.title || ''}</small>
+//         `;
+//     }
+
+//     this.results.innerHTML = `
+//         <div class="alert alert-danger alert-dismissible fade show" role="alert">
+//             <div class="d-flex align-items-center">
+//                 <i class="bi bi-x-circle-fill fs-3 me-3"></i>
+//                 <div class="flex-grow-1">
+//                     <h5 class="alert-heading mb-1">❌ Validation échouée</h5>
+//                     <p class="mb-0">${message}</p>
+//                     ${details}
+//                 </div>
+//             </div>
+//             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+//         </div>`;
+//     this.playSound('error');
+// }
+        showError(result) {
+        // result peut être : une string, ou un objet { message, ticket, event }
+        let message = 'Erreur inconnue';
+        let detailsHtml = '';
+
+        if (typeof result === 'string') {
+            message = result;
+        } else if (result && typeof result === 'object') {
+            message = result.message || 'Erreur inconnue';
+
+            const t = result.ticket;
+            const e = result.event;
+
+            if (t) {
+                detailsHtml = `
+                    <div class="mt-2 small text-muted">
+                        <div><strong>${t.customerName || 'Client inconnu'}</strong> &nbsp; <span class="badge bg-secondary">${t.ticketType?.name || '—'}</span></div>
+                        <div>Déjà validé par <strong>${t.validatedBy || 'N/A'}</strong> le <strong>${t.usedAt || '—'}</strong></div>
+                        <div>Événement : ${e?.title || '—'} ${e?.date ? `• ${e.date}` : ''}</div>
+                    </div>
+                `;
+            }
+        }
+
+        this.results.innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-x-circle-fill fs-3 me-3"></i>
+                    <div class="flex-grow-1">
+                        <h5 class="alert-heading mb-1">❌ Validation échouée</h5>
+                        <p class="mb-0">${message}</p>
+                        ${detailsHtml}
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>`;
-    this.playSound('success');
-}
+        `;
+        this.playSound('error');
+    }
 
-
-    showError(message) { this.results.innerHTML = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <div class="d-flex align-items-center"><i class="bi bi-x-circle-fill fs-3 me-3"></i>
-        <div class="flex-grow-1"><h5 class="alert-heading mb-1">❌ Validation échouée</h5><p class="mb-0">${message}</p></div></div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>`; this.playSound('error'); }
 
     addToRecentValidations(result) { this.recentValidations.unshift({ ...result, timestamp: new Date() }); this.recentValidations = this.recentValidations.slice(0,10); this.updateRecentValidationsDisplay(); this.saveRecentValidations(); }
 

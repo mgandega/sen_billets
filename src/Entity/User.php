@@ -321,4 +321,9 @@ public function FullName(): string
     return $this->name;
 }
 
+public function isVerified(): ?bool
+{
+    return $this->isVerified;
+}
+
 }

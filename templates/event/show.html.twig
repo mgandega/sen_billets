@@ -3,204 +3,155 @@
 {% block title %}{{ event.title }} - Sen-Billets{% endblock %}
 
 {% block body %}
-    <div class="container py-5">
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
-                <li class="breadcrumb-item"><a href="{{ path('event_index') }}">Événements</a></li>
-                <li class="breadcrumb-item active">{{ event.title }}</li>
-            </ol>
-        </nav>
+<div class="container py-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_home') }}">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('event_index') }}">Événements</a></li>
+            <li class="breadcrumb-item active">{{ event.title }}</li>
+        </ol>
+    </nav>
 
-        <div class="row">
-            <div class="col-lg-8">
-                <!-- Event Header -->
-                <div class="card border-0 shadow mb-4">
-                    {% if event.imageUrl %}
-                        <img src="{{ event.imageUrl }}" class="card-img-top" alt="{{ event.title }}" style="height: 400px; object-fit: cover;">
-                    {% endif %}
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Event Header -->
+            <div class="card border-0 shadow mb-4">
+                {% if event.imageUrl %}
+                    <img src="{{ event.imageUrl }}" class="card-img-top" alt="{{ event.title }}" style="height: 400px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <span class="badge bg-primary fs-6">{{ event.category }}</span>
+                        <span class="badge {{ event.status == 'published' ? 'bg-success' : 'bg-warning' }} fs-6">
+                            {{ event.status == 'published' ? 'Publié' : 'Brouillon' }}
+                        </span>
+                    </div>
                     
-                    <div class="card-body p-4">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <span class="badge bg-primary fs-6">{{ event.category }}</span>
-                            <span class="badge {{ event.status == 'published' ? 'bg-success' : 'bg-warning' }} fs-6">
-                                {{ event.status == 'published' ? 'Publié' : 'Brouillon' }}
-                            </span>
-                        </div>
-                        
-                        <h1 class="display-5 fw-bold mb-3">{{ event.title }}</h1>
-                        
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center">
-                                    <i class="bi bi-calendar-event text-primary me-3 fs-4"></i>
-                                    <div>
-                                        <strong>{{ event.eventDate|date('l d F Y') }}</strong>
-                                        <div class="text-muted">{{ event.startTime|date('H:i') }} - {{ event.endTime|date('H:i') }}</div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center">
-                                    <i class="bi bi-geo-alt text-primary me-3 fs-4"></i>
-                                    <div>
-                                        <strong>{{ event.venue }}</strong>
-                                        <div class="text-muted">{{ event.address }}</div>
-                                    </div>
+                    <h1 class="display-5 fw-bold mb-3">{{ event.title }}</h1>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-calendar-event text-primary me-3 fs-4"></i>
+                                <div>
+                                    <strong>{{ event.eventDate|date('l d F Y') }}</strong>
+                                    <div class="text-muted">{{ event.startTime|date('H:i') }} - {{ event.endTime|date('H:i') }}</div>
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-geo-alt text-primary me-3 fs-4"></i>
+                                <div>
+                                    <strong>{{ event.venue }}</strong>
+                                    <div class="text-muted">{{ event.address }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                        {% if event.tags|length > 0 %}
-                            <div class="mb-4">
-                                {% for tag in event.tags %}
-                                    <span class="badge bg-light text-dark me-1">#{{ tag }}</span>
-                                {% endfor %}
+                    {% if event.tags|length > 0 %}
+                        <div class="mb-4">
+                            {% for tag in event.tags %}
+                                <span class="badge bg-light text-dark me-1">#{{ tag }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Event Description -->
+            <div class="card border-0 shadow mb-4">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-3">À propos de cet événement</h3>
+                    <p class="lh-lg">{{ event.description|nl2br }}</p>
+                </div>
+            </div>
+
+            <!-- Organizer Info -->
+            <div class="card border-0 shadow">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-3">Organisé par</h3>
+                    <div class="d-flex align-items-center">
+                        {% if event.organizer.avatar %}
+                            <img src="{{ event.organizer.avatar }}" alt="{{ event.organizer.name }}" 
+                                 class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 60px; height: 60px;">
+                                <i class="bi bi-person fs-4"></i>
                             </div>
                         {% endif %}
-                    </div>
-                </div>
-
-                <!-- Event Description -->
-                <div class="card border-0 shadow mb-4">
-                    <div class="card-body p-4">
-                        <h3 class="fw-bold mb-3">À propos de cet événement</h3>
-                        <p class="lh-lg">{{ event.description|nl2br }}</p>
-                    </div>
-                </div>
-
-                <!-- Organizer Info -->
-                <div class="card border-0 shadow">
-                    <div class="card-body p-4">
-                        <h3 class="fw-bold mb-3">Organisé par</h3>
-                        <div class="d-flex align-items-center">
-                            {% if event.organizer.avatar %}
-                                <img src="{{ event.organizer.avatar }}" alt="{{ event.organizer.name }}" 
-                                     class="rounded-circle me-3" style="width: 60px; height: 60px; object-fit: cover;">
-                            {% else %}
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
-                                     style="width: 60px; height: 60px;">
-                                    <i class="bi bi-person fs-4"></i>
-                                </div>
-                            {% endif %}
-                            <div>
-                                <h5 class="mb-1">{{ event.organizer.name }}</h5>
-                                <p class="text-muted mb-0">Organisateur d'événements</p>
-                            </div>
+                        <div>
+                            <h5 class="mb-1">{{ event.organizer.name }}</h5>
+                            <p class="text-muted mb-0">Organisateur d'événements</p>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="col-lg-4">
-                <!-- Ticket Booking -->
-                <div class="card border-0 shadow sticky-top" style="top: 2rem;">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0 fw-bold">
-                            <i class="bi bi-ticket me-2"></i>Réserver vos billets
-                        </h5>
-                    </div>
-                    <div class="card-body p-4">
-                        {% if event.isAvailable %}
+        <div class="col-lg-4">
+            <!-- Ticket Booking -->
+            <div class="card border-0 shadow sticky-top" style="top: 2rem;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-ticket me-2"></i>Réserver vos billets</h5>
+                </div>
+                <div class="card-body p-4">
+                    {% if event.isAvailable %}
+                        <form method="post" action="{{ path('cart_add_multiple', {'id': event.id}) }}">
                             {% for ticketType in event.ticketTypes %}
                                 {% if ticketType.isAvailable %}
-                                    <div class="border rounded p-3 mb-3">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="fw-bold mb-0">{{ ticketType.name }}</h6>
-                                            {% if ticketType.earlyBird %}
-                                                <span class="badge bg-warning text-dark">Early Bird</span>
-                                            {% endif %}
+                                    <div class="border rounded p-3 mb-3 d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="fw-bold mb-1">{{ ticketType.name }}</h6>
+                                            <span class="text-success fw-bold">{{ (ticketType.price / 100)|number_format(0, ',', ' ') }} FCFA</span>
                                         </div>
-                                        
-                                        {% if ticketType.description %}
-                                            <p class="text-muted small mb-2">{{ ticketType.description }}</p>
-                                        {% endif %}
-                                        
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="fw-bold text-success fs-5">
-                                                {{ (ticketType.price / 100)|number_format(0, ',', ' ') }} FCFA
-                                            </span>
-                                            <small class="text-muted">
-                                                {{ ticketType.availableQuantity }} restants
-                                            </small>
-                                        </div>
-                                        
-                                        <div class="progress mb-2" style="height: 4px;">
-                                            <div class="progress-bar bg-success" 
-                                                 style="width: {{ ticketType.salesPercentage }}%"></div>
-                                        </div>
-                                        
-                                        {% if ticketType.endDate %}
-                                            <small class="text-warning">
-                                                <i class="bi bi-clock me-1"></i>
-                                                Jusqu'au {{ ticketType.endDate|date('d/m/Y') }}
-                                            </small>
-                                        {% endif %}
+                                        <button type="button" class="btn btn-outline-primary btn-sm toggle-btn" 
+                                                data-ticket-id="{{ ticketType.id }}">
+                                            Sélectionner
+                                        </button>
+                                        <input type="hidden" name="tickets[{{ ticketType.id }}]" value="0" id="ticket-{{ ticketType.id }}">
                                     </div>
                                 {% endif %}
                             {% endfor %}
-                            
-                            {# <form method="post" action="{{ path('cart_add', {'id': event.ticketTypes[0].id}) }}">
-                                <input type="hidden" name="quantity" value="1">
-                                <button type="submit" class="btn btn-success w-100 btn-lg mb-3">
-                                    <i class="bi bi-cart-plus me-2"></i>Réserver maintenant
-                                </button>
-                            </form> #}
-                            {% if event.ticketTypes|length > 0 %}
-                                <form method="post" action="{{ path('cart_add', {'id': event.ticketTypes|first.id}) }}">
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button type="submit" class="btn btn-success w-100 btn-lg mb-3">
-                                        <i class="bi bi-cart-plus me-2"></i>Réserver maintenant
-                                    </button>
-                                </form>
-                            {% endif %}
-                        {% else %}
-                            <div class="text-center py-4">
-                                <i class="bi bi-exclamation-triangle text-warning fs-1 mb-3"></i>
-                                <h5 class="fw-bold">Événement complet</h5>
-                                <p class="text-muted">Tous les billets ont été vendus</p>
-                            </div>
-                        {% endif %}
 
-                        <!-- Event Stats -->
-                        <div class="border-top pt-3">
-                            <div class="row g-3 text-center">
-                                <div class="col-6">
-                                    <div class="text-muted small">Participants</div>
-                                    <div class="fw-bold">{{ event.soldTickets }}/{{ event.capacity }}</div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="text-muted small">Taux de remplissage</div>
-                                    <div class="fw-bold">{{ event.occupancyRate|round }}%</div>
-                                </div>
-                            </div>
+                            <button type="submit" class="btn btn-success w-100 mt-2">
+                                <i class="bi bi-cart-plus me-2"></i>Ajouter au panier
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-exclamation-triangle text-warning fs-1 mb-3"></i>
+                            <h5 class="fw-bold">Événement complet</h5>
+                            <p class="text-muted">Tous les billets ont été vendus</p>
                         </div>
-                    </div>
+                    {% endif %}
                 </div>
-
-                <!-- Actions for organizer -->
-                {% if app.user and (event.organizer == app.user or is_granted('ROLE_ADMIN')) %}
-                    <div class="card border-0 shadow mt-4">
-                        <div class="card-header bg-warning text-dark">
-                            <h5 class="mb-0 fw-bold">Actions organisateur</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-outline-primary">
-                                    <i class="bi bi-pencil me-2"></i>Modifier
-                                </a>
-                                <form method="post" action="{{ path('event_delete', {id: event.id}) }}" 
-                                      onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
-                                    <button type="submit" class="btn btn-outline-danger w-100">
-                                        <i class="bi bi-trash me-2"></i>Supprimer
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                {% endif %}
             </div>
         </div>
     </div>
+</div>
+
+<script>
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const ticketId = this.dataset.ticketId;
+            const hiddenInput = document.getElementById('ticket-' + ticketId);
+
+            if(hiddenInput.value === "0") {
+                hiddenInput.value = "1";
+                this.classList.remove('btn-outline-primary');
+                this.classList.add('btn-primary');
+                this.textContent = 'Sélectionné';
+            } else {
+                hiddenInput.value = "0";
+                this.classList.remove('btn-primary');
+                this.classList.add('btn-outline-primary');
+                this.textContent = 'Sélectionner';
+            }
+        });
+    });
+</script>
 {% endblock %}

@@ -3,9 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\CartItem;
-use App\Entity\TicketType;
+use App\Entity\Event;
+use App\Entity\User;
 use App\Entity\EventTicket;
-use App\Entity\EventTicketType;
 use App\Repository\CartItemRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -104,6 +104,65 @@ class CartController extends AbstractController
         $this->addFlash('success', 'Billet ajouté au panier');
         return $this->redirectToRoute('cart_index');
     }
+
+    /**
+     * Nouvelle méthode : ajout multiple de types de billets (route cart_add_multiple)
+     */
+    #[Route('/add-multiple/{id}', name: 'add_multiple', methods: ['POST'])]
+    public function addMultiple(
+        Event $event,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        CartItemRepository $cartItemRepository
+    ): Response {
+        $user = $this->getUser();
+        $ticketsData = $request->request->all('tickets'); // <- récupère le tableau correctement
+
+        if (empty($ticketsData)) {
+            $this->addFlash('error', 'Aucun billet sélectionné.');
+            return $this->redirectToRoute('event_show', ['id' => $event->getId()]);
+        }
+
+        foreach ($ticketsData as $ticketTypeId => $selected) {
+            if (!$selected) continue; // on ne traite que les billets sélectionnés
+
+            $ticketType = $entityManager->getRepository(EventTicket::class)->find($ticketTypeId);
+
+            if (!$ticketType || !$ticketType->isAvailable()) {
+                $this->addFlash('error', "Le type de billet #$ticketTypeId n'est pas disponible.");
+                continue;
+            }
+
+            // Quantité par défaut 1 (peut être modifiée dans le panier)
+            $quantity = 1;
+
+            $existingCartItem = $cartItemRepository->findOneBy([
+                'user' => $user,
+                'ticketType' => $ticketType
+            ]);
+
+            if ($existingCartItem) {
+                $newQuantity = $existingCartItem->getQuantity() + $quantity;
+                if ($ticketType->getAvailableQuantity() < $newQuantity) {
+                    $this->addFlash('error', "Quantité totale insuffisante pour '{$ticketType->getName()}'.");
+                    continue;
+                }
+                $existingCartItem->setQuantity($newQuantity);
+            } else {
+                $cartItem = new CartItem();
+                $cartItem->setUser($user);
+                $cartItem->setTicketType($ticketType);
+                $cartItem->setQuantity($quantity);
+                $entityManager->persist($cartItem);
+            }
+        }
+
+        $entityManager->flush();
+
+        $this->addFlash('success', 'Billets ajoutés au panier avec succès.');
+        return $this->redirectToRoute('cart_index');
+    }
+
 
     #[Route('/update/{id}', name: 'update', methods: ['POST'])]
     public function update(

@@ -22,7 +22,8 @@
                     </div>
                     
                     <div class="card-body p-5">
-                        {{ form_start(form) }}
+                        {# {{ form_start(form) }} #}
+                        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
                             <div class="row g-4">
                                 <!-- Informations générales -->
                                 <div class="col-12">
@@ -41,8 +42,11 @@
                                     {{ form_row(form.description) }}
                                 </div>
                                 
-                                <div class="col-12">
+                                {# <div class="col-12">
                                     {{ form_row(form.imageUrl) }}
+                                </div> #}
+                                <div class="col-12">
+                                    {{ form_row(form.imageFile) }}
                                 </div>
 
                                 <!-- Date et heure -->

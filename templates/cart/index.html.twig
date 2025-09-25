@@ -3,171 +3,166 @@
 {% block title %}Mon panier - Sen-Billets{% endblock %}
 
 {% block body %}
-    <div class="container py-5">
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h1 class="display-5 fw-bold text-dark">Mon panier</h1>
-                    {% if cartItems is not empty %}
-                        <form method="post" action="{{ path('cart_clear') }}" class="d-inline"
-                              onsubmit="return confirm('Êtes-vous sûr de vouloir vider votre panier ?')">
-                            <button type="submit" class="btn btn-outline-danger">
-                                <i class="bi bi-trash me-2"></i>Vider le panier
-                            </button>
-                        </form>
-                    {% endif %}
-                </div>
-
-                {% if cartItems is empty %}
-                    <div class="text-center py-5">
-                        <div class="mb-4">
-                            <i class="bi bi-cart-x text-muted" style="font-size: 4rem;"></i>
-                        </div>
-                        <h3 class="fw-bold mb-3">Votre panier est vide</h3>
-                        <p class="text-muted mb-4">Découvrez nos événements et réservez vos billets</p>
-                        <a href="{{ path('event_index') }}" class="btn btn-primary btn-lg">
-                            Voir les événements
-                        </a>
-                    </div>
-                {% else %}
-                    <div class="card border-0 shadow">
-                        <div class="card-body p-0">
-                            {% for cartItem in cartItems %}
-                                <div class="row align-items-center p-4 {% if not loop.last %}border-bottom{% endif %}" data-cart-item="{{ cartItem.id }}">
-                                    <div class="col-md-2">
-                                        {% if cartItem.event.imageUrl %}
-                                            <img src="{{ cartItem.event.imageUrl }}" alt="{{ cartItem.event.title }}" class="img-fluid rounded">
-                                        {% else %}
-                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 80px;">
-                                                <i class="bi bi-calendar-event text-muted fs-3"></i>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="col-md-4">
-                                        <h5 class="fw-bold mb-1">{{ cartItem.event.title }}</h5>
-                                        <p class="text-muted mb-1">{{ cartItem.ticketType.name }}</p>
-                                        <small class="text-muted">{{ cartItem.ticketType.formattedPrice }} / billet</small>
-                                    </div>
-                                    
-                                    <div class="col-md-3">
-                                        <div class="input-group">
-                                            <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity({{ cartItem.id }}, {{ cartItem.quantity - 1 }})">-</button>
-                                            <input type="number" class="form-control text-center" value="{{ cartItem.quantity }}" min="1" 
-                                                   onchange="updateQuantity({{ cartItem.id }}, this.value)" id="quantity-{{ cartItem.id }}">
-                                            <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity({{ cartItem.id }}, {{ cartItem.quantity + 1 }})">+</button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-md-2">
-                                        <span class="fw-bold fs-5" id="subtotal-{{ cartItem.id }}">{{ cartItem.subtotal|number_format(0, ',', ' ') }} FCFA</span>
-                                    </div>
-                                    
-                                    <div class="col-md-1">
-                                        <button class="btn btn-outline-danger btn-sm" onclick="removeFromCart({{ cartItem.id }})">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </div>
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="display-5 fw-bold text-dark">Mon panier</h1>
+                {% if cartItems is not empty %}
+                    <form method="post" action="{{ path('cart_clear') }}" class="d-inline"
+                          onsubmit="return confirm('Êtes-vous sûr de vouloir vider votre panier ?')">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="bi bi-trash me-2"></i>Vider le panier
+                        </button>
+                    </form>
                 {% endif %}
             </div>
 
-            {% if cartItems is not empty %}
-                <div class="col-lg-4">
-                    <div class="card border-0 shadow sticky-top" style="top: 2rem;">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="mb-0 fw-bold">Récapitulatif</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between mb-3">
-                                <span>Sous-total</span>
-                                <span id="cart-total">{{ app.user.cartTotal|number_format(0, ',', ' ') }} FCFA</span>
+            {% if cartItems is empty %}
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-cart-x text-muted" style="font-size: 4rem;"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">Votre panier est vide</h3>
+                    <p class="text-muted mb-4">Découvrez nos événements et réservez vos billets</p>
+                    <a href="{{ path('event_index') }}" class="btn btn-primary btn-lg">
+                        Voir les événements
+                    </a>
+                </div>
+            {% else %}
+                <div class="card border-0 shadow">
+                    <div class="card-body p-0">
+                        {% for cartItem in cartItems %}
+                            <div class="row align-items-center p-4 {% if not loop.last %}border-bottom{% endif %}" data-cart-item="{{ cartItem.id }}">
+                                <div class="col-md-2">
+                                    {% if cartItem.event.imageUrl %}
+                                        <img src="{{ cartItem.event.imageUrl }}" alt="{{ cartItem.event.title }}" class="img-fluid rounded">
+                                    {% else %}
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 80px;">
+                                            <i class="bi bi-calendar-event text-muted fs-3"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <h5 class="fw-bold mb-1">{{ cartItem.event.title }}</h5>
+                                    <p class="text-muted mb-1">{{ cartItem.ticketType.name }}</p>
+                                    <small class="text-muted">{{ cartItem.ticketType.formattedPrice }} / billet</small>
+                                </div>
+                                
+                                <div class="col-md-3">
+                                    <div class="input-group">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity({{ cartItem.id }}, {{ cartItem.quantity - 1 }})">-</button>
+                                        <input type="number" class="form-control text-center" value="{{ cartItem.quantity }}" min="1" 
+                                               onchange="updateQuantity({{ cartItem.id }}, this.value)" id="quantity-{{ cartItem.id }}">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity({{ cartItem.id }}, {{ cartItem.quantity + 1 }})">+</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-2">
+                                    <span class="fw-bold fs-5" id="subtotal-{{ cartItem.id }}">{{ cartItem.subtotal|number_format(0, ',', ' ') }} FCFA</span>
+                                </div>
+                                
+                                <div class="col-md-1">
+                                    <button class="btn btn-outline-danger btn-sm" onclick="removeFromCart({{ cartItem.id }})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="d-flex justify-content-between mb-3">
-                                <span>Frais de service</span>
-                                <span class="text-success">Gratuits</span>
-                            </div>
-                            <hr>
-                            <div class="d-flex justify-content-between mb-4">
-                                <strong>Total</strong>
-                                <strong class="fs-4 text-primary" id="final-total">{{ app.user.cartTotal|number_format(0, ',', ' ') }} FCFA</strong>
-                            </div>
-                            
-                            <div class="d-grid gap-2">
-                                <a href="{{ path('checkout_index') }}" class="btn btn-primary btn-lg">
-                                    <i class="bi bi-credit-card me-2"></i>Procéder au paiement
-                                </a>
-                                <a href="{{ path('event_index') }}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-left me-2"></i>Continuer mes achats
-                                </a>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             {% endif %}
         </div>
+
+        {% if cartItems is not empty %}
+            <div class="col-lg-4">
+                <div class="card border-0 shadow sticky-top" style="top: 2rem;">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0 fw-bold">Récapitulatif</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Sous-total</span>
+                            <span id="cart-total">{{ app.user.cartTotal|number_format(0, ',', ' ') }} FCFA</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Frais de service</span>
+                            <span class="text-success">Gratuits</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-4">
+                            <strong>Total</strong>
+                            <strong class="fs-4 text-primary" id="final-total">{{ app.user.cartTotal|number_format(0, ',', ' ') }} FCFA</strong>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{{ path('checkout_index') }}" class="btn btn-primary btn-lg">
+                                <i class="bi bi-credit-card me-2"></i>Procéder au paiement
+                            </a>
+                            <a href="{{ path('event_index') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Continuer mes achats
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
+</div>
 
-    <script>
-        function updateQuantity(cartItemId, quantity) {
-            if (quantity < 1) {
-                removeFromCart(cartItemId);
-                return;
-            }
+<script>
+async function updateQuantity(cartItemId, quantity) {
+    if (quantity < 1) {
+        removeFromCart(cartItemId);
+        return;
+    }
 
-            fetch(`/cart/update/${cartItemId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: `quantity=${quantity}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById(`quantity-${cartItemId}`).value = quantity;
-                    document.getElementById(`subtotal-${cartItemId}`).textContent = data.subtotal.toLocaleString('fr-FR') + ' FCFA';
-                    document.getElementById('cart-total').textContent = data.cartTotal.toLocaleString('fr-FR') + ' FCFA';
-                    document.getElementById('final-total').textContent = data.cartTotal.toLocaleString('fr-FR') + ' FCFA';
-                } else {
-                    alert(data.error);
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Une erreur est survenue');
-            });
+    try {
+        const response = await fetch(`/cart/update/${cartItemId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `quantity=${quantity}`
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            document.getElementById(`quantity-${cartItemId}`).value = quantity;
+            document.getElementById(`subtotal-${cartItemId}`).textContent = data.subtotal.toLocaleString('fr-FR') + ' FCFA';
+            document.getElementById('cart-total').textContent = data.cartTotal.toLocaleString('fr-FR') + ' FCFA';
+            document.getElementById('final-total').textContent = data.cartTotal.toLocaleString('fr-FR') + ' FCFA';
+        } else {
+            alert(data.error);
         }
+    } catch (error) {
+        location.reload()
+        // console.error('Erreur:', error);
+        // alert('Une erreur est survenue');
+    }
+}
 
-        function removeFromCart(cartItemId) {
-            if (!confirm('Êtes-vous sûr de vouloir retirer ce billet du panier ?')) {
-                return;
-            }
+async function removeFromCart(cartItemId) {
+    if (!confirm('Êtes-vous sûr de vouloir retirer ce billet du panier ?')) return;
 
-            fetch(`/cart/remove/${cartItemId}`, {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.querySelector(`[data-cart-item="${cartItemId}"]`).remove();
-                    document.getElementById('cart-total').textContent = data.cartTotal.toLocaleString('fr-FR') + ' FCFA';
-                    document.getElementById('final-total').textContent = data.cartTotal.toLocaleString('fr-FR') + ' FCFA';
-                    
-                    // Reload page if cart is empty
-                    if (data.cartCount === 0) {
-                        location.reload();
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Une erreur est survenue');
-            });
+    try {
+        const response = await fetch(`/cart/remove/${cartItemId}`, { method: 'POST' });
+        const data = await response.json();
+
+        if (data.success) {
+            const cartItemRow = document.querySelector(`[data-cart-item="${cartItemId}"]`);
+            if (cartItemRow) cartItemRow.remove();
+
+            document.getElementById('cart-total').textContent = data.cartTotal.toLocaleString('fr-FR') + ' FCFA';
+            document.getElementById('final-total').textContent = data.cartTotal.toLocaleString('fr-FR') + ' FCFA';
+
+            if (data.cartCount === 0) location.reload();
         }
-    </script>
+    } catch (error) {
+        location.reload()
+        // console.error('Erreur:', error);
+        // alert('Une erreur est survenue');
+    }
+}
+</script>
 {% endblock %}

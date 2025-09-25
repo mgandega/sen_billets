@@ -23,7 +23,9 @@
                     </div>
                     
                     <div class="card-body p-5">
-                        {{ form_start(form) }}
+                        {# {{ form_start(form) }} #}
+                        {{ form_start(form, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
                             <div class="row g-4">
                                 <!-- Informations générales -->
                                 <div class="col-12">
@@ -42,9 +44,24 @@
                                     {{ form_row(form.description) }}
                                 </div>
                                 
-                                <div class="col-12">
+                                {# <div class="col-12">
                                     {{ form_row(form.imageUrl) }}
-                                </div>
+                                </div> #}
+                                {# <div class="col-12">
+                                    {{ form_row(form.imageFile) }}
+                                </div> #}
+                                <div class="col-12">
+                                    {% if event.image %}
+                                        <div class="mb-3">
+                                            <p>Image actuelle :</p>
+                                            <img src="{{ asset('uploads/events/' ~ event.image) }}" 
+                                                alt="{{ event.title }}" 
+                                                class="img-fluid rounded shadow-sm" 
+                                                style="max-height: 200px;">
+                                        </div>
+                                    {% endif %}
+                                    {{ form_row(form.imageFile, {'label': 'Changer l\'image (laisser vide pour conserver l\'actuelle)'}) }}
+                                </div>  
 
                                 <!-- Date et heure -->
                                 <div class="col-12">

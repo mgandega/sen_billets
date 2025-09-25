@@ -111,6 +111,11 @@ class Event
     #[ORM\OneToMany(mappedBy: 'event', targetEntity: Ticket::class, cascade: ['remove'])]
     private Collection $tickets;
 
+    // src/Entity/Event.php
+
+    #[ORM\Column(nullable: true)]
+    private ?string $image = null;
+
     public function __construct()
     {
         $this->ticketTypes = new ArrayCollection();
@@ -413,4 +418,16 @@ class Event
     {
         return $this->title ?? '';
     }
+
+    public function getImage(): ?string
+    {
+        return $this->image;
+    }
+
+    public function setImage(?string $image): self
+    {
+        $this->image = $image;
+        return $this;
+    }
+
 }

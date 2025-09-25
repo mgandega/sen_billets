@@ -1,16 +1,16 @@
 <?php
-
 namespace App\Controller;
 
 use App\Entity\Event;
 use App\Form\EventType;
 use App\Repository\EventRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 
 #[Route('/events', name: 'event_')]
 class EventController extends AbstractController
@@ -52,8 +52,39 @@ class EventController extends AbstractController
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
 
-        // if ($form->isSubmitted() && $form->isValid()) {
-        if ($form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Gestion de l'upload d'image
+            // $imageFile = $form->get('imageFile')->getData();
+            // if ($imageFile) {
+            //     $newFilename = uniqid().'.'.$imageFile->guessExtension();
+
+            //     $imageFile->move(
+            //         $this->getParameter('events_images_directory'),
+            //         $newFilename
+            //     );
+
+            //     $event->setImage($newFilename);
+            // }
+
+            $imageFile = $form->get('imageFile')->getData();
+
+            if ($imageFile) {
+                $newFilename = uniqid().'.'.$imageFile->guessExtension();
+
+                try {
+                    $imageFile->move(
+                        $this->getParameter('events_images_directory'), // défini dans services.yaml
+                        $newFilename
+                    );
+                } catch (FileException $e) {
+                    $this->addFlash('error', 'Erreur lors de l\'upload de l\'image.');
+                }
+
+                // On met à jour l'URL de l'image dans l'entité
+                $event->setImageUrl('/uploads/events/'.$newFilename);
+            }
+
+
             $entityManager->persist($event);
             $entityManager->flush();
 
@@ -80,7 +111,6 @@ class EventController extends AbstractController
     #[IsGranted('ROLE_ORGANIZER')]
     public function edit(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
-        // Vérifier que l'utilisateur est le propriétaire de l'événement
         if ($event->getOrganizer() !== $this->getUser() && !$this->isGranted('ROLE_ADMIN')) {
             throw $this->createAccessDeniedException('Vous ne pouvez modifier que vos propres événements.');
         }
@@ -88,8 +118,20 @@ class EventController extends AbstractController
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
 
-        // if ($form->isSubmitted() && $form->isValid()) {
-        if ($form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Gestion de l'upload d'image (remplace seulement si nouvelle image)
+            $imageFile = $form->get('imageFile')->getData();
+            if ($imageFile) {
+                $newFilename = uniqid().'.'.$imageFile->guessExtension();
+
+                $imageFile->move(
+                    $this->getParameter('events_images_directory'),
+                    $newFilename
+                );
+
+                $event->setImage($newFilename);
+            }
+
             $entityManager->flush();
 
             $this->addFlash('success', 'Événement modifié avec succès !');
@@ -107,7 +149,6 @@ class EventController extends AbstractController
     #[IsGranted('ROLE_ORGANIZER')]
     public function delete(Request $request, Event $event, EntityManagerInterface $entityManager): Response
     {
-        // Vérifier que l'utilisateur est le propriétaire de l'événement
         if ($event->getOrganizer() !== $this->getUser() && !$this->isGranted('ROLE_ADMIN')) {
             throw $this->createAccessDeniedException('Vous ne pouvez supprimer que vos propres événements.');
         }

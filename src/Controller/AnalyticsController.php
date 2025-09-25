@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Event;
 use App\Service\AnalyticsService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,7 +17,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AnalyticsController extends AbstractController
 {
     public function __construct(
-        private AnalyticsService $analyticsService
+        private AnalyticsService $analyticsService,
+        private EntityManagerInterface $em
     ) {}
 
     #[Route('/', name: 'index')]
@@ -25,7 +27,7 @@ class AnalyticsController extends AbstractController
         $user = $this->getUser();
         
         // Récupérer les événements de l'organisateur
-        $events = $this->getDoctrine()->getRepository(Event::class)
+        $events = $this->em->getRepository(Event::class)
             ->findBy(['organizer' => $user], ['eventDate' => 'DESC']);
 
         return $this->render('analytics/index.html.twig', [
@@ -152,7 +154,7 @@ class AnalyticsController extends AbstractController
             return $this->redirectToRoute('analytics_index');
         }
 
-        $events = $this->getDoctrine()->getRepository(Event::class)
+        $events = $this->em->getRepository(Event::class)
             ->createQueryBuilder('e')
             ->where('e.id IN (:ids)')
             ->andWhere('e.organizer = :organizer')
@@ -177,7 +179,7 @@ class AnalyticsController extends AbstractController
         $user = $this->getUser();
         
         // Récupérer tous les événements de l'organisateur
-        $events = $this->getDoctrine()->getRepository(Event::class)
+        $events = $this->em->getRepository(Event::class)
             ->findBy(['organizer' => $user], ['eventDate' => 'ASC']);
 
         // Calculer les tendances globales
