@@ -82,6 +82,7 @@ class EventController extends AbstractController
 
                 // On met à jour l'URL de l'image dans l'entité
                 $event->setImageUrl('/uploads/events/'.$newFilename);
+                $event->setImage($newFilename);
             }
 
 
@@ -118,18 +119,22 @@ class EventController extends AbstractController
         $form = $this->createForm(EventType::class, $event);
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
+        // if ($form->isSubmitted() && $form->isValid()) {
+        if ($form->isSubmitted()) {
             // Gestion de l'upload d'image (remplace seulement si nouvelle image)
             $imageFile = $form->get('imageFile')->getData();
+
             if ($imageFile) {
                 $newFilename = uniqid().'.'.$imageFile->guessExtension();
-
+                
+                // dd($newFilename);
                 $imageFile->move(
                     $this->getParameter('events_images_directory'),
                     $newFilename
                 );
 
                 $event->setImage($newFilename);
+                $event->setImageUrl('/uploads/events/'.$newFilename);
             }
 
             $entityManager->flush();
