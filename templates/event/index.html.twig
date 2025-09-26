@@ -3,6 +3,35 @@
 {% block title %}Événements - Sen-Billets{% endblock %}
 
 {% block body %}
+<style>
+.event-image {
+    width: 100%;
+    object-fit: cover;
+    border-radius: .5rem .5rem 0 0;
+}
+
+/* Petits écrans */
+@media (max-width: 576px) {
+    .event-image {
+        height: 150px;
+    }
+}
+
+/* Écrans moyens */
+@media (min-width: 577px) and (max-width: 992px) {
+    .event-image {
+        height: 180px;
+    }
+}
+
+/* Grands écrans */
+@media (min-width: 993px) {
+    .event-image {
+        height: 220px;
+    }
+}
+
+</style>
     <!-- Hero Section -->
     <section class="bg-primary text-white py-5">
         <div class="container">
@@ -84,7 +113,8 @@
                         <div class="col-lg-4 col-md-6">
                             <div class="card h-100 border-0 shadow card-hover">
                                 {% if event.imageUrl %}
-                                    <img src="{{ event.imageUrl }}" class="card-img-top" alt="{{ event.title }}" style="height: 200px; object-fit: cover;">
+                                    {# <img src="{{ event.imageUrl }}" class="card-img-top" alt="{{ event.title }}" style="height: 200px; object-fit: cover;"> #}
+                                    <img src="{{ event.imageUrl }}" class="card-img-top event-image" alt="{{ event.title }}">
                                 {% else %}
                                     <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
                                         <i class="bi bi-calendar-event text-muted" style="font-size: 3rem;"></i>
