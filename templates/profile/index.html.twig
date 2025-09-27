@@ -1,0 +1,125 @@
+{# templates/profile/index.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Profil Premium{% endblock %}
+
+{% block body %}
+<div class="container mx-auto p-6">
+    <div class="bg-white shadow-2xl rounded-3xl p-10 max-w-5xl mx-auto">
+        <!-- Header Profil -->
+        <div class="flex items-center space-x-6">
+            <div class="relative">
+                {# <img src="{{ user.avatar ?? '/images/default-avatar.png' }}" alt="Photo de profil" class="w-28 h-28 rounded-full border-4 border-yellow-400 object-cover"> #}
+                <span class="absolute top-0 right-0 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse shadow-lg">PREMIUM</span>
+            </div>
+            <div>
+                <h1 class="text-3xl font-extrabold text-gray-800">{{ user.fullName }}</h1>
+                <p class="text-gray-500">{{ user.email }}</p>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="mt-10 grid grid-cols-3 gap-6 text-center">
+            <div class="bg-yellow-50 p-6 rounded-2xl shadow hover:shadow-lg transition transform hover:-translate-y-1">
+                <h2 class="text-3xl font-bold text-gray-800 animate-count" data-count="{{ user.ticketsBought }}">0</h2>
+                <p class="text-gray-500 mt-2">Billets achetés</p>
+            </div>
+            <div class="bg-yellow-50 p-6 rounded-2xl shadow hover:shadow-lg transition transform hover:-translate-y-1">
+                <h2 class="text-3xl font-bold text-gray-800 animate-count" data-count="{{ user.eventsFavorited }}">0</h2>
+                <p class="text-gray-500 mt-2">Événements organisés</p>
+            </div>
+            <div class="bg-yellow-50 p-6 rounded-2xl shadow hover:shadow-lg transition transform hover:-translate-y-1">
+                <h2 class="text-3xl font-bold text-gray-800 animate-count" data-count="{{ user.totalSpent }}">0</h2>
+                <p class="text-gray-500 mt-2">€ Dépensés</p>
+            </div>
+        </div>
+
+        <!-- Avantages Premium -->
+        {# <div class="mt-10">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-6">Avantages Premium</h3>
+            <ul class="grid grid-cols-2 gap-4 text-gray-600">
+                <li class="flex items-center space-x-2">
+                    <span class="text-yellow-500 text-xl">★</span>
+                    Accès prioritaire aux billets
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="text-yellow-500 text-xl">★</span>
+                    Réductions exclusives
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="text-yellow-500 text-xl">★</span>
+                    Notifications anticipées
+                </li>
+                <li class="flex items-center space-x-2">
+                    <span class="text-yellow-500 text-xl">★</span>
+                    Support 24/7
+                </li>
+            </ul>
+        </div> #}
+
+        <!-- Événements récents -->
+        {# <div class="mt-10">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-6">Événements récents</h3>
+            <div class="grid grid-cols-3 gap-4">
+                {% for event in user.recentEvents %}
+                    <div class="bg-gray-50 rounded-xl overflow-hidden shadow hover:shadow-lg transition transform hover:-translate-y-1">
+                        <img src="{{ asset(event.imageUrl) }}" alt="{{ event.name }}" class="w-full h-32 object-cover">
+                        <div class="p-4">
+                            <h4 class="font-bold text-gray-800">{{ event.name }}</h4>
+                            <p class="text-gray-500 text-sm">{{ event.date|date('d M Y') }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div> #}
+        <!-- Événements récents -->
+        <div class="mt-10">
+            <h3 class="text-2xl font-semibold text-gray-800 mb-6">Événements récents</h3>
+            <div class="grid grid-cols-3 gap-6">
+                {% for event in user.recentEvents %}
+                    <div class="bg-gradient-to-tr from-purple-100 via-pink-100 to-yellow-100 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2">
+                        <img src="{{ asset(event.imageUrl ?? 'images/default-event.jpg') }}" 
+                            alt="{{ event.name }}" 
+                            class="w-full h-32 object-cover"
+                            style="width:10%">
+                        <div class="p-2">
+                            <h4 class="font-bold text-gray-800">{{ event.name }}</h4>
+                            <p class="text-gray-600 text-sm">{{ event.date|date('d M Y') }}</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-gray-600 col-span-3 text-center">Aucun événement récent disponible.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Bouton gérer l'abonnement -->
+        <div class="mt-10 text-center">
+            {# <a href="{{ path('subscription_manage') }}" class="inline-block bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-8 rounded-2xl shadow-lg transition transform hover:scale-105"> #}
+                {# Gérer mon abonnement #}
+            </a>
+        </div>
+    </div>
+</div>
+
+{# Script pour animation des chiffres #}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const counters = document.querySelectorAll('.animate-count');
+    counters.forEach(counter => {
+        const target = +counter.getAttribute('data-count');
+        let count = 0;
+        const step = Math.ceil(target / 100);
+        const interval = setInterval(() => {
+            count += step;
+            if(count >= target) {
+                counter.textContent = target;
+                clearInterval(interval);
+            } else {
+                counter.textContent = count;
+            }
+        }, 20);
+    });
+});
+</script>
+{% endblock %}

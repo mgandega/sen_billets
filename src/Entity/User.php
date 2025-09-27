@@ -68,7 +68,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private bool $isVerified = false;
-
+        
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $imageUrl = null;
     public function __construct()
     {
         $this->organizedEvents = new ArrayCollection();
