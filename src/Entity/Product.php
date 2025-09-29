@@ -22,7 +22,7 @@ class Product
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
-    private ?string $price = null;
+    private ?int $price = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
@@ -74,7 +74,7 @@ class Product
         return $this->price;
     }
 
-    public function setPrice(string $price): static
+    public function setPrice(int $price): static
     {
         $this->price = $price;
         return $this;

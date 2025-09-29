@@ -30,7 +30,8 @@ class ProductController extends AbstractController
             $product = new Product();
             $product->setName($request->request->get('name'));
             $product->setDescription($request->request->get('description'));
-            $product->setPrice((float) $request->request->get('price'));
+            // $product->setPrice((float) $request->request->get('price'));
+            $product->setPrice((int) $request->request->get('price'));
 
             $entityManager->persist($product);
             $entityManager->flush();
@@ -57,7 +58,7 @@ class ProductController extends AbstractController
         if ($request->isMethod('POST')) {
             $product->setName($request->request->get('name'));
             $product->setDescription($request->request->get('description'));
-            $product->setPrice((float) $request->request->get('price'));
+            $product->setPrice((int) $request->request->get('price'));
 
             $entityManager->flush();
 

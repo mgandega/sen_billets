@@ -113,7 +113,7 @@
                                         {{ app.user.name }}
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a class="dropdown-item" href="#">Mon profil</a></li>
+                                        <li><a class="dropdown-item" href="{{ path('app_profile',{'id':app.user.id}) }}">Mon profil</a></li>
                                         {# <li><a class="dropdown-item" href="{{ path('ticket_my_tickets') }}">Mes billets</a></li> #}
                                         {% if is_granted('ROLE_ORGANIZER') %}
                                             <li><hr class="dropdown-divider"></li>
