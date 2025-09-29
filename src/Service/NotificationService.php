@@ -68,7 +68,7 @@ class NotificationService
                 ->context(array_merge($data, [
                     'user' => $user,
                     'app_name' => 'Sen-Billets',
-                    'app_url' => 'https://e8c978d51935.ngrok-free.app'
+                    'app_url' => 'https://64ce72c2c7f6.ngrok-free.app'
                 ]));
 
             $this->mailer->send($email);

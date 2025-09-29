@@ -14,7 +14,7 @@ parameters:
     twilio.auth_token: '%env(default::TWILIO_AUTH_TOKEN)%'
     twilio.phone_number: '%env(default::TWILIO_PHONE_NUMBER)%'
     events_images_directory: '%kernel.project_dir%/public/uploads/events'
-
+    openai.api_key: '%env(OPENAI_API_KEY)%'
 # config/services.yaml
 services:
     # default configuration for services in *this* file
@@ -32,7 +32,10 @@ services:
     App\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
-
+        
+    App\Service\OpenAIService:
+        arguments:
+            $apiKey: '%openai.api_key%'
     # Définition explicite du PaymentService pour injections complexes
     App\Service\PaymentService:
         arguments:

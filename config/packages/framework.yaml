@@ -10,7 +10,7 @@ framework:
         - '^127\.0\.0\.1$'
         - '^0\.0\.0\.0$'
         - '^[a-z0-9-]+\.ngrok-free\.app$'
-        - '^e8c978d51935\.ngrok-free\.app$'
+        - '^64ce72c2c7f6\.ngrok-free\.app$'
 
     # Enables session support. Note that the session will ONLY be started if you read or write from it.
     # Remove or comment this section to explicitly disable session support.

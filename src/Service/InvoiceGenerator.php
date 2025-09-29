@@ -1,5 +1,4 @@
 <?php
-// src/Service/InvoiceGenerator.php
 namespace App\Service;
 
 use Dompdf\Dompdf;

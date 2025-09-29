@@ -127,9 +127,9 @@
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <h6 class="mb-0">{{ cartItem.product.name }}</h6>
-                                    <small class="text-muted">{{ cartItem.product.price }} € × {{ cartItem.quantity }}</small>
+                                    <small class="text-muted">{{ cartItem.product.price }} FCFA × {{ cartItem.quantity }}</small>
                                 </div>
-                                <span class="fw-bold">{{ cartItem.subtotal }} €</span>
+                                <span class="fw-bold">{{ cartItem.subtotal }} FCFA</span>
                             </div>
                             {% set total = total + cartItem.subtotal %}
                         {% endfor %}
@@ -137,7 +137,7 @@
                         <hr>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Sous-total</span>
-                            <span>{{ total }} €</span>
+                            <span>{{ total }} FCFA</span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>Livraison</span>
@@ -145,12 +145,12 @@
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span>TVA (20%)</span>
-                            <span>{{ (total * 0.2)|round(2) }} €</span>
+                            <span>{{ (total * 0.2)|round(2) }} FCFA</span>
                         </div>
                         <hr>
                         <div class="d-flex justify-content-between">
                             <strong>Total TTC</strong>
-                            <strong class="fs-4 text-success">{{ (total * 1.2)|round(2) }} €</strong>
+                            <strong class="fs-4 text-success">{{ (total * 1.2)|round(2) }} FCFA</strong>
                         </div>
                     </div>
                 </div>

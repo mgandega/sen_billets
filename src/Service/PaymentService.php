@@ -146,6 +146,7 @@ class PaymentService
      */
     public function verifyPaydunyaInvoice(Payment $payment): bool
     {
+        
         if (!$payment->getPaydunyaToken()) {
             throw new \Exception("Aucun token PayDunya associé à ce paiement.");
         }
@@ -510,7 +511,7 @@ class PaymentService
             }
         }
 
-        // --- PDF Facture ---
+        // --- PDF Facture officiel---
         $invoiceFile = $invoiceDir . '/invoice_' . $payment->getId() . '.pdf';
         $this->pdfGenerator->generateAndSave('invoice/pdf.html.twig', [
             'payment'     => $payment,

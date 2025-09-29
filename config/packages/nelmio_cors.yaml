@@ -15,7 +15,7 @@
 nelmio_cors:
     defaults:
         allow_credentials: true
-        allow_origin: ['http://127.0.0.1:8081','https://4c84eeafbc98.ngrok-free.app'] # ton frontend
+        allow_origin: ['http://127.0.0.1:8081','https://64ce72c2c7f6.ngrok-free.app'] # ton frontend
         allow_headers: ['Content-Type', 'Authorization']
         allow_methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE']
         max_age: 3600
