@@ -85,7 +85,7 @@ class EventController extends AbstractController
                 $event->setImage($newFilename);
             }
 
-
+// dd($event);
             $entityManager->persist($event);
             $entityManager->flush();
 

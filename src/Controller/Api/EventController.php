@@ -60,7 +60,8 @@ class EventController extends AbstractController
         
         $data = json_decode($request->getContent(), true);
         $user = $this->getUser();
-
+        
+      
         $event = new Event();
         $event->setTitle($data['title'] ?? '');
         $event->setDescription($data['description'] ?? '');

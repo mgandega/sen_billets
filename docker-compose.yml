@@ -1,38 +1,61 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: sen_billets_mysql
+  # Base de données PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    container_name: sen_billets_postgres
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: sen_billets
-      MYSQL_USER: sen_billets
-      MYSQL_PASSWORD: root
+      POSTGRES_USER: symfony
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: sen_billets
     ports:
-      - "3307:3306"
+      - "5433:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./docker/mysql/init:/docker-entrypoint-initdb.d
-      - ./supabase/migrations:/docker-entrypoint-initdb.d/migrations
-    command: --default-authentication-plugin=mysql_native_password
+      - postgres_data:/var/lib/postgresql/data
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: sen_billets_phpmyadmin
+  # PgBouncer (connection pooler)
+  pgbouncer:
+    image: edoburu/pgbouncer
+    container_name: sen_billets_pgbouncer
+    restart: unless-stopped
+    ports:
+      - "6432:6432"
+    environment:
+      DB_USER: symfony
+      DB_PASSWORD: secret
+      DB_HOST: postgres
+      DB_NAME: sen_billets
+      MAX_CLIENT_CONN: 1000
+      DEFAULT_POOL_SIZE: 50
+    depends_on:
+      - postgres
+
+  # Redis (cache sessions + Doctrine)
+  redis:
+    image: redis:7-alpine
+    container_name: sen_billets_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # pgAdmin (équivalent phpMyAdmin mais pour PostgreSQL)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: sen_billets_pgadmin
     restart: unless-stopped
     environment:
-      PMA_HOST: mysql
-      PMA_PORT: 3306
-      PMA_USER: root
-      PMA_PASSWORD: root
-      MYSQL_ROOT_PASSWORD: root
+      PGADMIN_DEFAULT_EMAIL: admin@local.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "8004:80"
+      - "8005:80"
     depends_on:
-      - mysql
+      - postgres
 
+  # Apache + PHP (Symfony)
   apache:
     build:
       context: .
@@ -45,26 +68,15 @@ services:
       - .:/var/www/html
       - ./var/pdf_qrcodes:/var/www/html/var/pdf_qrcodes
     depends_on:
-      - mysql
+      - pgbouncer
+      - redis
     environment:
       - APACHE_DOCUMENT_ROOT=/var/www/html/public
-      - DATABASE_URL=mysql://sen_billets:root@mysql:3306/sen_billets?serverVersion=8.0.32&charset=utf8mb4
-
-  # Optionnel : Postgres pour Doctrine si nécessaire
-  database:
-    image: postgres:${POSTGRES_VERSION:-16}-alpine
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-!ChangeMe!}
-      POSTGRES_USER: ${POSTGRES_USER:-app}
-    healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB:-app}", "-U", "${POSTGRES_USER:-app}"]
-      timeout: 5s
-      retries: 5
-      start_period: 60s
-    volumes:
-      - database_data:/var/lib/postgresql/data:rw
+      # Connexion Symfony via PgBouncer (port 6432)
+      - DATABASE_URL=postgresql://symfony:secret@pgbouncer:6432/sen_billets?serverVersion=16&charset=utf8
+      # Redis pour cache et sessions
+      - REDIS_URL=redis://redis:6379
 
 volumes:
-  mysql_data:
-  database_data:
+  postgres_data:
+  redis_data:

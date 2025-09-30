@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\User;
@@ -28,22 +29,19 @@ final class ProfileController extends AbstractController
         $eventsFavorited = count($user->getOrganizedEvents());
 
         // Total dépensé
-        $totalSpent = [];
+        $totalSpent = 0;
         foreach ($user->getTickets() as $ticket) {
             // Si le ticket a une relation vers EventTicketType pour le prix
             if (method_exists($ticket, 'getTicketType') && $ticket->getTicketType()) {
-                $totalSpent[] = $ticket->getTicketType()->getPrice() ?? 0;
+                $totalSpent += $ticket->getTicketType()->getPrice() ?? 0;
             } 
             // Sinon, si Ticket a un champ price
             elseif (method_exists($ticket, 'getPrice')) {
                 $totalSpent += $ticket->getPrice() ?? 0;
             }
         }
-echo "<pre>";
-    print_r($totalSpent);
-// dd($totalSpent);
-echo "</pre>";
 
+        // dd($totalSpent);
         // Récupération des 3 derniers événements organisés
         $recentEvents = $em->getRepository(Event::class)
             ->createQueryBuilder('e')
