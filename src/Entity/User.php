@@ -16,6 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[UniqueEntity(fields: ['email'], message: 'Il existe déjà un compte avec cet email')]
+#[ORM\Table(name: '`user`')] // utilise des backticks pour échapper le mot réservé
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]

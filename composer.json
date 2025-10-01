@@ -20,6 +20,7 @@
         "liip/imagine-bundle": "^2.13",
         "nelmio/cors-bundle": "^2.5",
         "paydunya/paydunya": "^1.0",
+        "predis/predis": "^3.2",
         "rmccue/requests": "1.8",
         "scienta/doctrine-json-functions": "^5.3",
         "snc/redis-bundle": "*",

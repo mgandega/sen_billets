@@ -35,22 +35,19 @@ doctrine:
         driver: 'pdo_pgsql'
         server_version: '16'
         charset: utf8
-        options:
-            # Avec PgBouncer, mieux vaut désactiver la détection des versions et les keepalive
-            application_name: 'symfony_app'
+
     orm:
         auto_generate_proxy_classes: true
         naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
-        auto_mapping: true
-        metadata_cache_driver:
-            type: service
-            id: cache.app
-        query_cache_driver:
-            type: service
-            id: cache.app
-        result_cache_driver:
-            type: service
-            id: cache.app
+        auto_mapping: false
+        mappings:
+            App:
+                is_bundle: false
+                type: attribute
+                dir: '%kernel.project_dir%/src/Entity'
+                prefix: 'App\Entity'
+                alias: App
+
 when@test:
     doctrine:
         dbal:

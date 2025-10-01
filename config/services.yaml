@@ -32,7 +32,32 @@ services:
     App\:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
-        
+
+    # snc_redis.session.handler:
+    #     class: Snc\RedisBundle\Session\Handler\RedisSessionHandler
+    #     # Désactiver le lazy-loading pour éviter le proxy
+    #     lazy: false
+
+    redis:
+        class: Redis
+        calls:
+            - method: connect
+              arguments:
+                  - '%env(resolve:REDIS_URL)%'
+
+
+    session.handler.redis:
+        class: Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler
+        arguments:
+            - '@session.redis_client'
+
+    session.redis_client:
+        class: Predis\Client
+        arguments:
+            - '%env(REDIS_URL)%'
+
+
+    
     App\Service\OpenAIService:
         arguments:
             $apiKey: '%openai.api_key%'

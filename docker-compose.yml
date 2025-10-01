@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # Base de données PostgreSQL
   postgres:
     image: postgres:16-alpine
     container_name: sen_billets_postgres
@@ -11,28 +10,27 @@ services:
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: sen_billets
     ports:
-      - "5433:5432"
+      - "5433:5432"   # accessible depuis ton hôte si besoin
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - default
 
-  # PgBouncer (connection pooler)
   pgbouncer:
     image: edoburu/pgbouncer
     container_name: sen_billets_pgbouncer
     restart: unless-stopped
     ports:
-      - "6432:6432"
-    environment:
-      DB_USER: symfony
-      DB_PASSWORD: secret
-      DB_HOST: postgres
-      DB_NAME: sen_billets
-      MAX_CLIENT_CONN: 1000
-      DEFAULT_POOL_SIZE: 50
+      - "6432:5432"   # host:container mapping
+    volumes:
+      - ./pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+      - ./pgbouncer/userlist.txt:/etc/pgbouncer/userlist.txt:ro
+    command: pgbouncer /etc/pgbouncer/pgbouncer.ini
     depends_on:
       - postgres
+    networks:
+      - default
 
-  # Redis (cache sessions + Doctrine)
   redis:
     image: redis:7-alpine
     container_name: sen_billets_redis
@@ -41,8 +39,9 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - default
 
-  # pgAdmin (équivalent phpMyAdmin mais pour PostgreSQL)
   pgadmin:
     image: dpage/pgadmin4
     container_name: sen_billets_pgadmin
@@ -54,8 +53,9 @@ services:
       - "8005:80"
     depends_on:
       - postgres
+    networks:
+      - default
 
-  # Apache + PHP (Symfony)
   apache:
     build:
       context: .
@@ -72,11 +72,15 @@ services:
       - redis
     environment:
       - APACHE_DOCUMENT_ROOT=/var/www/html/public
-      # Connexion Symfony via PgBouncer (port 6432)
-      - DATABASE_URL=postgresql://symfony:secret@pgbouncer:6432/sen_billets?serverVersion=16&charset=utf8
-      # Redis pour cache et sessions
+      - DATABASE_URL=postgresql://symfony:secret@pgbouncer:5432/sen_billets?serverVersion=16&charset=utf8
       - REDIS_URL=redis://redis:6379
+    networks:
+      - default
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  default:
+    name: sen_billets_default
